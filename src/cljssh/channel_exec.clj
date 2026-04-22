@@ -3,8 +3,6 @@
            [java.io InputStream OutputStream])
   )
 
-;; cljssh.* are invoked on pod side.
-
 (set! *warn-on-reflection* true)
 
 (defn set-command [^ChannelExec channel ^String command]

@@ -5,8 +5,6 @@
             HostKeyRepository Proxy ProxyHTTP ProxySOCKS4 ProxySOCKS5])
   )
 
-;; cljssh.* are invoked on pod side.
-
 (set! *warn-on-reflection* true)
 
 (defn set-password [^Session session ^String password]

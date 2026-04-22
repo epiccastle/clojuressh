@@ -2,8 +2,6 @@
   (:refer-clojure :exclude [load])
   (:import [com.jcraft.jsch JSch KeyPair]))
 
-;; cljssh.* are invoked on pod side.
-
 (set! *warn-on-reflection* true)
 
 (defn generate [^JSch agent key-type ^int key-size]

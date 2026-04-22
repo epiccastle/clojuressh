@@ -3,8 +3,6 @@
             [cljssh.cleaner :as cleaner])
   (:import [com.jcraft.jsch UserInfo]))
 
-;; cljssh.* are invoked on pod side.
-
 (set! *warn-on-reflection* true)
 
 (defn new [reply-fn]

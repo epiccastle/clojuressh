@@ -6,8 +6,6 @@
            [java.io InputStream])
   )
 
-;; cljssh.* are invoked on pod side.
-
 (set! *warn-on-reflection* true)
 
 (defn new []

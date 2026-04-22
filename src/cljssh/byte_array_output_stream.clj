@@ -5,8 +5,6 @@
   (:import [java.io
             ByteArrayOutputStream OutputStream]))
 
-;; cljssh.* are invoked on pod side.
-
 (set! *warn-on-reflection* true)
 
 (defn new
