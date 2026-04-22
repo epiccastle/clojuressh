@@ -13,21 +13,18 @@
           (setPassphrase [^bytes passphrase]
             (callbacks/call-method
              reply-fn :set-passphrase
-             [(some-> passphrase utils/encode-base64)]))
+             [passphrase]))
           (getPublicKeyBlob []
-            (utils/decode-base64
-             (callbacks/call-method reply-fn :get-public-key-blob [])))
+            (callbacks/call-method reply-fn :get-public-key-blob []))
           (getSignature
             ([^bytes data]
-             (utils/decode-base64
-              (callbacks/call-method
-               reply-fn :get-signature
-               [(some-> data utils/encode-base64)])))
+             (callbacks/call-method
+              reply-fn :get-signature
+              [data]))
             ([^bytes data ^String alg]
-             (utils/decode-base64
-              (callbacks/call-method
-               reply-fn :get-signature
-               [(some-> data utils/encode-base64) alg]))))
+             (callbacks/call-method
+              reply-fn :get-signature
+              [data alg])))
           ;; deprecated in JSch
           #_(decrypt []
             (callbacks/call-method reply-fn :decrypt []))

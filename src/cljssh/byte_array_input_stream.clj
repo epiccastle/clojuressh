@@ -18,7 +18,7 @@
 
 (defn new-from-bytes [^String string]
   (ByteArrayInputStream.
-   ^bytes (utils/decode-base64 string)))
+   ^bytes string))
 
 (defn available [^ByteArrayInputStream stream]
   (.available stream))
@@ -47,7 +47,7 @@
       (case bytes-read
         -1 nil
         0 ""
-        (utils/encode-base64 (Arrays/copyOfRange arr 0 bytes-read)))])))
+         (Arrays/copyOfRange arr 0 bytes-read))])))
 
 (defn reset [^ByteArrayInputStream stream]
   (.reset stream))

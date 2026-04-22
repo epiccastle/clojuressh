@@ -15,13 +15,13 @@
 
 (defn new
   ([^String host ^bytes key]
-   (HostKey. host (utils/decode-base64 key)))
+   (HostKey. host key))
   ([^String host type ^bytes key]
-   (HostKey. host (types type HostKey/GUESS) (utils/decode-base64 key)))
+   (HostKey. host (types type HostKey/GUESS) key))
   ([^String host type ^bytes key ^String comment]
-   (HostKey. host (types type HostKey/GUESS) (utils/decode-base64 key) comment))
+   (HostKey. host (types type HostKey/GUESS) key comment))
   ([^String marker ^String host type ^bytes key ^String comment]
-   (HostKey. marker host (types type HostKey/GUESS) (utils/decode-base64 key) comment)
+   (HostKey. marker host (types type HostKey/GUESS) key comment)
    ))
 
 (defn get-host

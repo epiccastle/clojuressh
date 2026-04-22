@@ -17,7 +17,7 @@
               :changed 2}
              (callbacks/call-method
               reply-fn :check
-              [host (utils/encode-base64 public-key)])))
+              [host public-key])))
           (add [^HostKey host-key ^UserInfo user-info]
             (callbacks/call-method
              reply-fn :add
@@ -28,10 +28,10 @@
              (callbacks/call-method
               reply-fn :remove
               [host type]))
-            ([^String host ^String type ^bytes public-key]
-             (callbacks/call-method
-              reply-fn :remove
-              [host type (some-> public-key utils/encode-base64)])))
+             ([^String host ^String type ^bytes public-key]
+              (callbacks/call-method
+               reply-fn :remove
+               [host type public-key])))
           (getKnownHostsRepositoryID []
             (callbacks/call-method reply-fn :get-known-hosts-repository-id []))
           (getHostKey
@@ -55,7 +55,7 @@
    (.check
     ^HostKeyRepository host-key-repository
     ^String host
-    (utils/decode-base64 key))))
+    key)))
 
 (defn add
   [^HostKeyRepository host-key-repository ^HostKey host-key ^UserInfo user-info]
@@ -65,7 +65,7 @@
   ([^HostKeyRepository host-key-repository ^String host ^String type]
    (.remove host-key-repository host type))
   ([^HostKeyRepository host-key-repository ^String host ^String type key]
-   (.remove host-key-repository host type ^bytes (utils/decode-base64 key))))
+   (.remove host-key-repository host type ^bytes key)))
 
 (defn get-host-key
   ([^HostKeyRepository host-key-repository]

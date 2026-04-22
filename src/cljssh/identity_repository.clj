@@ -21,11 +21,11 @@
           (add [^bytes identity-data]
             (callbacks/call-method
              reply-fn :add
-             [(utils/encode-base64 identity-data)]))
+             [identity-data]))
           (remove [^bytes blob]
             (callbacks/call-method
              reply-fn :remove
-             [(utils/encode-base64 blob)]))
+             [blob]))
           (removeAll []
             (callbacks/call-method reply-fn :remove-all [])))]
     (cleaner/register-delete-fn result #(reply-fn [:done] ["done"]))

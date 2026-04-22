@@ -42,7 +42,7 @@
       (case bytes-read
         -1 nil
         0 ""
-        (utils/encode-base64 (Arrays/copyOfRange arr 0 bytes-read)))])))
+        (Arrays/copyOfRange arr 0 bytes-read))])))
 
 (defn available [^PipedInputStream stream]
   (.available stream))
@@ -70,7 +70,7 @@
                    (callbacks/call-method
                     reply-fn :read
                     [(count bytes)])
-                   buffer (some-> base64 utils/decode-base64)]
+                   buffer base64]
                (when buffer
                  (System/arraycopy buffer 0 bytes 0 bytes-read))
                bytes-read))
@@ -79,7 +79,7 @@
                    (callbacks/call-method
                     reply-fn :read
                     [length])
-                   buffer (some-> base64 utils/decode-base64)]
+                   buffer base64]
                (when buffer
                  (System/arraycopy buffer 0 bytes offset bytes-read))
                bytes-read)))

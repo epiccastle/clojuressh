@@ -23,9 +23,9 @@
   ([^PipedOutputStream stream base64]
    (.write
     stream
-    ^bytes (utils/decode-base64 base64)))
+    ^bytes base64))
   ([stream base64 _length]
-   (let [arr (utils/decode-base64 base64)]
+   (let [arr base64]
      (.write
       ^PipedOutputStream stream
       ^bytes arr
@@ -52,12 +52,11 @@
               reply-fn :write
               [(if (number? byte-array-or-number)
                  byte-array-or-number
-                 (utils/encode-base64 byte-array-or-number))]))
+                 byte-array-or-number)]))
             ([^bytes byte-array offset length]
              (callbacks/call-method
               reply-fn :write
-              [(utils/encode-base64
-                (java.util.Arrays/copyOfRange byte-array ^int offset ^int (+ offset length)))]))))]
+              [(java.util.Arrays/copyOfRange byte-array ^int offset ^int (+ offset length))])))]
     (cleaner/register-delete-fn result #(reply-fn [:done] ["done"]))
     (reply-fn [:result result])
     nil))

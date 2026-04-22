@@ -25,9 +25,8 @@
   (.size stream))
 
 (defn to-byte-array [stream]
-  (utils/encode-base64
-   (.toByteArray
-    ^ByteArrayOutputStream stream)))
+  (.toByteArray
+   ^ByteArrayOutputStream stream))
 
 (defn to-string
   ([^ByteArrayOutputStream stream]
@@ -38,7 +37,7 @@
 (defn write
   ([stream int-or-base64]
    (if (string? int-or-base64)
-     (let [buffer (utils/decode-base64 int-or-base64)
+     (let [buffer int-or-base64
            size (count buffer)]
        (.write
         ^ByteArrayOutputStream stream

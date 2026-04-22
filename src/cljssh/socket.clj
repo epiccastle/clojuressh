@@ -10,11 +10,11 @@
   )
 
 (defn write [sock-fd base64]
-  (let [buffer (utils/decode-base64 base64)]
+  (let [buffer base64]
     (BbsshUtils/ssh-auth-socket-write sock-fd buffer (count buffer))
     ))
 
 (defn read [sock-fd size]
   (let [buffer (byte-array size)]
     (BbsshUtils/ssh-auth-socket-read sock-fd buffer size)
-    (utils/encode-base64 buffer)))
+    buffer))

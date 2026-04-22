@@ -53,7 +53,7 @@
   [^JSch agent content]
   (.setKnownHosts
    agent
-   ^InputStream (io/input-stream (utils/decode-base64 content))))
+   ^InputStream (io/input-stream content)))
 
 (defn add-identity
   ([^JSch agent ^String filename]
@@ -65,28 +65,28 @@
     agent
     private-key-filename
     public-key-filename
-    ^bytes (utils/decode-base64 passphrase)))
+    ^bytes passphrase))
   ([^JSch agent ^String identity-name private-key public-key passphrase]
    (.addIdentity
     agent
     identity-name
-    ^bytes (utils/decode-base64 private-key)
-    ^bytes (utils/decode-base64 public-key)
-    ^bytes (utils/decode-base64 passphrase))))
+    ^bytes private-key
+    ^bytes public-key
+    ^bytes passphrase)))
 
 (defn add-identity2
   [^JSch agent ^String filename passphrase]
   (.addIdentity
    agent
    filename
-   ^bytes (utils/decode-base64 passphrase)))
+   ^bytes passphrase))
 
 (defn add-identity3
   [^JSch agent ^Identity identity passphrase]
   (.addIdentity
    agent
    identity
-   ^bytes (utils/decode-base64 passphrase)))
+   ^bytes passphrase))
 
 (defn remove-identity
   [^JSch agent ^String identity-name]

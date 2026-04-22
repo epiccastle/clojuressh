@@ -50,7 +50,7 @@
   [^ChannelExec channel terminal-mode]
   (.setTerminalMode
    channel
-   ^bytes (utils/decode-base64 terminal-mode)))
+   ^bytes terminal-mode))
 
 (defn set-agent-forwarding [^ChannelExec channel ^boolean enable]
   (.setAgentForwarding channel enable))

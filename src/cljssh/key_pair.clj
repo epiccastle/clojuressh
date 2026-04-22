@@ -28,7 +28,7 @@
    (.writePrivateKey
     key-pair
     filename
-    ^bytes (utils/decode-base64 passphrase))))
+    ^bytes passphrase)))
 
 (defn write-public-key [^KeyPair key-pair ^String filename ^String comment]
   (.writePublicKey key-pair filename comment))
@@ -37,9 +37,8 @@
   (.getFingerPrint key-pair))
 
 (defn get-public-key-blob [key-pair]
-  (utils/encode-base64
-   (.getPublicKeyBlob
-    ^KeyPair key-pair)))
+  (.getPublicKeyBlob
+   ^KeyPair key-pair))
 
 (defn get-key-size [^KeyPair key-pair]
   (.getKeySize key-pair))
@@ -53,16 +52,16 @@
 (defn decrypt [^KeyPair key-pair passphrase]
   (.decrypt
    key-pair
-   ^bytes (utils/decode-base64 passphrase)))
+   ^bytes passphrase))
 
 (defn load [^JSch agent ^String private-key-file ^String public-key-file]
   (KeyPair/load agent private-key-file public-key-file))
 
 (defn load-bytes [agent private-key-bytes public-key-bytes]
   (let [private-key-bytes (when private-key-bytes
-                            (utils/decode-base64 private-key-bytes))
+                            private-key-bytes)
         public-key-bytes (when public-key-bytes
-                           (utils/decode-base64 public-key-bytes))]
+                           public-key-bytes)]
     (KeyPair/load
       ^JSch agent
       ^bytes private-key-bytes
@@ -70,13 +69,11 @@
 
 (defn get-signature
   ([key-pair data]
-   (utils/encode-base64
-    (.getSignature
-     ^KeyPair key-pair
-     ^bytes (utils/decode-base64 data))))
+   (.getSignature
+    ^KeyPair key-pair
+    ^bytes data))
   ([key-pair data algorithm]
-   (utils/encode-base64
-    (.getSignature
-     ^KeyPair key-pair
-     ^bytes (utils/decode-base64 data)
-     ^String algorithm))))
+   (.getSignature
+    ^KeyPair key-pair
+    ^bytes data
+    ^String algorithm)))
