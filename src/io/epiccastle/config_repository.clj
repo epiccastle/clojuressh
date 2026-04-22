@@ -17,10 +17,8 @@
     (reply-fn [:result result])
     nil))
 
-(defn get-config [config-repository hostname]
-  (.getConfig
-   ^ConfigRepository config-repository
-   ^String hostname))
+(defn get-config [^ConfigRepository config-repository ^String hostname]
+  (.getConfig config-repository hostname))
 
 (defn openssh-config-file [config-file]
   (OpenSSHConfig/parseFile config-file))

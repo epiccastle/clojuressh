@@ -9,15 +9,11 @@
 
 (set! *warn-on-reflection* true)
 
-(defn set-password [session password]
-  (.setPassword
-   ^Session session
-   ^String password))
+(defn set-password [^Session session ^String password]
+  (.setPassword session password))
 
-(defn set-user-info [session user-info]
-  (.setUserInfo
-   ^Session session
-   ^UserInfo user-info))
+(defn set-user-info [^Session session ^UserInfo user-info]
+  (.setUserInfo session user-info))
 
 (defn make-proxy
   [{:keys [type host port username password]}]
@@ -35,9 +31,9 @@
     proxy))
 
 (defn set-proxy
-  [session proxy]
+  [^Session session proxy]
   (.setProxy
-    ^Session session
+    session
     ^Proxy (make-proxy proxy)))
 
 (defn ^:blocking connect
@@ -52,9 +48,8 @@
     (.connect
      ^Session session)))
 
-(defn disconnect [session]
-  (.disconnect
-   ^Session session))
+(defn disconnect [^Session session]
+  (.disconnect session))
 
 (defn set-port-forwarding-local
   [session
@@ -148,21 +143,17 @@
               :local-port (Integer/parseInt remote-port)})))))
 
 (defn set-host
-  [session host]
-  (.setHost
-   ^Session session
-   ^String host))
+  [^Session session ^String host]
+  (.setHost session host))
 
 (defn set-port
-  [session port]
-  (.setHost
-   ^Session session
-   ^int port))
+  [^Session session ^int port]
+  (.setHost session port))
 
 (defn set-config
-  [session key value]
+  [^Session session key value]
   (.setConfig
-   ^Session session
+   session
    ^String (if (keyword? key)
              (utils/to-camel-case (name key))
              key)
@@ -179,32 +170,25 @@
      ^String (utils/boolean-to-yes-no value))))
 
 (defn get-config
-  [session key]
+  [^Session session key]
   (.getConfig
-   ^Session session
+   session
    ^String (if (keyword? key)
              (utils/to-camel-case (name key))
              key)))
 
 (defn connected?
-  [session]
-  (.isConnected
-   ^Session session))
+  [^Session session]
+  (.isConnected session))
 
 (defn open-channel
-  [session type]
-  (.openChannel
-   ^Session session
-   ^String type))
+  [^Session session ^String type]
+  (.openChannel session type))
 
 (defn set-identity-repository
-  [session identity-repository]
-  (.setIdentityRepository
-   ^Session session
-   ^IdentityRepository identity-repository))
+  [^Session session ^IdentityRepository identity-repository]
+  (.setIdentityRepository session identity-repository))
 
 (defn set-host-key-repository
-  [session host-key-repository]
-  (.setHostKeyRepository
-   ^Session session
-   ^HostKeyRepository host-key-repository))
+  [^Session session ^HostKeyRepository host-key-repository]
+  (.setHostKeyRepository session host-key-repository))

@@ -15,17 +15,14 @@
   ([size]
    (ByteArrayOutputStream. size)))
 
-(defn close [stream]
-  (.close
-   ^ByteArrayOutputStream stream))
+(defn close [^ByteArrayOutputStream stream]
+  (.close stream))
 
-(defn reset [stream]
-  (.reset
-   ^ByteArrayOutputStream stream))
+(defn reset [^ByteArrayOutputStream stream]
+  (.reset stream))
 
-(defn size [stream]
-  (.size
-   ^ByteArrayOutputStream stream))
+(defn size [^ByteArrayOutputStream stream]
+  (.size stream))
 
 (defn to-byte-array [stream]
   (utils/encode-base64
@@ -33,13 +30,10 @@
     ^ByteArrayOutputStream stream)))
 
 (defn to-string
-  ([stream]
-   (.toString
-    ^ByteArrayOutputStream stream))
-  ([stream encoding]
-   (.toString
-    ^ByteArrayOutputStream stream
-    ^String encoding)))
+  ([^ByteArrayOutputStream stream]
+   (.toString stream))
+  ([^ByteArrayOutputStream stream ^String encoding]
+   (.toString stream encoding)))
 
 (defn write
   ([stream int-or-base64]
@@ -56,7 +50,5 @@
       ^int int-or-base64))))
 
 (defn write-to
-  [stream out]
-  (.writeTo
-   ^ByteArrayOutputStream stream
-   ^OutputStream out))
+  [^ByteArrayOutputStream stream ^OutputStream out]
+  (.writeTo stream out))

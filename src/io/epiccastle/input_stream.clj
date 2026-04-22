@@ -21,19 +21,15 @@
       ^int src-or-pipe-size)
      (PipedInputStream.
       ^PipedOutputStream src-or-pipe-size)))
-  ([src pipe-size]
-   (PipedInputStream.
-    ^PipedOutputStream src
-    ^int pipe-size)))
+  ([^PipedOutputStream src ^int pipe-size]
+   (PipedInputStream. src pipe-size)))
 
-(defn close [stream]
-  (.close
-   ^PipedInputStream stream))
+(defn close [^PipedInputStream stream]
+  (.close stream))
 
 (defn ^:blocking read
-  ([stream]
-   (.read
-    ^PipedInputStream stream))
+  ([^PipedInputStream stream]
+   (.read stream))
   ([stream bytes]
    (let [arr (byte-array bytes)
          bytes-read
@@ -48,14 +44,11 @@
         0 ""
         (utils/encode-base64 (Arrays/copyOfRange arr 0 bytes-read)))])))
 
-(defn available [stream]
-  (.available
-   ^PipedInputStream stream))
+(defn available [^PipedInputStream stream]
+  (.available stream))
 
-(defn connect [stream source]
-  (.connect
-   ^PipedInputStream stream
-   ^PipedOutputStream source))
+(defn connect [^PipedInputStream stream ^PipedOutputStream source]
+  (.connect stream source))
 
 (defn ^:async new-pod-proxy
   [reply-fn]

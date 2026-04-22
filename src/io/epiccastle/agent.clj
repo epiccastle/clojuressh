@@ -14,116 +14,87 @@
   (JSch.))
 
 (defn get-session
-  ([agent host]
-   (.getSession
-    ^JSch agent
-    ^String host))
-  ([agent username host]
-   (.getSession
-    ^JSch agent
-    ^String username
-    ^String host))
-  ([agent username host port]
-   (.getSession
-    ^JSch agent
-    ^String username
-    ^String host
-    ^int port)))
+  ([^JSch agent ^String host]
+   (.getSession agent host))
+  ([^JSch agent ^String username ^String host]
+   (.getSession agent username host))
+  ([^JSch agent ^String username ^String host ^int port]
+   (.getSession agent username host port)))
 
 (defn get-identity-repository
-  [agent]
-  (.getIdentityRepository
-   ^JSch agent))
+  [^JSch agent]
+  (.getIdentityRepository agent))
 
 (defn set-identity-repository
-  [agent identity-repository]
-  (.setIdentityRepository
-   ^JSch agent
-   ^IdentityRepository identity-repository))
+  [^JSch agent ^IdentityRepository identity-repository]
+  (.setIdentityRepository agent identity-repository))
 
 (defn get-config-repository
-  [agent]
-  (.getConfigRepository
-   ^JSch agent))
+  [^JSch agent]
+  (.getConfigRepository agent))
 
 (defn set-config-repository
-  [agent config-repository]
-  (.setConfigRepository
-   ^JSch agent
-   ^ConfigRepository config-repository))
+  [^JSch agent ^ConfigRepository config-repository]
+  (.setConfigRepository agent config-repository))
 
 (defn get-host-key-repository
-  [agent]
-  (.getHostKeyRepository
-   ^JSch agent))
+  [^JSch agent]
+  (.getHostKeyRepository agent))
 
 (defn set-host-key-repository
-  [agent host-key-repository]
-  (.setHostKeyRepository
-   ^JSch agent
-   ^HostKeyRepository host-key-repository))
+  [^JSch agent ^HostKeyRepository host-key-repository]
+  (.setHostKeyRepository agent host-key-repository))
 
 (defn set-known-hosts
-  [agent filename]
-  (.setKnownHosts
-   ^JSch agent
-   ^String filename))
+  [^JSch agent ^String filename]
+  (.setKnownHosts agent filename))
 
 (defn set-known-hosts-content
-  [agent content]
+  [^JSch agent content]
   (.setKnownHosts
-   ^JSch agent
+   agent
    ^InputStream (io/input-stream (utils/decode-base64 content))))
 
 (defn add-identity
-  ([agent filename]
+  ([^JSch agent ^String filename]
+   (.addIdentity agent filename))
+  ([^JSch agent ^String filename ^String passphrase]
+   (.addIdentity agent filename passphrase))
+  ([^JSch agent ^String private-key-filename ^String public-key-filename passphrase]
    (.addIdentity
-    ^JSch agent
-    ^String filename))
-  ([agent filename passphrase]
-   (.addIdentity
-    ^JSch agent
-    ^String filename
-    ^String passphrase))
-  ([agent private-key-filename public-key-filename passphrase]
-   (.addIdentity
-    ^JSch agent
-    ^String private-key-filename
-    ^String public-key-filename
+    agent
+    private-key-filename
+    public-key-filename
     ^bytes (utils/decode-base64 passphrase)))
-  ([agent identity-name private-key public-key passphrase]
+  ([^JSch agent ^String identity-name private-key public-key passphrase]
    (.addIdentity
-    ^JSch agent
-    ^String identity-name
+    agent
+    identity-name
     ^bytes (utils/decode-base64 private-key)
     ^bytes (utils/decode-base64 public-key)
     ^bytes (utils/decode-base64 passphrase))))
 
 (defn add-identity2
-  [agent filename passphrase]
+  [^JSch agent ^String filename passphrase]
   (.addIdentity
-   ^JSch agent
-   ^String filename
+   agent
+   filename
    ^bytes (utils/decode-base64 passphrase)))
 
 (defn add-identity3
-  [agent identity passphrase]
+  [^JSch agent ^Identity identity passphrase]
   (.addIdentity
-   ^JSch agent
-   ^Identity identity
+   agent
+   identity
    ^bytes (utils/decode-base64 passphrase)))
 
 (defn remove-identity
-  [agent identity-name]
-  (.removeIdentity
-   ^JSch agent
-   ^String identity-name))
+  [^JSch agent ^String identity-name]
+  (.removeIdentity agent identity-name))
 
 (defn remove-identity2
-  [agent identity]
-  (.removeIdentity
-   ^JSch agent
-   ^Identity identity))
+  [^JSch agent ^Identity identity]
+  (.removeIdentity agent identity))
 
 (defn get-identity-names
   [agent]
@@ -132,13 +103,12 @@
          ^JSch agent)))
 
 (defn remove-all-identities
-  [agent]
-  (.removeAllIdentity
-   ^JSch agent))
+  [^JSch agent]
+  (.removeAllIdentity agent))
 
 (defn get-config
-  [key]
-  (JSch/getConfig ^String key))
+  [^String key]
+  (JSch/getConfig key))
 
 (defn set-config
   ([hashmap]
@@ -146,10 +116,8 @@
      (JSch/setConfig
       ^String key
       ^String value)))
-  ([key value]
-   (JSch/setConfig
-    ^String key
-    ^String value)))
+  ([^String key ^String value]
+   (JSch/setConfig key value)))
 
 (defn ^:async set-debug-fn [reply-fn]
   (JSch/setLogger

@@ -20,27 +20,21 @@
   (ByteArrayInputStream.
    ^bytes (utils/decode-base64 string)))
 
-(defn available [stream]
-  (.available
-   ^ByteArrayInputStream stream))
+(defn available [^ByteArrayInputStream stream]
+  (.available stream))
 
-(defn close [stream]
-  (.close
-   ^ByteArrayInputStream stream))
+(defn close [^ByteArrayInputStream stream]
+  (.close stream))
 
-(defn mark [stream read-ahead-limit]
-  (.mark
-   ^ByteArrayInputStream stream
-   read-ahead-limit))
+(defn mark [^ByteArrayInputStream stream read-ahead-limit]
+  (.mark stream read-ahead-limit))
 
-(defn mark-supported [stream]
-  (.markSupported
-   ^ByteArrayInputStream stream))
+(defn mark-supported [^ByteArrayInputStream stream]
+  (.markSupported stream))
 
 (defn ^:blocking read
-  ([stream]
-   (.read
-    ^ByteArrayInputStream stream))
+  ([^ByteArrayInputStream stream]
+   (.read stream))
   ([stream bytes]
    (let [arr (byte-array bytes)
          bytes-read
@@ -55,11 +49,8 @@
         0 ""
         (utils/encode-base64 (Arrays/copyOfRange arr 0 bytes-read)))])))
 
-(defn reset [stream]
-  (.reset
-   ^ByteArrayInputStream stream))
+(defn reset [^ByteArrayInputStream stream]
+  (.reset stream))
 
-(defn skip [stream n]
-  (.skip
-   ^ByteArrayInputStream stream
-   n))
+(defn skip [^ByteArrayInputStream stream n]
+  (.skip stream n))

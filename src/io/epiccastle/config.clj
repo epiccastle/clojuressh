@@ -26,24 +26,17 @@
     (reply-fn [:result result])
     nil))
 
-(defn get-hostname [config]
-  (.getHostname
-   ^ConfigRepository$Config config))
+(defn get-hostname [^ConfigRepository$Config config]
+  (.getHostname config))
 
-(defn get-user [config]
-  (.getUser
-   ^ConfigRepository$Config config))
+(defn get-user [^ConfigRepository$Config config]
+  (.getUser config))
 
-(defn get-port [config]
-  (.getPort
-   ^ConfigRepository$Config config))
+(defn get-port [^ConfigRepository$Config config]
+  (.getPort config))
 
-(defn get-value [config key]
-  (.getValue
-   ^ConfigRepository$Config config
-   ^String key))
+(defn get-value [^ConfigRepository$Config config ^String key]
+  (.getValue config key))
 
-(defn get-values [config key]
-  (.getValues
-   ^ConfigRepository$Config config
-   ^String key))
+(defn get-values [^ConfigRepository$Config config ^String key]
+  (.getValues config key))

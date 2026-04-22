@@ -58,35 +58,20 @@
     (utils/decode-base64 key))))
 
 (defn add
-  [host-key-repository host-key user-info]
-  (.add
-   ^HostKeyRepository host-key-repository
-   ^HostKey host-key
-   ^UserInfo user-info))
+  [^HostKeyRepository host-key-repository ^HostKey host-key ^UserInfo user-info]
+  (.add host-key-repository host-key user-info))
 
 (defn remove
-  ([host-key-repository host type]
-   (.remove
-    ^HostKeyRepository host-key-repository
-    ^String host
-    ^String type))
-  ([host-key-repository host type key]
-   (.remove
-    ^HostKeyRepository host-key-repository
-    ^String host
-    ^String type
-    ^bytes (utils/decode-base64 key))))
+  ([^HostKeyRepository host-key-repository ^String host ^String type]
+   (.remove host-key-repository host type))
+  ([^HostKeyRepository host-key-repository ^String host ^String type key]
+   (.remove host-key-repository host type ^bytes (utils/decode-base64 key))))
 
 (defn get-host-key
-  ([host-key-repository]
-   (.getHostKey
-    ^HostKeyRepository host-key-repository))
-  ([host-key-repository host type]
-   (.getHostKey
-    ^HostKeyRepository host-key-repository
-    ^String host
-    ^String type)))
+  ([^HostKeyRepository host-key-repository]
+   (.getHostKey host-key-repository))
+  ([^HostKeyRepository host-key-repository ^String host ^String type]
+   (.getHostKey host-key-repository host type)))
 
-(defn get-known-hosts-repository-id [host-key-repository]
-  (.getKnownHostsRepositoryID
-   ^HostKeyRepository host-key-repository))
+(defn get-known-hosts-repository-id [^HostKeyRepository host-key-repository]
+  (.getKnownHostsRepositoryID host-key-repository))
