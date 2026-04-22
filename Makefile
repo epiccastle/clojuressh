@@ -7,6 +7,7 @@ help:
 	@echo "  make install  - Install jar to local Maven repo (~/.m2)"
 	@echo "  make deploy   - Deploy jar to Clojars (requires CLOJARS_USERNAME/CLOJARS_PASSWORD)"
 	@echo "  make clean    - Remove build artifacts"
+	@echo "  make version  - print the version string derived from the git tags"
 	@echo "  make repl     - Start a Clojure REPL"
 
 test:
@@ -23,6 +24,9 @@ deploy:
 
 clean:
 	clojure -T:build clean
+
+version:
+	clojure -T:build version
 
 repl:
 	rlwrap clojure
