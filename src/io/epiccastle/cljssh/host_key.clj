@@ -1,4 +1,4 @@
-(ns io.epiccastle.host-key
+(ns io.epiccastle.cljssh.host-key
   (:import [com.jcraft.jsch HostKey JSch]))
 
 (def types

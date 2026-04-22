@@ -1,4 +1,4 @@
-(ns io.epiccastle.cleaner
+(ns io.epiccastle.cljssh.cleaner
   (:require [clojure.set :as set]))
 
 (def delete-fns (atom {}))

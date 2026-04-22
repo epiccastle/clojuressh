@@ -1,11 +1,11 @@
-(ns io.epiccastle.session
+(ns io.epiccastle.cljssh.session
   (:require [clojure.string :as string])
   (:import [com.jcraft.jsch JSch Session
             UserInfo IdentityRepository
             HostKeyRepository Proxy ProxyHTTP ProxySOCKS4 ProxySOCKS5])
   )
 
-;; io.epiccastle.* are invoked on pod side.
+;; io.epiccastle.cljssh.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 

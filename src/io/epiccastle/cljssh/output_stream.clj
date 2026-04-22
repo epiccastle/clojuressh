@@ -1,12 +1,12 @@
-(ns io.epiccastle.output-stream
+(ns io.epiccastle.cljssh.output-stream
   (:refer-clojure :exclude [flush])
-  (:require [io.epiccastle.callbacks :as callbacks]
-            [io.epiccastle.cleaner :as cleaner])
+  (:require [io.epiccastle.cljssh.callbacks :as callbacks]
+            [io.epiccastle.cljssh.cleaner :as cleaner])
   (:import [java.io
             PipedOutputStream PipedInputStream
             OutputStream]))
 
-;; io.epiccastle.* are invoked on pod side.
+;; io.epiccastle.cljssh.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 

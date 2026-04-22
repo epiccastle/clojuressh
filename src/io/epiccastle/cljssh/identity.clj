@@ -1,9 +1,9 @@
-(ns io.epiccastle.identity
-  (:require [io.epiccastle.callbacks :as callbacks]
-            [io.epiccastle.cleaner :as cleaner])
+(ns io.epiccastle.cljssh.identity
+  (:require [io.epiccastle.cljssh.callbacks :as callbacks]
+            [io.epiccastle.cljssh.cleaner :as cleaner])
   (:import [com.jcraft.jsch Identity]))
 
-;; io.epiccastle.* are invoked on pod side.
+;; io.epiccastle.cljssh.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 

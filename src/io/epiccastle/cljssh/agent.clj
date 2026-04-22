@@ -1,4 +1,4 @@
-(ns io.epiccastle.agent
+(ns io.epiccastle.cljssh.agent
   (:require [clojure.java.io :as io])
   (:import [com.jcraft.jsch JSch Logger
             IdentityRepository HostKeyRepository
@@ -6,7 +6,7 @@
            [java.io InputStream])
   )
 
-;; io.epiccastle.* are invoked on pod side.
+;; io.epiccastle.cljssh.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 

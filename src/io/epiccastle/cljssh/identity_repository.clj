@@ -1,10 +1,10 @@
-(ns io.epiccastle.identity-repository
-  (:require [io.epiccastle.callbacks :as callbacks]
-            [io.epiccastle.cleaner :as cleaner])
+(ns io.epiccastle.cljssh.identity-repository
+  (:require [io.epiccastle.cljssh.callbacks :as callbacks]
+            [io.epiccastle.cljssh.cleaner :as cleaner])
   (:import [com.jcraft.jsch IdentityRepository]
            [java.util Vector]))
 
-;; io.epiccastle.* are invoked on pod side.
+;; io.epiccastle.cljssh.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 

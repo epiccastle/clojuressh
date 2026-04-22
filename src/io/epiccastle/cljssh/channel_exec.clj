@@ -1,9 +1,9 @@
-(ns io.epiccastle.channel-exec
+(ns io.epiccastle.cljssh.channel-exec
   (:import [com.jcraft.jsch JSch Session UserInfo ChannelExec Channel ChannelSession]
            [java.io InputStream OutputStream])
   )
 
-;; io.epiccastle.* are invoked on pod side.
+;; io.epiccastle.cljssh.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 

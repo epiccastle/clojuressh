@@ -1,4 +1,4 @@
-(ns io.epiccastle.socket
+(ns io.epiccastle.cljssh.socket
   (:refer-clojure :exclude [read]))
 
 (defn open [sock-path]

@@ -1,10 +1,10 @@
-(ns io.epiccastle.host-key-repository
+(ns io.epiccastle.cljssh.host-key-repository
   (:refer-clojure :exclude [remove])
-  (:require [io.epiccastle.callbacks :as callbacks]
-            [io.epiccastle.cleaner :as cleaner])
+  (:require [io.epiccastle.cljssh.callbacks :as callbacks]
+            [io.epiccastle.cljssh.cleaner :as cleaner])
   (:import [com.jcraft.jsch HostKeyRepository HostKey UserInfo]))
 
-;; io.epiccastle.* are invoked on pod side.
+;; io.epiccastle.cljssh.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 
