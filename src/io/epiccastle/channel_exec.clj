@@ -9,55 +9,55 @@
 
 (defn set-command [channel command]
   (.setCommand
-   ^ChannelExec (references/get-instance channel)
+   ^ChannelExec channel
    ^String command))
 
 (defn connect [channel]
   (.connect
-   ^ChannelExec (references/get-instance channel)))
+   ^ChannelExec channel))
 
 (defn disconnect [channel]
   (.disconnect
-   ^ChannelExec (references/get-instance channel)))
+   ^ChannelExec channel))
 
 (defn set-input-stream [channel input-stream dont-close?]
   (.setInputStream
-   ^ChannelExec (references/get-instance channel)
-   ^InputStream (references/get-instance input-stream)
+   ^ChannelExec channel
+   ^InputStream input-stream
    ^Boolean dont-close?))
 
 (defn set-output-stream [channel output-stream dont-close?]
   (.setOutputStream
-   ^ChannelExec (references/get-instance channel)
-   ^OutputStream (references/get-instance output-stream)
+   ^ChannelExec channel
+   ^OutputStream output-stream
    ^Boolean dont-close?))
 
 (defn set-error-stream [channel error-stream dont-close?]
   (.setErrStream
-   ^ChannelExec (references/get-instance channel)
-   ^OutputStream (references/get-instance error-stream)
+   ^ChannelExec channel
+   ^OutputStream error-stream
    ^Boolean dont-close?))
 
 (defn get-input-stream [channel]
   (.getInputStream
-   ^ChannelExec (references/get-instance channel)))
+   ^ChannelExec channel))
 
 (defn get-error-stream [channel]
   (.getErrStream
-   ^ChannelExec (references/get-instance channel)))
+   ^ChannelExec channel))
 
 (defn get-output-stream [channel]
   (.getOutputStream
-   ^ChannelExec (references/get-instance channel)))
+   ^ChannelExec channel))
 
 (defn set-pty [channel enable]
   (.setPty
-   ^ChannelExec (references/get-instance channel)
+   ^ChannelExec channel
    ^boolean enable))
 
 (defn set-pty-size [channel col row width-pixels height-pixels]
   (.setPtySize
-   ^ChannelExec (references/get-instance channel)
+   ^ChannelExec channel
    ^int col
    ^int row
    ^int width-pixels
@@ -66,11 +66,11 @@
 (defn set-pty-type
   ([channel terminal-type]
    (.setPtyType
-    ^ChannelExec (references/get-instance channel)
+    ^ChannelExec channel
     ^String terminal-type))
   ([channel terminal-type col row width-pixels height-pixels]
    (.setPtyType
-    ^ChannelExec (references/get-instance channel)
+    ^ChannelExec channel
     ^String terminal-type
     ^int col
     ^int row
@@ -80,46 +80,46 @@
 (defn set-terminal-mode
   [channel terminal-mode]
   (.setTerminalMode
-   ^ChannelExec (references/get-instance channel)
+   ^ChannelExec channel
    ^bytes (utils/decode-base64 terminal-mode)))
 
 (defn set-agent-forwarding [channel enable]
   (.setAgentForwarding
-   ^ChannelExec (references/get-instance channel)
+   ^ChannelExec channel
    ^boolean enable))
 
 (defn set-x-forwarding [channel enable]
   (.setAgentForwarding
-   ^ChannelExec (references/get-instance channel)
+   ^ChannelExec channel
    ^boolean enable))
 
 (defn set-env [channel name value]
   (.setEnv
-   ^ChannelExec (references/get-instance channel)
+   ^ChannelExec channel
    ^String name
    ^String value))
 
 (defn is-closed [channel]
   (.isClosed
-   ^ChannelExec (references/get-instance channel)))
+   ^ChannelExec channel))
 
 (defn is-connected [channel]
   (.isConnected
-   ^ChannelExec (references/get-instance channel)))
+   ^ChannelExec channel))
 
 (defn send-signal [channel signal]
   (.sendSignal
-   ^ChannelExec (references/get-instance channel)
+   ^ChannelExec channel
    ^String signal))
 
 (defn get-exit-status [channel]
   (.getExitStatus
-   ^ChannelExec (references/get-instance channel)))
+   ^ChannelExec channel))
 
 (defn get-id [channel]
   (.getId
-   ^ChannelExec (references/get-instance channel)))
+   ^ChannelExec channel))
 
 (defn is-eof [channel]
   (.isEOF
-   ^ChannelExec (references/get-instance channel)))
+   ^ChannelExec channel))

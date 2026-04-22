@@ -5,4 +5,4 @@
 ;;   [agent]
 ;;   (references/add-instance
 ;;    (KnownHosts.
-;;     ^JSch (references/get-instance agent))))
+;;     ^JSch agent)))

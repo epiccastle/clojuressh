@@ -22,30 +22,30 @@
 
 (defn available [stream]
   (.available
-   ^ByteArrayInputStream (references/get-instance stream)))
+   ^ByteArrayInputStream stream))
 
 (defn close [stream]
   (.close
-   ^ByteArrayInputStream (references/get-instance stream)))
+   ^ByteArrayInputStream stream))
 
 (defn mark [stream read-ahead-limit]
   (.mark
-   ^ByteArrayInputStream (references/get-instance stream)
+   ^ByteArrayInputStream stream
    read-ahead-limit))
 
 (defn mark-supported [stream]
   (.markSupported
-   ^ByteArrayInputStream (references/get-instance stream)))
+   ^ByteArrayInputStream stream))
 
 (defn ^:blocking read
   ([stream]
    (.read
-    ^ByteArrayInputStream (references/get-instance stream)))
+    ^ByteArrayInputStream stream))
   ([stream bytes]
    (let [arr (byte-array bytes)
          bytes-read
          (.read
-          ^ByteArrayInputStream (references/get-instance stream)
+          ^ByteArrayInputStream stream
           arr
           0
           bytes)]
@@ -57,9 +57,9 @@
 
 (defn reset [stream]
   (.reset
-   ^ByteArrayInputStream (references/get-instance stream)))
+   ^ByteArrayInputStream stream))
 
 (defn skip [stream n]
   (.skip
-   ^ByteArrayInputStream (references/get-instance stream)
+   ^ByteArrayInputStream stream
    n))

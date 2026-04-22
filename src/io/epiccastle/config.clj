@@ -28,22 +28,22 @@
 
 (defn get-hostname [config]
   (.getHostname
-   ^ConfigRepository$Config (references/get-instance config)))
+   ^ConfigRepository$Config config))
 
 (defn get-user [config]
   (.getUser
-   ^ConfigRepository$Config (references/get-instance config)))
+   ^ConfigRepository$Config config))
 
 (defn get-port [config]
   (.getPort
-   ^ConfigRepository$Config (references/get-instance config)))
+   ^ConfigRepository$Config config))
 
 (defn get-value [config key]
   (.getValue
-   ^ConfigRepository$Config (references/get-instance config)
+   ^ConfigRepository$Config config
    ^String key))
 
 (defn get-values [config key]
   (.getValues
-   ^ConfigRepository$Config (references/get-instance config)
+   ^ConfigRepository$Config config
    ^String key))

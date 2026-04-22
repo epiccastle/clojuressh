@@ -17,7 +17,6 @@
             (callbacks/call-method reply-fn :get-status []))
           (getIdentities []
             (->> (callbacks/call-method reply-fn :get-identities [])
-                 (mapv references/get-instance)
                  Vector.))
           (add [^bytes identity-data]
             (callbacks/call-method

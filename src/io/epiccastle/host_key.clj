@@ -27,37 +27,37 @@
 (defn get-host
   [host-key]
   (.getHost
-   ^HostKey (references/get-instance host-key)))
+   ^HostKey host-key))
 
 (defn get-type
   [host-key]
   (.getType
-   ^HostKey (references/get-instance host-key)))
+   ^HostKey host-key))
 
 (defn get-key
   [host-key]
   (.getKey
-   ^HostKey (references/get-instance host-key)))
+   ^HostKey host-key))
 
 (defn get-finger-print
   [host-key agent]
   (.getFingerPrint
-   ^HostKey (references/get-instance host-key)
-   ^JSch (references/get-instance agent)))
+   ^HostKey host-key
+   ^JSch agent))
 
 (defn get-comment
   [host-key]
   (.getComment
-   ^HostKey (references/get-instance host-key)))
+   ^HostKey host-key))
 
 (defn get-marker
   [host-key]
   (.getMarker
-   ^HostKey (references/get-instance host-key)))
+   ^HostKey host-key))
 
 (defn get-info [host-key agent]
-  (let [host-key ^HostKey (references/get-instance host-key)
-        agent ^JSch (references/get-instance agent)]
+  (let [host-key ^HostKey host-key
+        agent ^JSch agent]
     {:host (.getHost host-key)
      :type (.getType host-key)
      :key (.getKey host-key)
@@ -69,8 +69,8 @@
   (into
    {}
    (for [host-key host-keys]
-     (let [instance ^HostKey (references/get-instance host-key)
-           agent ^JSch (references/get-instance agent)]
+     (let [instance ^HostKey host-key
+           agent ^JSch agent]
        [host-key
         {:host (.getHost instance)
          :type (.getType instance)

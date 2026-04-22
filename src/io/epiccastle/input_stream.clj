@@ -20,25 +20,25 @@
      (PipedInputStream.
       ^int src-or-pipe-size)
      (PipedInputStream.
-      ^PipedOutputStream (references/get-instance src-or-pipe-size))))
+      ^PipedOutputStream src-or-pipe-size)))
   ([src pipe-size]
    (PipedInputStream.
-    ^PipedOutputStream (references/get-instance src)
+    ^PipedOutputStream src
     ^int pipe-size)))
 
 (defn close [stream]
   (.close
-   ^PipedInputStream (references/get-instance stream)))
+   ^PipedInputStream stream))
 
 (defn ^:blocking read
   ([stream]
    (.read
-    ^PipedInputStream (references/get-instance stream)))
+    ^PipedInputStream stream))
   ([stream bytes]
    (let [arr (byte-array bytes)
          bytes-read
          (.read
-          ^PipedInputStream (references/get-instance stream)
+          ^PipedInputStream stream
           arr
           0
           bytes)]
@@ -50,12 +50,12 @@
 
 (defn available [stream]
   (.available
-   ^PipedInputStream (references/get-instance stream)))
+   ^PipedInputStream stream))
 
 (defn connect [stream source]
   (.connect
-   ^PipedInputStream (references/get-instance stream)
-   ^PipedOutputStream (references/get-instance source)))
+   ^PipedInputStream stream
+   ^PipedOutputStream source))
 
 (defn ^:async new-pod-proxy
   [reply-fn]

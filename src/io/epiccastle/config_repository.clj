@@ -12,15 +12,14 @@
   (let [result
         (proxy [ConfigRepository] []
           (getConfig [hostname]
-            (references/get-instance
-             (callbacks/call-method reply-fn :get-config [hostname]))))]
+            (callbacks/call-method reply-fn :get-config [hostname])))]
     (cleaner/register-delete-fn result #(reply-fn [:done] ["done"]))
     (reply-fn [:result result])
     nil))
 
 (defn get-config [config-repository hostname]
   (.getConfig
-   ^ConfigRepository (references/get-instance config-repository)
+   ^ConfigRepository config-repository
    ^String hostname))
 
 (defn openssh-config-file [config-file]

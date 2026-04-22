@@ -8,7 +8,7 @@
 
 (defn generate [agent key-type key-size]
   (KeyPair/genKeyPair
-   ^JSch (references/get-instance agent)
+   ^JSch agent
    ^int ({:dsa KeyPair/DSA
           :rsa KeyPair/RSA
           :ecdsa KeyPair/ECDSA
@@ -20,55 +20,55 @@
 
 (defn set-passphrase [key-pair passphrase]
   (.setPassphrase
-   ^KeyPair (references/get-instance key-pair)
+   ^KeyPair key-pair
    ^String passphrase))
 
 (defn write-private-key
   ([key-pair filename]
    (.writePrivateKey
-    ^KeyPair (references/get-instance key-pair)
+    ^KeyPair key-pair
     ^String filename))
   ([key-pair filename passphrase]
    (.writePrivateKey
-    ^KeyPair (references/get-instance key-pair)
+    ^KeyPair key-pair
     ^String filename
     ^bytes (utils/decode-base64 passphrase))))
 
 (defn write-public-key [key-pair filename comment]
   (.writePublicKey
-   ^KeyPair (references/get-instance key-pair)
+   ^KeyPair key-pair
    ^String filename
    ^String comment))
 
 (defn get-finger-print [key-pair]
   (.getFingerPrint
-   ^KeyPair (references/get-instance key-pair)))
+   ^KeyPair key-pair))
 
 (defn get-public-key-blob [key-pair]
   (utils/encode-base64
    (.getPublicKeyBlob
-    ^KeyPair (references/get-instance key-pair))))
+    ^KeyPair key-pair)))
 
 (defn get-key-size [key-pair]
   (.getKeySize
-   ^KeyPair (references/get-instance key-pair)))
+   ^KeyPair key-pair))
 
 (defn dispose [key-pair]
   (.dispose
-   ^KeyPair (references/get-instance key-pair)))
+   ^KeyPair key-pair))
 
 (defn is-encrypted [key-pair]
   (.isEncrypted
-   ^KeyPair (references/get-instance key-pair)))
+   ^KeyPair key-pair))
 
 (defn decrypt [key-pair passphrase]
   (.decrypt
-   ^KeyPair (references/get-instance key-pair)
+   ^KeyPair key-pair
    ^bytes (utils/decode-base64 passphrase)))
 
 (defn load [agent private-key-file public-key-file]
   (KeyPair/load
-   ^JSch (references/get-instance agent)
+   ^JSch agent
    ^String private-key-file
    ^String public-key-file))
 
@@ -78,7 +78,7 @@
         public-key-bytes (when public-key-bytes
                            (utils/decode-base64 public-key-bytes))]
     (KeyPair/load
-      ^JSch (references/get-instance agent)
+      ^JSch agent
       ^bytes private-key-bytes
       ^bytes public-key-bytes)))
 
@@ -86,11 +86,11 @@
   ([key-pair data]
    (utils/encode-base64
     (.getSignature
-     ^KeyPair (references/get-instance key-pair)
+     ^KeyPair key-pair
      ^bytes (utils/decode-base64 data))))
   ([key-pair data algorithm]
    (utils/encode-base64
     (.getSignature
-     ^KeyPair (references/get-instance key-pair)
+     ^KeyPair key-pair
      ^bytes (utils/decode-base64 data)
      ^String algorithm))))

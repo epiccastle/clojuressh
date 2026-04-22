@@ -11,13 +11,13 @@
 
 (defn set-password [session password]
   (.setPassword
-   ^Session (references/get-instance session)
+   ^Session session
    ^String password))
 
 (defn set-user-info [session user-info]
   (.setUserInfo
-   ^Session (references/get-instance session)
-   ^UserInfo (references/get-instance user-info)))
+   ^Session session
+   ^UserInfo user-info))
 
 (defn make-proxy
   [{:keys [type host port username password]}]
@@ -37,7 +37,7 @@
 (defn set-proxy
   [session proxy]
   (.setProxy
-    ^Session (references/get-instance session)
+    ^Session session
     ^Proxy (make-proxy proxy)))
 
 (defn ^:blocking connect
@@ -47,14 +47,14 @@
   [session & [timeout]]
   (if timeout
     (.connect
-     ^Session (references/get-instance session)
+     ^Session session
      timeout)
     (.connect
-     ^Session (references/get-instance session))))
+     ^Session session)))
 
 (defn disconnect [session]
   (.disconnect
-   ^Session (references/get-instance session)))
+   ^Session session))
 
 (defn set-port-forwarding-local
   [session
@@ -68,7 +68,7 @@
          connect-timeout 0}}]
   (if remote-unix-socket
     (.setSocketForwardingL
-      ^Session (references/get-instance session)
+      ^Session session
       ^String bind-address
       ^int local-port
       ^String remote-unix-socket
@@ -76,7 +76,7 @@
       ^int connect-timeout
       )
     (.setPortForwardingL
-      ^Session (references/get-instance session)
+      ^Session session
       ^String bind-address
       ^int local-port
       ^String remote-host
@@ -90,7 +90,7 @@
            local-port]
     :or {bind-address "127.0.0.1"}}]
   (.delPortForwardingL
-   ^Session (references/get-instance session)
+   ^Session session
    ^String bind-address
    ^int local-port))
 
@@ -98,7 +98,7 @@
   [session]
   (->>
    (.getPortForwardingL
-    ^Session (references/get-instance session))
+    ^Session session)
    (mapv (fn [s]
            (let [[local-port remote-host remote-port]
                  (string/split s #":")]
@@ -119,7 +119,7 @@
     :or {bind-address "127.0.0.1"
          local-host "127.0.0.1"}}]
   (.setPortForwardingR
-   ^Session (references/get-instance session)
+   ^Session session
    ^String bind-address
    ^int remote-port
    ^String local-host
@@ -131,7 +131,7 @@
            remote-port]
     :or {bind-address "127.0.0.1"}}]
   (.delPortForwardingR
-   ^Session (references/get-instance session)
+   ^Session session
    ^String bind-address
    ^int remote-port))
 
@@ -139,7 +139,7 @@
   [session]
   (->>
    (.getPortForwardingR
-    ^Session (references/get-instance session))
+    ^Session session)
    (mapv (fn [s]
            (let [[local-port remote-host remote-port]
                  (string/split s #":")]
@@ -150,19 +150,19 @@
 (defn set-host
   [session host]
   (.setHost
-   ^Session (references/get-instance session)
+   ^Session session
    ^String host))
 
 (defn set-port
   [session port]
   (.setHost
-   ^Session (references/get-instance session)
+   ^Session session
    ^int port))
 
 (defn set-config
   [session key value]
   (.setConfig
-   ^Session (references/get-instance session)
+   ^Session session
    ^String (if (keyword? key)
              (utils/to-camel-case (name key))
              key)
@@ -172,7 +172,7 @@
   [session hashmap]
   (doseq [[key value] hashmap]
     (.setConfig
-     ^Session (references/get-instance session)
+     ^Session session
      ^String (if (keyword? key)
                (utils/to-camel-case (name key))
                key)
@@ -181,7 +181,7 @@
 (defn get-config
   [session key]
   (.getConfig
-   ^Session (references/get-instance session)
+   ^Session session
    ^String (if (keyword? key)
              (utils/to-camel-case (name key))
              key)))
@@ -189,22 +189,22 @@
 (defn connected?
   [session]
   (.isConnected
-   ^Session (references/get-instance session)))
+   ^Session session))
 
 (defn open-channel
   [session type]
   (.openChannel
-   ^Session (references/get-instance session)
+   ^Session session
    ^String type))
 
 (defn set-identity-repository
   [session identity-repository]
   (.setIdentityRepository
-   ^Session (references/get-instance session)
-   ^IdentityRepository (references/get-instance identity-repository)))
+   ^Session session
+   ^IdentityRepository identity-repository))
 
 (defn set-host-key-repository
   [session host-key-repository]
   (.setHostKeyRepository
-   ^Session (references/get-instance session)
-   ^HostKeyRepository (references/get-instance host-key-repository)))
+   ^Session session
+   ^HostKeyRepository host-key-repository))

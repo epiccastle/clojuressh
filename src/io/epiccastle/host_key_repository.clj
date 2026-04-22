@@ -38,12 +38,10 @@
             ([]
              (->>
               (callbacks/call-method reply-fn :get-host-key [])
-              (mapv references/get-instance)
               (into-array HostKey)))
             ([^String host ^String type]
              (->>
               (callbacks/call-method reply-fn :get-host-key [host type])
-              (mapv references/get-instance)
               (into-array HostKey)))))]
     (cleaner/register-delete-fn result #(reply-fn [:done] ["done"]))
     (reply-fn [:result result])
@@ -55,26 +53,26 @@
     1 :not-included
     2 :changed}
    (.check
-    ^HostKeyRepository (references/get-instance host-key-repository)
+    ^HostKeyRepository host-key-repository
     ^String host
     (utils/decode-base64 key))))
 
 (defn add
   [host-key-repository host-key user-info]
   (.add
-   ^HostKeyRepository (references/get-instance host-key-repository)
-   ^HostKey (references/get-instance host-key)
-   ^UserInfo (references/get-instance user-info)))
+   ^HostKeyRepository host-key-repository
+   ^HostKey host-key
+   ^UserInfo user-info))
 
 (defn remove
   ([host-key-repository host type]
    (.remove
-    ^HostKeyRepository (references/get-instance host-key-repository)
+    ^HostKeyRepository host-key-repository
     ^String host
     ^String type))
   ([host-key-repository host type key]
    (.remove
-    ^HostKeyRepository (references/get-instance host-key-repository)
+    ^HostKeyRepository host-key-repository
     ^String host
     ^String type
     ^bytes (utils/decode-base64 key))))
@@ -82,13 +80,13 @@
 (defn get-host-key
   ([host-key-repository]
    (.getHostKey
-    ^HostKeyRepository (references/get-instance host-key-repository)))
+    ^HostKeyRepository host-key-repository))
   ([host-key-repository host type]
    (.getHostKey
-    ^HostKeyRepository (references/get-instance host-key-repository)
+    ^HostKeyRepository host-key-repository
     ^String host
     ^String type)))
 
 (defn get-known-hosts-repository-id [host-key-repository]
   (.getKnownHostsRepositoryID
-   ^HostKeyRepository (references/get-instance host-key-repository)))
+   ^HostKeyRepository host-key-repository))

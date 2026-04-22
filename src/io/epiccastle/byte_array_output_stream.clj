@@ -17,28 +17,28 @@
 
 (defn close [stream]
   (.close
-   ^ByteArrayOutputStream (references/get-instance stream)))
+   ^ByteArrayOutputStream stream))
 
 (defn reset [stream]
   (.reset
-   ^ByteArrayOutputStream (references/get-instance stream)))
+   ^ByteArrayOutputStream stream))
 
 (defn size [stream]
   (.size
-   ^ByteArrayOutputStream (references/get-instance stream)))
+   ^ByteArrayOutputStream stream))
 
 (defn to-byte-array [stream]
   (utils/encode-base64
    (.toByteArray
-    ^ByteArrayOutputStream (references/get-instance stream))))
+    ^ByteArrayOutputStream stream)))
 
 (defn to-string
   ([stream]
    (.toString
-    ^ByteArrayOutputStream (references/get-instance stream)))
+    ^ByteArrayOutputStream stream))
   ([stream encoding]
    (.toString
-    ^ByteArrayOutputStream (references/get-instance stream)
+    ^ByteArrayOutputStream stream
     ^String encoding)))
 
 (defn write
@@ -47,16 +47,16 @@
      (let [buffer (utils/decode-base64 int-or-base64)
            size (count buffer)]
        (.write
-        ^ByteArrayOutputStream (references/get-instance stream)
+        ^ByteArrayOutputStream stream
         ^bytes buffer
         0
         size))
      (.write
-      ^ByteArrayOutputStream (references/get-instance stream)
+      ^ByteArrayOutputStream stream
       ^int int-or-base64))))
 
 (defn write-to
   [stream out]
   (.writeTo
-   ^ByteArrayOutputStream (references/get-instance stream)
-   ^OutputStream (references/get-instance out)))
+   ^ByteArrayOutputStream stream
+   ^OutputStream out))

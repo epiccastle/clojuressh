@@ -14,33 +14,33 @@
   ([]
    (PipedOutputStream.))
   ([sink]
-   (PipedOutputStream. (references/get-instance sink))))
+   (PipedOutputStream. sink)))
 
 (defn close [stream]
   (.close
-   ^PipedOutputStream (references/get-instance stream)))
+   ^PipedOutputStream stream))
 
 (defn write
   ([stream base64]
    (.write
-    ^PipedOutputStream (references/get-instance stream)
+    ^PipedOutputStream stream
     ^bytes (utils/decode-base64 base64)))
   ([stream base64 _length]
    (let [arr (utils/decode-base64 base64)]
      (.write
-      ^PipedOutputStream (references/get-instance stream)
+      ^PipedOutputStream stream
       ^bytes arr
       0
       (count arr)))))
 
 (defn connect [stream sink]
   (.connect
-   ^PipedOutputStream (references/get-instance stream)
-   ^PipedInputStream (references/get-instance sink)))
+   ^PipedOutputStream stream
+   ^PipedInputStream sink))
 
 (defn flush [stream]
   (.flush
-   ^PipedOutputStream (references/get-instance stream)))
+   ^PipedOutputStream stream))
 
 (defn ^:async new-pod-proxy
   [reply-fn]
