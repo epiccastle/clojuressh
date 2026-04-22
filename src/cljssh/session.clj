@@ -36,7 +36,7 @@
     session
     ^Proxy (make-proxy proxy)))
 
-(defn ^:blocking connect
+(defn connect
   "marked ^:blocking because connect blocks until the connection
   is made. This process may need many async callbacks via user-info
   and identity stores"

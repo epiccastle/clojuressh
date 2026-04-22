@@ -27,7 +27,7 @@
 (defn close [^PipedInputStream stream]
   (.close stream))
 
-(defn ^:blocking read
+(defn read
   ([^PipedInputStream stream]
    (.read stream))
   ([stream bytes]

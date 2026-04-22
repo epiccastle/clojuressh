@@ -32,7 +32,7 @@
 (defn mark-supported [^ByteArrayInputStream stream]
   (.markSupported stream))
 
-(defn ^:blocking read
+(defn read
   ([^ByteArrayInputStream stream]
    (.read stream))
   ([stream bytes]
