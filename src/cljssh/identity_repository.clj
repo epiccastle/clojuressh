@@ -1,14 +1,14 @@
-(ns io.epiccastle.cljssh.identity-repository
-  (:require [io.epiccastle.cljssh.callbacks :as callbacks]
-            [io.epiccastle.cljssh.cleaner :as cleaner])
+(ns cljssh.identity-repository
+  (:require [cljssh.callbacks :as callbacks]
+            [cljssh.cleaner :as cleaner])
   (:import [com.jcraft.jsch IdentityRepository]
            [java.util Vector]))
 
-;; io.epiccastle.cljssh.* are invoked on pod side.
+;; cljssh.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 
-(defn ^:async new [reply-fn]
+(defn new [reply-fn]
   (let [result
         (proxy [IdentityRepository] []
           (getName []

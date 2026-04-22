@@ -1,8 +1,8 @@
-(ns io.epiccastle.cljssh.key-pair
+(ns cljssh.key-pair
   (:refer-clojure :exclude [load])
   (:import [com.jcraft.jsch JSch KeyPair]))
 
-;; io.epiccastle.cljssh.* are invoked on pod side.
+;; cljssh.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 

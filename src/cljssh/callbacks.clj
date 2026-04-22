@@ -1,4 +1,4 @@
-(ns io.epiccastle.cljssh.callbacks)
+(ns cljssh.callbacks)
 
 (def result-register (atom {}))
 

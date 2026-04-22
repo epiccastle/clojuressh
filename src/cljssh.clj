@@ -1,4 +1,4 @@
-(ns io.epiccastle.cljssh
+(ns cljssh
   "A Clojure library for using SSH in Clojure that is API compatible with bbssh.
 
   See https://github.com/epiccastle/bbssh for API reference.")

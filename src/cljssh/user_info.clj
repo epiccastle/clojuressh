@@ -1,13 +1,13 @@
-(ns io.epiccastle.cljssh.user-info
-  (:require [io.epiccastle.cljssh.callbacks :as callbacks]
-            [io.epiccastle.cljssh.cleaner :as cleaner])
+(ns cljssh.user-info
+  (:require [cljssh.callbacks :as callbacks]
+            [cljssh.cleaner :as cleaner])
   (:import [com.jcraft.jsch UserInfo]))
 
-;; io.epiccastle.cljssh.* are invoked on pod side.
+;; cljssh.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 
-(defn ^:async new [reply-fn]
+(defn new [reply-fn]
   (let [result
         (proxy [UserInfo] []
           (getPassword []

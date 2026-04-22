@@ -1,4 +1,4 @@
-(ns io.epiccastle.cljssh.known-hosts
+(ns cljssh.known-hosts
   (:import [com.jcraft.jsch KnownHosts JSch]))
 
 ;; (defn new

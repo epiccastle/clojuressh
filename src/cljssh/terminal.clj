@@ -1,4 +1,4 @@
-(ns io.epiccastle.cljssh.terminal)
+(ns cljssh.terminal)
 
 (defn is-terminal? []
   (pos? (BbsshUtils/is-stdout-a-tty))

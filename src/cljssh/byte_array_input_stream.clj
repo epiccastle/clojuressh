@@ -1,14 +1,14 @@
-(ns io.epiccastle.cljssh.byte-array-input-stream
+(ns cljssh.byte-array-input-stream
   (:refer-clojure :exclude [read])
-  (:require [io.epiccastle.cljssh.callbacks :as callbacks]
-            [io.epiccastle.cljssh.cleaner :as cleaner])
+  (:require [cljssh.callbacks :as callbacks]
+            [cljssh.cleaner :as cleaner])
   (:import [java.io
             PipedInputStream PipedOutputStream
             ByteArrayInputStream ByteArrayOutputStream
             InputStream]
            [java.util Arrays]))
 
-;; io.epiccastle.cljssh.* are invoked on pod side.
+;; cljssh.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 

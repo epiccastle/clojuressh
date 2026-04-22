@@ -1,4 +1,4 @@
-(ns io.epiccastle.cljssh.agent
+(ns cljssh.agent
   (:require [clojure.java.io :as io])
   (:import [com.jcraft.jsch JSch Logger
             IdentityRepository HostKeyRepository
@@ -6,7 +6,7 @@
            [java.io InputStream])
   )
 
-;; io.epiccastle.cljssh.* are invoked on pod side.
+;; cljssh.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 
@@ -119,7 +119,7 @@
   ([^String key ^String value]
    (JSch/setConfig key value)))
 
-(defn ^:async set-debug-fn [reply-fn]
+(defn set-debug-fn [reply-fn]
   (JSch/setLogger
    (proxy [Logger] []
      (isEnabled [_]
