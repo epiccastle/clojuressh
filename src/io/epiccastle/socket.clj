@@ -1,4 +1,4 @@
-(ns pod.epiccastle.bbssh.pod.socket
+(ns io.epiccastle.socket
   (:refer-clojure :exclude [read])
   (:require [bbssh.impl.utils :as utils]))
 

@@ -1,10 +1,10 @@
-(ns pod.epiccastle.bbssh.pod.key-pair
+(ns io.epiccastle.key-pair
   (:refer-clojure :exclude [load])
   (:require [bbssh.impl.references :as references]
             [bbssh.impl.utils :as utils])
   (:import [com.jcraft.jsch JSch KeyPair]))
 
-;; pod.epiccastle.bbssh.pod.* are invoked on pod side.
+;; io.epiccastle.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 

@@ -1,12 +1,12 @@
-(ns pod.epiccastle.bbssh.pod.identity-repository
+(ns io.epiccastle.identity-repository
   (:require [bbssh.impl.references :as references]
             [bbssh.impl.utils :as utils]
-            [pod.epiccastle.bbssh.pod.callbacks :as callbacks]
-            [pod.epiccastle.bbssh.pod.cleaner :as cleaner])
+            [io.epiccastle.callbacks :as callbacks]
+            [io.epiccastle.cleaner :as cleaner])
   (:import [com.jcraft.jsch IdentityRepository]
            [java.util Vector]))
 
-;; pod.epiccastle.bbssh.pod.* are invoked on pod side.
+;; io.epiccastle.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 

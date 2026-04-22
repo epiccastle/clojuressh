@@ -1,4 +1,4 @@
-(ns pod.epiccastle.bbssh.pod.terminal)
+(ns io.epiccastle.terminal)
 
 (defn is-terminal? []
   (pos? (BbsshUtils/is-stdout-a-tty))

@@ -1,11 +1,11 @@
-(ns pod.epiccastle.bbssh.pod.channel-exec
+(ns io.epiccastle.channel-exec
   (:require [bbssh.impl.references :as references]
             [bbssh.impl.utils :as utils])
   (:import [com.jcraft.jsch JSch Session UserInfo ChannelExec Channel ChannelSession]
            [java.io InputStream OutputStream])
   )
 
-;; pod.epiccastle.bbssh.pod.* are invoked on pod side.
+;; io.epiccastle.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 

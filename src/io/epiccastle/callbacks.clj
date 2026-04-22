@@ -1,4 +1,4 @@
-(ns pod.epiccastle.bbssh.pod.callbacks)
+(ns io.epiccastle.callbacks)
 
 (def result-register (atom {}))
 

@@ -1,4 +1,4 @@
-(ns pod.epiccastle.bbssh.pod.agent
+(ns io.epiccastle.agent
   (:require [bbssh.impl.references :as references]
             [bbssh.impl.utils :as utils]
             [clojure.java.io :as io])
@@ -8,7 +8,7 @@
            [java.io InputStream])
   )
 
-;; pod.epiccastle.bbssh.pod.* are invoked on pod side.
+;; io.epiccastle.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 

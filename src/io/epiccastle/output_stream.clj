@@ -1,14 +1,14 @@
-(ns pod.epiccastle.bbssh.pod.output-stream
+(ns io.epiccastle.output-stream
   (:refer-clojure :exclude [flush])
   (:require [bbssh.impl.references :as references]
-            [pod.epiccastle.bbssh.pod.callbacks :as callbacks]
-            [pod.epiccastle.bbssh.pod.cleaner :as cleaner]
+            [io.epiccastle.callbacks :as callbacks]
+            [io.epiccastle.cleaner :as cleaner]
             [bbssh.impl.utils :as utils])
   (:import [java.io
             PipedOutputStream PipedInputStream
             OutputStream]))
 
-;; pod.epiccastle.bbssh.pod.* are invoked on pod side.
+;; io.epiccastle.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 

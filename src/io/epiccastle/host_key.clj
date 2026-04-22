@@ -1,4 +1,4 @@
-(ns pod.epiccastle.bbssh.pod.host-key
+(ns io.epiccastle.host-key
   (:require [bbssh.impl.references :as references]
             [bbssh.impl.utils :as utils])
   (:import [com.jcraft.jsch HostKey JSch]))

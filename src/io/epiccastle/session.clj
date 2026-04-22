@@ -1,4 +1,4 @@
-(ns pod.epiccastle.bbssh.pod.session
+(ns io.epiccastle.session
   (:require [bbssh.impl.references :as references]
             [bbssh.impl.utils :as utils]
             [clojure.string :as string])
@@ -7,7 +7,7 @@
             HostKeyRepository Proxy ProxyHTTP ProxySOCKS4 ProxySOCKS5])
   )
 
-;; pod.epiccastle.bbssh.pod.* are invoked on pod side.
+;; io.epiccastle.* are invoked on pod side.
 
 (set! *warn-on-reflection* true)
 
