@@ -1,6 +1,5 @@
 (ns io.epiccastle.cleaner
-  (:require [bbssh.impl.references :as references]
-            [clojure.set :as set]))
+  (:require [clojure.set :as set]))
 
 (def delete-fns (atom {}))
 

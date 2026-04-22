@@ -1,6 +1,4 @@
 (ns io.epiccastle.channel-exec
-  (:require [bbssh.impl.references :as references]
-            [bbssh.impl.utils :as utils])
   (:import [com.jcraft.jsch JSch Session UserInfo ChannelExec Channel ChannelSession]
            [java.io InputStream OutputStream])
   )
@@ -41,19 +39,16 @@
    ^Boolean dont-close?))
 
 (defn get-input-stream [channel]
-  (references/add-instance
-   (.getInputStream
-    ^ChannelExec (references/get-instance channel))))
+  (.getInputStream
+   ^ChannelExec (references/get-instance channel)))
 
 (defn get-error-stream [channel]
-  (references/add-instance
-   (.getErrStream
-    ^ChannelExec (references/get-instance channel))))
+  (.getErrStream
+   ^ChannelExec (references/get-instance channel)))
 
 (defn get-output-stream [channel]
-  (references/add-instance
-   (.getOutputStream
-    ^ChannelExec (references/get-instance channel))))
+  (.getOutputStream
+   ^ChannelExec (references/get-instance channel)))
 
 (defn set-pty [channel enable]
   (.setPty

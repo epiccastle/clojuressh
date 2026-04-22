@@ -1,9 +1,7 @@
 (ns io.epiccastle.output-stream
   (:refer-clojure :exclude [flush])
-  (:require [bbssh.impl.references :as references]
-            [io.epiccastle.callbacks :as callbacks]
-            [io.epiccastle.cleaner :as cleaner]
-            [bbssh.impl.utils :as utils])
+  (:require [io.epiccastle.callbacks :as callbacks]
+            [io.epiccastle.cleaner :as cleaner])
   (:import [java.io
             PipedOutputStream PipedInputStream
             OutputStream]))
@@ -14,11 +12,9 @@
 
 (defn new
   ([]
-   (references/add-instance
-    (PipedOutputStream.)))
+   (PipedOutputStream.))
   ([sink]
-   (references/add-instance
-    (PipedOutputStream. (references/get-instance sink)))))
+   (PipedOutputStream. (references/get-instance sink))))
 
 (defn close [stream]
   (.close
@@ -49,24 +45,23 @@
 (defn ^:async new-pod-proxy
   [reply-fn]
   (let [result
-        (references/add-instance
-         (proxy [OutputStream] []
-           (close []
-             (callbacks/call-method reply-fn :close []))
-           (flush []
-             (callbacks/call-method reply-fn :flush []))
-           (write
-             ([byte-array-or-number]
-              (callbacks/call-method
-               reply-fn :write
-               [(if (number? byte-array-or-number)
-                  byte-array-or-number
-                  (utils/encode-base64 byte-array-or-number))]))
-             ([^bytes byte-array offset length]
-              (callbacks/call-method
-               reply-fn :write
-               [(utils/encode-base64
-                 (java.util.Arrays/copyOfRange byte-array ^int offset ^int (+ offset length)))])))))]
+        (proxy [OutputStream] []
+          (close []
+            (callbacks/call-method reply-fn :close []))
+          (flush []
+            (callbacks/call-method reply-fn :flush []))
+          (write
+            ([byte-array-or-number]
+             (callbacks/call-method
+              reply-fn :write
+              [(if (number? byte-array-or-number)
+                 byte-array-or-number
+                 (utils/encode-base64 byte-array-or-number))]))
+            ([^bytes byte-array offset length]
+             (callbacks/call-method
+              reply-fn :write
+              [(utils/encode-base64
+                (java.util.Arrays/copyOfRange byte-array ^int offset ^int (+ offset length)))]))))]
     (cleaner/register-delete-fn result #(reply-fn [:done] ["done"]))
     (reply-fn [:result result])
     nil))

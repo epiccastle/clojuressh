@@ -1,9 +1,7 @@
 (ns io.epiccastle.byte-array-input-stream
   (:refer-clojure :exclude [read])
-  (:require [bbssh.impl.references :as references]
-            [io.epiccastle.callbacks :as callbacks]
-            [io.epiccastle.cleaner :as cleaner]
-            [bbssh.impl.utils :as utils])
+  (:require [io.epiccastle.callbacks :as callbacks]
+            [io.epiccastle.cleaner :as cleaner])
   (:import [java.io
             PipedInputStream PipedOutputStream
             ByteArrayInputStream ByteArrayOutputStream
@@ -15,14 +13,12 @@
 (set! *warn-on-reflection* true)
 
 (defn new-from-string [^String string & [^String encoding]]
-  (references/add-instance
-   (ByteArrayInputStream.
-    ^bytes (.getBytes string (or encoding "utf-8")))))
+  (ByteArrayInputStream.
+   ^bytes (.getBytes string (or encoding "utf-8"))))
 
 (defn new-from-bytes [^String string]
-  (references/add-instance
-   (ByteArrayInputStream.
-    ^bytes (utils/decode-base64 string))))
+  (ByteArrayInputStream.
+   ^bytes (utils/decode-base64 string)))
 
 (defn available [stream]
   (.available

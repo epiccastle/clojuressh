@@ -1,9 +1,7 @@
 (ns io.epiccastle.input-stream
   (:refer-clojure :exclude [read])
-  (:require [bbssh.impl.references :as references]
-            [io.epiccastle.callbacks :as callbacks]
-            [io.epiccastle.cleaner :as cleaner]
-            [bbssh.impl.utils :as utils])
+  (:require [io.epiccastle.callbacks :as callbacks]
+            [io.epiccastle.cleaner :as cleaner])
   (:import [java.io
             PipedInputStream PipedOutputStream
             ByteArrayInputStream ByteArrayOutputStream
@@ -16,20 +14,17 @@
 
 (defn new
   ([]
-   (references/add-instance
-    (PipedInputStream.)))
+   (PipedInputStream.))
   ([src-or-pipe-size]
-   (references/add-instance
-    (if (int? src-or-pipe-size)
-      (PipedInputStream.
-       ^int src-or-pipe-size)
-      (PipedInputStream.
-       ^PipedOutputStream (references/get-instance src-or-pipe-size)))))
+   (if (int? src-or-pipe-size)
+     (PipedInputStream.
+      ^int src-or-pipe-size)
+     (PipedInputStream.
+      ^PipedOutputStream (references/get-instance src-or-pipe-size))))
   ([src pipe-size]
-   (references/add-instance
-    (PipedInputStream.
-     ^PipedOutputStream (references/get-instance src)
-     ^int pipe-size))))
+   (PipedInputStream.
+    ^PipedOutputStream (references/get-instance src)
+    ^int pipe-size)))
 
 (defn close [stream]
   (.close
@@ -65,41 +60,40 @@
 (defn ^:async new-pod-proxy
   [reply-fn]
   (let [result
-        (references/add-instance
-         (proxy [InputStream] []
-           (available []
-             (callbacks/call-method reply-fn :available []))
-           (close []
-             (callbacks/call-method reply-fn :close []))
-           (mark [readlimit]
-             (callbacks/call-method reply-fn :mark [readlimit]))
-           (markSupported []
-             (callbacks/call-method reply-fn :mark-supported []))
-           (read
-             ([]
-              (callbacks/call-method reply-fn :read []))
-             ([^bytes bytes]
-              (let [[bytes-read base64]
-                    (callbacks/call-method
-                     reply-fn :read
-                     [(count bytes)])
-                    buffer (some-> base64 utils/decode-base64)]
-                (when buffer
-                  (System/arraycopy buffer 0 bytes 0 bytes-read))
-                bytes-read))
-             ([^bytes bytes offset length]
-              (let [[bytes-read base64]
-                    (callbacks/call-method
-                     reply-fn :read
-                     [length])
-                    buffer (some-> base64 utils/decode-base64)]
-                (when buffer
-                  (System/arraycopy buffer 0 bytes offset bytes-read))
-                bytes-read)))
-           (reset []
-             (callbacks/call-method reply-fn :reset []))
-           (skip [n]
-             (callbacks/call-method reply-fn :skip [n]))))]
+        (proxy [InputStream] []
+          (available []
+            (callbacks/call-method reply-fn :available []))
+          (close []
+            (callbacks/call-method reply-fn :close []))
+          (mark [readlimit]
+            (callbacks/call-method reply-fn :mark [readlimit]))
+          (markSupported []
+            (callbacks/call-method reply-fn :mark-supported []))
+          (read
+            ([]
+             (callbacks/call-method reply-fn :read []))
+            ([^bytes bytes]
+             (let [[bytes-read base64]
+                   (callbacks/call-method
+                    reply-fn :read
+                    [(count bytes)])
+                   buffer (some-> base64 utils/decode-base64)]
+               (when buffer
+                 (System/arraycopy buffer 0 bytes 0 bytes-read))
+               bytes-read))
+            ([^bytes bytes offset length]
+             (let [[bytes-read base64]
+                   (callbacks/call-method
+                    reply-fn :read
+                    [length])
+                   buffer (some-> base64 utils/decode-base64)]
+               (when buffer
+                 (System/arraycopy buffer 0 bytes offset bytes-read))
+               bytes-read)))
+          (reset []
+            (callbacks/call-method reply-fn :reset []))
+          (skip [n]
+            (callbacks/call-method reply-fn :skip [n])))]
     (cleaner/register-delete-fn result #(reply-fn [:done] ["done"]))
     (reply-fn [:result result])
     nil))

@@ -1,7 +1,5 @@
 (ns io.epiccastle.session
-  (:require [bbssh.impl.references :as references]
-            [bbssh.impl.utils :as utils]
-            [clojure.string :as string])
+  (:require [clojure.string :as string])
   (:import [com.jcraft.jsch JSch Session
             UserInfo IdentityRepository
             HostKeyRepository Proxy ProxyHTTP ProxySOCKS4 ProxySOCKS5])
@@ -195,10 +193,9 @@
 
 (defn open-channel
   [session type]
-  (references/add-instance
-   (.openChannel
-    ^Session (references/get-instance session)
-    ^String type)))
+  (.openChannel
+   ^Session (references/get-instance session)
+   ^String type))
 
 (defn set-identity-repository
   [session identity-repository]

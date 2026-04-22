@@ -1,6 +1,5 @@
 (ns io.epiccastle.socket
-  (:refer-clojure :exclude [read])
-  (:require [bbssh.impl.utils :as utils]))
+  (:refer-clojure :exclude [read]))
 
 (defn open [sock-path]
   (BbsshUtils/ssh-open-auth-socket sock-path)

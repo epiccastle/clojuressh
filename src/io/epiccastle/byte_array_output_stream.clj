@@ -1,9 +1,7 @@
 (ns io.epiccastle.byte-array-output-stream
   (:refer-clojure :exclude [flush])
-  (:require [bbssh.impl.references :as references]
-            [io.epiccastle.callbacks :as callbacks]
-            [io.epiccastle.cleaner :as cleaner]
-            [bbssh.impl.utils :as utils])
+  (:require [io.epiccastle.callbacks :as callbacks]
+            [io.epiccastle.cleaner :as cleaner])
   (:import [java.io
             ByteArrayOutputStream OutputStream]))
 
@@ -13,11 +11,9 @@
 
 (defn new
   ([]
-   (references/add-instance
-    (ByteArrayOutputStream.)))
+   (ByteArrayOutputStream.))
   ([size]
-   (references/add-instance
-    (ByteArrayOutputStream. size))))
+   (ByteArrayOutputStream. size)))
 
 (defn close [stream]
   (.close

@@ -1,7 +1,5 @@
 (ns io.epiccastle.config-repository
-  (:require [bbssh.impl.references :as references]
-            [bbssh.impl.utils :as utils]
-            [io.epiccastle.callbacks :as callbacks]
+  (:require [io.epiccastle.callbacks :as callbacks]
             [io.epiccastle.cleaner :as cleaner])
   (:import [com.jcraft.jsch ConfigRepository OpenSSHConfig]
            [java.util Vector]))
@@ -12,11 +10,10 @@
 
 (defn ^:async new [reply-fn]
   (let [result
-        (references/add-instance
-         (proxy [ConfigRepository] []
-           (getConfig [hostname]
-             (references/get-instance
-              (callbacks/call-method reply-fn :get-config [hostname])))))]
+        (proxy [ConfigRepository] []
+          (getConfig [hostname]
+            (references/get-instance
+             (callbacks/call-method reply-fn :get-config [hostname]))))]
     (cleaner/register-delete-fn result #(reply-fn [:done] ["done"]))
     (reply-fn [:result result])
     nil))
@@ -27,9 +24,7 @@
    ^String hostname))
 
 (defn openssh-config-file [config-file]
-  (references/add-instance
-   (OpenSSHConfig/parseFile config-file)))
+  (OpenSSHConfig/parseFile config-file))
 
 (defn openssh-config-string [config]
-  (references/add-instance
-   (OpenSSHConfig/parse config)))
+  (OpenSSHConfig/parse config))

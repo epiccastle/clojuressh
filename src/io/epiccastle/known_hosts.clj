@@ -1,6 +1,4 @@
 (ns io.epiccastle.known-hosts
-  (:require [bbssh.impl.references :as references]
-            [bbssh.impl.utils :as utils])
   (:import [com.jcraft.jsch KnownHosts JSch]))
 
 ;; (defn new

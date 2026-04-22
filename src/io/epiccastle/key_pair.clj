@@ -1,7 +1,5 @@
 (ns io.epiccastle.key-pair
   (:refer-clojure :exclude [load])
-  (:require [bbssh.impl.references :as references]
-            [bbssh.impl.utils :as utils])
   (:import [com.jcraft.jsch JSch KeyPair]))
 
 ;; io.epiccastle.* are invoked on pod side.
@@ -9,16 +7,15 @@
 (set! *warn-on-reflection* true)
 
 (defn generate [agent key-type key-size]
-  (references/add-instance
-   (KeyPair/genKeyPair
-    ^JSch (references/get-instance agent)
-    ^int ({:dsa KeyPair/DSA
-           :rsa KeyPair/RSA
-           :ecdsa KeyPair/ECDSA
-           :ed25519 KeyPair/ED25519
-           :ed448 KeyPair/ED448}
-          key-type)
-    ^int key-size)))
+  (KeyPair/genKeyPair
+   ^JSch (references/get-instance agent)
+   ^int ({:dsa KeyPair/DSA
+          :rsa KeyPair/RSA
+          :ecdsa KeyPair/ECDSA
+          :ed25519 KeyPair/ED25519
+          :ed448 KeyPair/ED448}
+         key-type)
+   ^int key-size))
 
 
 (defn set-passphrase [key-pair passphrase]
@@ -70,22 +67,20 @@
    ^bytes (utils/decode-base64 passphrase)))
 
 (defn load [agent private-key-file public-key-file]
-  (references/add-instance
-   (KeyPair/load
-    ^JSch (references/get-instance agent)
-    ^String private-key-file
-    ^String public-key-file)))
+  (KeyPair/load
+   ^JSch (references/get-instance agent)
+   ^String private-key-file
+   ^String public-key-file))
 
 (defn load-bytes [agent private-key-bytes public-key-bytes]
-  (references/add-instance
-    (let [private-key-bytes (when private-key-bytes
-                              (utils/decode-base64 private-key-bytes))
-          public-key-bytes (when public-key-bytes
-                             (utils/decode-base64 public-key-bytes))]
-      (KeyPair/load
-        ^JSch (references/get-instance agent)
-        ^bytes private-key-bytes
-        ^bytes public-key-bytes))))
+  (let [private-key-bytes (when private-key-bytes
+                            (utils/decode-base64 private-key-bytes))
+        public-key-bytes (when public-key-bytes
+                           (utils/decode-base64 public-key-bytes))]
+    (KeyPair/load
+      ^JSch (references/get-instance agent)
+      ^bytes private-key-bytes
+      ^bytes public-key-bytes)))
 
 (defn get-signature
   ([key-pair data]

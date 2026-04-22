@@ -1,7 +1,5 @@
 (ns io.epiccastle.agent
-  (:require [bbssh.impl.references :as references]
-            [bbssh.impl.utils :as utils]
-            [clojure.java.io :as io])
+  (:require [clojure.java.io :as io])
   (:import [com.jcraft.jsch JSch Logger
             IdentityRepository HostKeyRepository
             ConfigRepository Identity]
@@ -13,34 +11,29 @@
 (set! *warn-on-reflection* true)
 
 (defn new []
-  (references/add-instance
-   (JSch.)))
+  (JSch.))
 
 (defn get-session
   ([agent host]
-   (references/add-instance
-    (.getSession
-     ^JSch (references/get-instance agent)
-     ^String host)))
+   (.getSession
+    ^JSch (references/get-instance agent)
+    ^String host))
   ([agent username host]
-   (references/add-instance
-    (.getSession
-     ^JSch (references/get-instance agent)
-     ^String username
-     ^String host)))
+   (.getSession
+    ^JSch (references/get-instance agent)
+    ^String username
+    ^String host))
   ([agent username host port]
-   (references/add-instance
-    (.getSession
-     ^JSch (references/get-instance agent)
-     ^String username
-     ^String host
-     ^int port))))
+   (.getSession
+    ^JSch (references/get-instance agent)
+    ^String username
+    ^String host
+    ^int port)))
 
 (defn get-identity-repository
   [agent]
-  (references/add-instance
-   (.getIdentityRepository
-    ^JSch (references/get-instance agent))))
+  (.getIdentityRepository
+   ^JSch (references/get-instance agent)))
 
 (defn set-identity-repository
   [agent identity-repository]
@@ -50,9 +43,8 @@
 
 (defn get-config-repository
   [agent]
-  (references/add-instance
-   (.getConfigRepository
-    ^JSch (references/get-instance agent))))
+  (.getConfigRepository
+   ^JSch (references/get-instance agent)))
 
 (defn set-config-repository
   [agent config-repository]
@@ -62,9 +54,8 @@
 
 (defn get-host-key-repository
   [agent]
-  (references/add-instance
-   (.getHostKeyRepository
-    ^JSch (references/get-instance agent))))
+  (.getHostKeyRepository
+   ^JSch (references/get-instance agent)))
 
 (defn set-host-key-repository
   [agent host-key-repository]
