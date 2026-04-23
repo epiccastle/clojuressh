@@ -1,9 +1,9 @@
-(ns pod.epiccastle.bbssh.ssh-agent
+(ns cljssh.ssh-agent
   "Implements an identity-repository that communicates with your local ssh agent (ssh keychain) over the SSH_AUTH_SOCK unix domain pipe."
   (:require [pod.epiccastle.bbssh.impl.pack :as pack]
             [pod.epiccastle.bbssh.impl.socket :as socket]
-            [pod.epiccastle.bbssh.identity :as identity]
-            [pod.epiccastle.bbssh.identity-repository :as identity-repository]))
+            [cljssh.identity :as identity]
+            [cljssh.identity-repository :as identity-repository]))
 
 (def ^:private codes
   {:ssh-agent-failure 5

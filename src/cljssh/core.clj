@@ -1,18 +1,18 @@
-(ns pod.epiccastle.bbssh.core
+(ns cljssh.core
   "Basic connection, execution, shell and copying functionality."
-  (:require [pod.epiccastle.bbssh.agent :as agent]
-            [pod.epiccastle.bbssh.session :as session]
+  (:require [cljssh.agent :as agent]
+            [cljssh.session :as session]
             [pod.epiccastle.bbssh.impl.utils :as utils]
-            [pod.epiccastle.bbssh.user-info :as user-info]
-            [pod.epiccastle.bbssh.host-key-repository :as host-key-repository]
-            [pod.epiccastle.bbssh.config-repository :as config-repository]
-            [pod.epiccastle.bbssh.terminal :as terminal]
-            [pod.epiccastle.bbssh.channel-exec :as channel-exec]
-            [pod.epiccastle.bbssh.input-stream :as input-stream]
-            [pod.epiccastle.bbssh.output-stream :as output-stream]
-            [pod.epiccastle.bbssh.byte-array-output-stream :as byte-array-output-stream]
-            [pod.epiccastle.bbssh.byte-array-input-stream :as byte-array-input-stream]
-            [pod.epiccastle.bbssh.ssh-agent :as ssh-agent]
+            [cljssh.user-info :as user-info]
+            [cljssh.host-key-repository :as host-key-repository]
+            [cljssh.config-repository :as config-repository]
+            [cljssh.terminal :as terminal]
+            [cljssh.channel-exec :as channel-exec]
+            [cljssh.input-stream :as input-stream]
+            [cljssh.output-stream :as output-stream]
+            [cljssh.byte-array-output-stream :as byte-array-output-stream]
+            [cljssh.byte-array-input-stream :as byte-array-input-stream]
+            [cljssh.ssh-agent :as ssh-agent]
             [clojure.java.io :as io]))
 
 (def ^:private special-config-var-names
