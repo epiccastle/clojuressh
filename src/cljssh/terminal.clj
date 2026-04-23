@@ -4,76 +4,6 @@
            [com.sun.jna Function Memory Native NativeLibrary Pointer]
            [com.sun.jna.ptr IntByReference]))
 
-(def ^:private ^:const esc 27)
-
-(defn- write-stdout
-  "Write a string to stdout and flush immediately."
-  [^String s]
-  (let [out System/out]
-    (.write out (.getBytes s "US-ASCII"))
-    (.flush out)))
-
-(defn- read-byte!
-  "Blocking read of one byte from stdin. Returns an int, or -1 on EOF."
-  ^long []
-  (.read ^InputStream System/in))
-
-(defn- query-cursor-position
-  "Send the DSR (Device Status Report) escape sequence `ESC[6n` and parse
-  the terminal's reply of the form `ESC[<row>;<col>R`.
-
-  The terminal MUST already be in raw (non-canonical, no-echo) mode, or
-  this will block waiting for a newline and corrupt the user's input.
-
-  Returns `[rows cols]` as integers, or nil if the reply could not be
-  parsed or EOF was reached."
-  []
-  ;; Move cursor to a very high row/column; the terminal clamps this to
-  ;; its actual bottom-right. Save/restore cursor around the probe so
-  ;; we don't disturb whatever the caller was drawing.
-  (write-stdout (str (char esc) "[s"
-                     (char esc) "[9999;9999H"
-                     (char esc) "[6n"
-                     (char esc) "[u"))
-  ;; Skip bytes until we see ESC, then expect '['. Collect digits and
-  ;; ';' until 'R'. This tolerates stray input bytes arriving before
-  ;; the report.
-  (loop [state :await-esc
-         buf   (StringBuilder.)]
-    (let [b (read-byte!)]
-      (cond
-        (neg? b) nil
-
-        (= state :await-esc)
-        (if (= b esc)
-          (recur :await-bracket buf)
-          (recur :await-esc buf))
-
-        (= state :await-bracket)
-        (if (= b (int \[))
-          (recur :collect buf)
-          ;; Not a CSI — resync.
-          (recur :await-esc buf))
-
-        (= state :collect)
-        (cond
-          (= b (int \R))
-          (let [parts (str/split (.toString buf) #";")]
-            (when (= 2 (count parts))
-              (try
-                [(Integer/parseInt (nth parts 0))
-                 (Integer/parseInt (nth parts 1))]
-                (catch NumberFormatException _ nil))))
-
-          (or (<= (int \0) b (int \9))
-              (= b (int \;)))
-          (do (.append buf (char b))
-              (recur :collect buf))
-
-          :else
-          ;; Unexpected byte; abandon and resync.
-          (recur :await-esc (StringBuilder.)))))))
-
 (defn is-terminal?
   "Returns true if stdout is connected to a terminal.
 
@@ -82,25 +12,6 @@
   or piped). No shell process is invoked."
   []
   (some? (System/console)))
-
-(defn get-width
-  "Return the width (columns) of the terminal.
-
-  Works by querying the terminal with the ANSI DSR `ESC[6n` escape
-  sequence and parsing the reply. The terminal MUST already be in raw
-  (non-canonical, no-echo) mode, otherwise this will block waiting
-  for a newline."
-  []
-  (when-let [[_ cols] (query-cursor-position)]
-    cols))
-
-(defn get-height
-  "Return the height (rows) of the terminal.
-
-  See `get-width` for preconditions."
-  []
-  (when-let [[rows _] (query-cursor-position)]
-    rows))
 
 ;; -----------------------------------------------------------------
 ;; Raw-mode support via JNA + POSIX termios
@@ -424,3 +335,96 @@
     (if (= os :windows)
       (in-raw-mode-windows?)
       (in-raw-mode-posix?))))
+
+;; -----------------------------------------------------------------
+;; Terminal size querying via DSR (Device Status Report)
+;; -----------------------------------------------------------------
+
+(def ^:private ^:const esc 27)
+
+(defn- write-stdout
+  "Write a string to stdout and flush immediately."
+  [^String s]
+  (let [out System/out]
+    (.write out (.getBytes s "US-ASCII"))
+    (.flush out)))
+
+(defn- read-byte!
+  "Blocking read of one byte from stdin. Returns an int, or -1 on EOF."
+  ^long []
+  (.read ^InputStream System/in))
+
+(defn- query-terminal-size
+  "Send the DSR (Device Status Report) escape sequence `ESC[6n` and parse
+   the terminal's reply of the form `ESC[<row>;<col>R`.
+
+  The terminal MUST already be in raw (non-canonical, no-echo) mode, or
+  this will block waiting for a newline and corrupt the user's input.
+
+  Returns `[rows cols]` as integers, or nil if the reply could not be
+  parsed or EOF was reached."
+  []
+  ;; Move cursor to a very high row/column; the terminal clamps this to
+  ;; its actual bottom-right. Save/restore cursor around the probe so
+  ;; we don't disturb whatever the caller was drawing.
+  (write-stdout (str (char esc) "[s"
+                     (char esc) "[9999;9999H"
+                     (char esc) "[6n"
+                     (char esc) "[u"))
+  ;; Skip bytes until we see ESC, then expect '['. Collect digits and
+  ;; ';' until 'R'. This tolerates stray input bytes arriving before
+  ;; the report.
+  (loop [state :await-esc
+         buf   (StringBuilder.)]
+    (let [b (read-byte!)]
+      (cond
+        (neg? b) nil
+
+        (= state :await-esc)
+        (if (= b esc)
+          (recur :await-bracket buf)
+          (recur :await-esc buf))
+
+        (= state :await-bracket)
+        (if (= b (int \[))
+          (recur :collect buf)
+          ;; Not a CSI — resync.
+          (recur :await-esc buf))
+
+        (= state :collect)
+        (cond
+          (= b (int \R))
+          (let [parts (str/split (.toString buf) #";")]
+            (when (= 2 (count parts))
+              (try
+                [(Integer/parseInt (nth parts 0))
+                 (Integer/parseInt (nth parts 1))]
+                (catch NumberFormatException _ nil))))
+
+          (or (<= (int \0) b (int \9))
+              (= b (int \;)))
+          (do (.append buf (char b))
+              (recur :collect buf))
+
+          :else
+          ;; Unexpected byte; abandon and resync.
+          (recur :await-esc (StringBuilder.)))))))
+
+(defn get-width
+  "Return the width (columns) of the terminal.
+
+  Works by querying the terminal with the ANSI DSR `ESC[6n` escape
+  sequence and parsing the reply. The terminal MUST already be in raw
+  (non-canonical, no-echo) mode, otherwise this will block waiting
+  for a newline."
+  []
+  (when-let [[_ cols] (query-terminal-size)]
+    cols))
+
+(defn get-height
+  "Return the height (rows) of the terminal.
+
+  See `get-width` for preconditions."
+  []
+  (when-let [[rows _] (query-terminal-size)]
+    rows))
