@@ -18,19 +18,36 @@
   (ByteArrayInputStream.
    ^bytes string))
 
-(defn available [^ByteArrayInputStream stream]
+(defn available
+  "Returns the number of remaining bytes that can be read (or skipped over) from this input stream."
+  [^ByteArrayInputStream stream]
   (.available stream))
 
-(defn close [^ByteArrayInputStream stream]
+(defn close
+  "Closing a ByteArrayInputStream has no effect."
+  [^ByteArrayInputStream stream]
   (.close stream))
 
-(defn mark [^ByteArrayInputStream stream read-ahead-limit]
+(defn mark
+  "Set the current marked position in the stream."
+  [^ByteArrayInputStream stream read-ahead-limit]
   (.mark stream read-ahead-limit))
 
-(defn mark-supported [^ByteArrayInputStream stream]
+(defn mark-supported
+  "Tests if this InputStream supports mark/reset."
+  [^ByteArrayInputStream stream]
   (.markSupported stream))
 
 (defn read
+  "`(read stream)`
+  Read a single byte from the stream. Returns an int. Blocks
+  if a byte is not available.
+
+  `(read stream byte-array offset length)`
+  Try and read `length` bytes from the `stream` and store them into
+  a `byte-array` starting at `offset`. Returns the number of bytes
+  successfully read. Does not block.
+  "
   ([^ByteArrayInputStream stream]
    (.read stream))
   ([stream bytes]
@@ -47,8 +64,12 @@
         0 ""
          (Arrays/copyOfRange arr 0 bytes-read))])))
 
-(defn reset [^ByteArrayInputStream stream]
+(defn reset
+  "Resets the buffer to the marked position."
+  [^ByteArrayInputStream stream]
   (.reset stream))
 
-(defn skip [^ByteArrayInputStream stream n]
+(defn skip
+  "Skips `n` bytes of input from this input stream."
+  [^ByteArrayInputStream stream n]
   (.skip stream n))

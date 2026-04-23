@@ -11,6 +11,8 @@
 (set! *warn-on-reflection* true)
 
 (defn new
+  "Create a new PipedInputStream on the pod heap. Return
+  a reference to it for babashka use."
   ([]
    (PipedInputStream.))
   ([src-or-pipe-size]
@@ -22,10 +24,21 @@
   ([^PipedOutputStream src ^int pipe-size]
    (PipedInputStream. src pipe-size)))
 
-(defn close [^PipedInputStream stream]
+(defn close
+  "Close the stream"
+  [^PipedInputStream stream]
   (.close stream))
 
 (defn read
+  "`(read stream)`
+  Read a single byte from the stream. Returns an int. Blocks
+  if a byte is not available.
+
+  `(read stream byte-array offset length)`
+  Try and read `length` bytes from the `stream` and store them into
+  a `byte-array` starting at `offset`. Returns the number of bytes
+  successfully read. Does not block.
+  "
   ([^PipedInputStream stream]
    (.read stream))
   ([stream bytes]
@@ -42,10 +55,15 @@
         0 ""
         (Arrays/copyOfRange arr 0 bytes-read))])))
 
-(defn available [^PipedInputStream stream]
+(defn available
+  "Return the number of bytes available and waiting to be read
+  immediately in the stream"
+  [^PipedInputStream stream]
   (.available stream))
 
-(defn connect [^PipedInputStream stream ^PipedOutputStream source]
+(defn connect
+  "Connect a bbssh PipedOutputStream to this stream."
+  [^PipedInputStream stream ^PipedOutputStream source]
   (.connect stream source))
 
 (defn new-pod-proxy

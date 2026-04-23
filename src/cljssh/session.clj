@@ -7,10 +7,16 @@
 
 (set! *warn-on-reflection* true)
 
-(defn set-password [^Session session ^String password]
+(defn set-password
+  "Set the password the session will use to authenticate to
+  `password`"
+  [^Session session ^String password]
   (.setPassword session password))
 
-(defn set-user-info [^Session session ^UserInfo user-info]
+(defn set-user-info
+  "Set the `user-info` for the `session`. The session will
+  use this user-info structure to ask for passwords and passphrases."
+  [^Session session ^UserInfo user-info]
   (.setUserInfo session user-info))
 
 (defn make-proxy
@@ -29,15 +35,19 @@
     proxy))
 
 (defn set-proxy
+  "sets the http/socks proxy to connect with the ssh server.
+
+  The provided arg must have at least `:type` (one of
+  `#{:http :socks4 :socks5}`), `:host`, `:port` and optionally `:username` and
+  `:password` for proxy authentication. "
   [^Session session proxy]
   (.setProxy
     session
     ^Proxy (make-proxy proxy)))
 
 (defn connect
-  "marked ^:blocking because connect blocks until the connection
-  is made. This process may need many async callbacks via user-info
-  and identity stores"
+  "Initiate the ssh connection with an optional `timeout`
+  (in milliseconds)."
   [session & [timeout]]
   (if timeout
     (.connect
@@ -46,10 +56,37 @@
     (.connect
      ^Session session)))
 
-(defn disconnect [^Session session]
+(defn disconnect
+  "Disconnect the ssh connection"
+  [^Session session]
   (.disconnect session))
 
 (defn set-port-forwarding-local
+  "Register the local port to forward all connection to the remote
+  side, where they will connect to a remote host on a port.
+
+  `options` is a hashmap with one of the following forms
+
+  To port forward to a remote TCP/IP port
+  ```clj
+  {
+    :bind-address \"127.0.0.1\"              ;; the local interface to bind to. Use \"*\" or \"0.0.0.0\" for all interfaces.
+    :local-port 2200                       ;; the local port to listen on
+    :remote-host \"jump-target.domain.com\"  ;; the remote host to forward the connection to on the remote side
+    :remote-port 22                        ;; the remote port to forward to
+    :connect-timeout 30000                 ;; how long to try to connect for
+  }
+  ```
+
+  To port forward to a remote unix domain socket
+  ```clj
+  {
+    :bind-address \"127.0.0.1\"              ;; the local interface to bind to. Use \"*\" or \"0.0.0.0\" for all interfaces.
+    :local-port 2200                       ;; the local port to listen on
+    :remote-unix-socket \"/var/run/socket\"  ;; the remote host to forward the connection to on the remote side
+    :connect-timeout 30000                 ;; how long to try to connect for
+  }
+  "
   [session
    {:keys [bind-address
            local-port
@@ -78,6 +115,7 @@
       ^int connect-timeout)))
 
 (defn delete-port-forwarding-local
+  "Cancels the specified local port forwarding"
   [session
    {:keys [bind-address
            local-port]
@@ -88,6 +126,8 @@
    ^int local-port))
 
 (defn get-port-forwarding-local
+  "return a list of all the local port forwards. List elements
+  are of the form \"local-port:host:host-port\"."
   [session]
   (->>
    (.getPortForwardingL
@@ -104,6 +144,21 @@
                 :remote-port (Integer/parseInt remote-port)}))))))
 
 (defn set-port-forwarding-remote
+  "Register the remote port to forward to the local machine and then
+  connect out to a host on the local network.
+
+  `options` is a hashmap for the following form
+
+  ```clj
+  {
+    :bind-address \"127.0.0.1\"            ;; the remote interface to bind to. Use \"*\" or \"0.0.0.0\" for all interfaces.
+    :remote-port 22                        ;; the remote port to bind to
+    :local-host \"host.localdomain\"       ;; the local network host to forward the connection to on the local side
+    :local-port 2200                       ;; the local port to connect to
+    :connect-timeout 30000                 ;; how long to try to connect for
+  }
+  ```
+  "
   [session
    {:keys [bind-address
            remote-port
@@ -119,6 +174,7 @@
    ^int local-port))
 
 (defn delete-port-forwarding-remote
+  "Cancels the specified remote port forwarding"
   [session
    {:keys [bind-address
            remote-port]
@@ -129,6 +185,8 @@
    ^int remote-port))
 
 (defn get-port-forwarding-remote
+  "return a list of all the remote port forwards. List elements
+  are of the form \"local-port:host:host-port\"."
   [session]
   (->>
    (.getPortForwardingR
@@ -141,14 +199,17 @@
               :local-port (Integer/parseInt remote-port)})))))
 
 (defn set-host
+  "Set the host to connect to"
   [^Session session ^String host]
   (.setHost session host))
 
 (defn set-port
+  "Set the port to connect to"
   [^Session session ^int port]
   (.setHost session port))
 
 (defn set-config
+  "Set the config setting `key` to `value`"
   [^Session session key value]
   (.setConfig
    session
@@ -158,6 +219,8 @@
    ^String (utils/boolean-to-yes-no value)))
 
 (defn set-configs
+  "Merge the config values from the passed in hashmap into the session
+  config"
   [session hashmap]
   (doseq [[key value] hashmap]
     (.setConfig
@@ -168,6 +231,7 @@
      ^String (utils/boolean-to-yes-no value))))
 
 (defn get-config
+  "Get the current config setting `key`"
   [^Session session key]
   (.getConfig
    session
@@ -176,17 +240,23 @@
              key)))
 
 (defn connected?
+  "return true if session is currently connected"
   [^Session session]
   (.isConnected session))
 
 (defn open-channel
+  "open a channel on the session and return it"
   [^Session session ^String type]
   (.openChannel session type))
 
 (defn set-identity-repository
+  "sets the identity-repository that will be used in the
+  public key authentication"
   [^Session session ^IdentityRepository identity-repository]
   (.setIdentityRepository session identity-repository))
 
 (defn set-host-key-repository
+  "sets the host-key-repository that will be used in the
+  public key authentication"
   [^Session session ^HostKeyRepository host-key-repository]
   (.setHostKeyRepository session host-key-repository))
