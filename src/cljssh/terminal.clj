@@ -120,11 +120,32 @@
 ;; Library interface required. Both libc and kernel32 are loaded
 ;; lazily so merely requiring this namespace on the "wrong" OS
 ;; doesn't trigger a missing-library error.
+;;
+;; The `try` wrapper gives a clearer error if a future JDK upgrades
+;; the current "restricted native-access" warning into a hard
+;; failure. On JDK 22-25 today the load succeeds and prints a
+;; warning to stderr; the catch is dormant. On a future JDK where
+;; `--enable-native-access=ALL-UNNAMED` is mandatory, users get a
+;; pointed message instead of an opaque IllegalCallerException.
+
+(defn- load-native! [^String libname]
+  (try
+    (NativeLibrary/getInstance libname)
+    (catch Throwable t
+      (throw (ex-info
+               (str "cljssh.terminal could not load native library \"" libname "\". "
+                    "This is usually because the JVM was started without "
+                    "--enable-native-access=ALL-UNNAMED on a JDK version that "
+                    "requires it. Add that flag to your :jvm-opts (in deps.edn) "
+                    "or project.clj, or pass it directly to the `java` command.")
+               {:libname libname}
+               t)))))
+
 (def ^:private libc
-  (delay (NativeLibrary/getInstance "c")))
+  (delay (load-native! "c")))
 
 (def ^:private kernel32
-  (delay (NativeLibrary/getInstance "kernel32")))
+  (delay (load-native! "kernel32")))
 
 (defn- ^Function libc-fn [^String name]
   (.getFunction ^NativeLibrary @libc name))

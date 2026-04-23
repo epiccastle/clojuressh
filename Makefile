@@ -12,7 +12,7 @@ help:
 	@echo "  make repl     - Start a Clojure REPL"
 
 run:
-	clojure -M -m cljssh
+	clojure -M:run
 
 test:
 	clojure -M:test

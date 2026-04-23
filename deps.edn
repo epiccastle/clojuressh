@@ -5,11 +5,19 @@
         net.java.dev.jna/jna {:mvn/version "5.14.0"}}
 
  :aliases
- {:test
+ {:run
+  ;; Grant the JNA-loaded native libraries access without the
+  ;; JDK 24+ "restricted method" warning. Required on JDK 24+,
+  ;; harmless on earlier JDKs.
+  {:main-opts ["-m" "cljssh"]
+   :jvm-opts  ["--enable-native-access=ALL-UNNAMED"]}
+
+  :test
   {:extra-paths ["test"]
    :extra-deps {io.github.cognitect-labs/test-runner
                 {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
    :main-opts ["-m" "cognitect.test-runner"]
+   :jvm-opts  ["--enable-native-access=ALL-UNNAMED"]
    :exec-fn cognitect.test-runner.api/test}
 
   :build
