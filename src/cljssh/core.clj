@@ -2,7 +2,7 @@
   "Basic connection, execution, shell and copying functionality."
   (:require [cljssh.agent :as agent]
             [cljssh.session :as session]
-            [pod.epiccastle.bbssh.impl.utils :as utils]
+            [cljssh.impl.utils :as utils]
             [cljssh.user-info :as user-info]
             [cljssh.host-key-repository :as host-key-repository]
             [cljssh.config-repository :as config-repository]
