@@ -1,6 +1,4 @@
 (ns cljssh.config
-  (:require [cljssh.callbacks :as callbacks]
-            [cljssh.cleaner :as cleaner])
   (:import [com.jcraft.jsch ConfigRepository$Config]))
 
 (set! *warn-on-reflection* true)

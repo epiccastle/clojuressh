@@ -1,7 +1,5 @@
 (ns cljssh.host-key-repository
   (:refer-clojure :exclude [remove])
-  (:require [cljssh.callbacks :as callbacks]
-            [cljssh.cleaner :as cleaner])
   (:import [com.jcraft.jsch HostKeyRepository HostKey UserInfo]))
 
 (set! *warn-on-reflection* true)

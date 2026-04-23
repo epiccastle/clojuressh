@@ -1,7 +1,5 @@
 (ns cljssh.output-stream
   (:refer-clojure :exclude [flush])
-  (:require [cljssh.callbacks :as callbacks]
-            [cljssh.cleaner :as cleaner])
   (:import [java.io
             PipedOutputStream PipedInputStream
             OutputStream]))

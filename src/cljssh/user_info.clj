@@ -1,6 +1,4 @@
 (ns cljssh.user-info
-  (:require [cljssh.callbacks :as callbacks]
-            [cljssh.cleaner :as cleaner])
   (:import [com.jcraft.jsch UserInfo]))
 
 (set! *warn-on-reflection* true)

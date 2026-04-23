@@ -1,6 +1,4 @@
 (ns cljssh.config-repository
-  (:require [cljssh.callbacks :as callbacks]
-            [cljssh.cleaner :as cleaner])
   (:import [com.jcraft.jsch ConfigRepository OpenSSHConfig]
            [java.util Vector]))
 

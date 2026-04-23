@@ -1,6 +1,4 @@
 (ns cljssh.identity
-  (:require [cljssh.callbacks :as callbacks]
-            [cljssh.cleaner :as cleaner])
   (:import [com.jcraft.jsch Identity]))
 
 (set! *warn-on-reflection* true)

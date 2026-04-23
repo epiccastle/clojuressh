@@ -1,6 +1,4 @@
 (ns cljssh.identity-repository
-  (:require [cljssh.callbacks :as callbacks]
-            [cljssh.cleaner :as cleaner])
   (:import [com.jcraft.jsch IdentityRepository]
            [java.util Vector]))
 
