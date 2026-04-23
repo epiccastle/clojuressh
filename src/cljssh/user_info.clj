@@ -47,24 +47,20 @@
     Display for the user the specified message.
 
   "
-  [reply-fn]
-  (let [result
-        (proxy [UserInfo] []
-          (getPassword []
-            (callbacks/call-method reply-fn :get-password []))
-          (promptYesNo [^String s]
-            (boolean
-             (callbacks/call-method reply-fn :prompt-yes-no [s])))
-          (getPassphrase []
-            (callbacks/call-method reply-fn :get-passphrase []))
-          (promptPassphrase [^String s]
-            (boolean
-             (callbacks/call-method reply-fn :prompt-passphrase [s])))
-          (promptPassword [^String s]
-            (boolean
-             (callbacks/call-method reply-fn :prompt-password [s])))
-          (showMessage [^String s]
-            (callbacks/call-method reply-fn :show-message [s])))]
-    (cleaner/register-delete-fn result #(reply-fn [:done] ["done"]))
-    (reply-fn [:result result])
-    nil))
+  [callbacks]
+  (proxy [UserInfo] []
+    (getPassword []
+      ((:get-password callbacks)))
+    (promptYesNo [^String s]
+      (boolean
+       ((:prompt-yes-no callbacks) s)))
+    (getPassphrase []
+      ((:get-passphrase callbacks)))
+    (promptPassphrase [^String s]
+      (boolean
+       ((:prompt-passphrase callbacks) s)))
+    (promptPassword [^String s]
+      (boolean
+       ((:prompt-password callbacks) s)))
+    (showMessage [^String s]
+      ((:show-message callbacks) s))))

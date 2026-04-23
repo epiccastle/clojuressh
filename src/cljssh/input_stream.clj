@@ -65,42 +65,34 @@
   (.connect stream source))
 
 (defn new-pod-proxy
-  [reply-fn]
-  (let [result
-        (proxy [InputStream] []
-          (available []
-            (callbacks/call-method reply-fn :available []))
-          (close []
-            (callbacks/call-method reply-fn :close []))
-          (mark [readlimit]
-            (callbacks/call-method reply-fn :mark [readlimit]))
-          (markSupported []
-            (callbacks/call-method reply-fn :mark-supported []))
-          (read
-            ([]
-             (callbacks/call-method reply-fn :read []))
-            ([^bytes bytes]
-             (let [[bytes-read base64]
-                   (callbacks/call-method
-                    reply-fn :read
-                    [(count bytes)])
-                   buffer base64]
-               (when buffer
-                 (System/arraycopy buffer 0 bytes 0 bytes-read))
-               bytes-read))
-            ([^bytes bytes offset length]
-             (let [[bytes-read base64]
-                   (callbacks/call-method
-                    reply-fn :read
-                    [length])
-                   buffer base64]
-               (when buffer
-                 (System/arraycopy buffer 0 bytes offset bytes-read))
-               bytes-read)))
-          (reset []
-            (callbacks/call-method reply-fn :reset []))
-          (skip [n]
-            (callbacks/call-method reply-fn :skip [n])))]
-    (cleaner/register-delete-fn result #(reply-fn [:done] ["done"]))
-    (reply-fn [:result result])
-    nil))
+  [callbacks]
+  (proxy [InputStream] []
+    (available []
+      ((:available callbacks)))
+    (close []
+      ((:close callbacks)))
+    (mark [readlimit]
+      ((:mark callbacks) readlimit))
+    (markSupported []
+      ((:mark-supported callbacks)))
+    (read
+      ([]
+       ((:read callbacks)))
+      ([^bytes bytes]
+       (let [[bytes-read base64]
+             ((:read callbacks) (count bytes))
+             buffer base64]
+         (when buffer
+           (System/arraycopy buffer 0 bytes 0 bytes-read))
+         bytes-read))
+      ([^bytes bytes offset length]
+       (let [[bytes-read base64]
+             ((:read callbacks) length)
+             buffer base64]
+         (when buffer
+           (System/arraycopy buffer 0 bytes offset bytes-read))
+         bytes-read)))
+    (reset []
+      ((:reset callbacks)))
+    (skip [n]
+      ((:skip callbacks) n))))

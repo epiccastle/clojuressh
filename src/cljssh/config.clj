@@ -34,24 +34,20 @@
   ```
      return a vector of srtings in this config for the specified
   key."
-  [reply-fn]
-  (let [result
-        (proxy [ConfigRepository$Config] []
-          (getHostname []
-            (callbacks/call-method reply-fn :get-hostname []))
-          (getUser []
-            (callbacks/call-method reply-fn :get-user []))
-          (getPort []
-            (callbacks/call-method reply-fn :get-port []))
-          (getValue [key]
-            (callbacks/call-method reply-fn :get-value [key]))
-          (getValues [key]
-            (into-array
-             String
-             (callbacks/call-method reply-fn :get-values [key]))))]
-    (cleaner/register-delete-fn result #(reply-fn [:done] ["done"]))
-    (reply-fn [:result result])
-    nil))
+  [callbacks]
+  (proxy [ConfigRepository$Config] []
+    (getHostname []
+      ((:get-hostname callbacks)))
+    (getUser []
+      ((:get-user callbacks)))
+    (getPort []
+      ((:get-port callbacks)))
+    (getValue [key]
+      ((:get-value callbacks) key))
+    (getValues [key]
+      (into-array
+       String
+       ((:get-values callbacks) key)))))
 
 (defn get-hostname
   "return the hostname from a config object"

@@ -14,14 +14,10 @@
   ```
      return a config object to be used for the specified hostname.
   "
-  [reply-fn]
-  (let [result
-        (proxy [ConfigRepository] []
-          (getConfig [hostname]
-            (callbacks/call-method reply-fn :get-config [hostname])))]
-    (cleaner/register-delete-fn result #(reply-fn [:done] ["done"]))
-    (reply-fn [:result result])
-    nil))
+  [callbacks]
+  (proxy [ConfigRepository] []
+    (getConfig [hostname]
+      ((:get-config callbacks) hostname))))
 
 (defn get-config
   "return the config reference for the specified `hostname` in

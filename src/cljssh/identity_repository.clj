@@ -42,26 +42,18 @@
     empty the repository
 
   "
-  [reply-fn]
-  (let [result
-        (proxy [IdentityRepository] []
-          (getName []
-            (callbacks/call-method reply-fn :get-name []))
-          (getStatus []
-            (callbacks/call-method reply-fn :get-status []))
-          (getIdentities []
-            (->> (callbacks/call-method reply-fn :get-identities [])
-                 Vector.))
-          (add [^bytes identity-data]
-            (callbacks/call-method
-             reply-fn :add
-             [identity-data]))
-          (remove [^bytes blob]
-            (callbacks/call-method
-             reply-fn :remove
-             [blob]))
-          (removeAll []
-            (callbacks/call-method reply-fn :remove-all [])))]
-    (cleaner/register-delete-fn result #(reply-fn [:done] ["done"]))
-    (reply-fn [:result result])
-    nil))
+  [callbacks]
+  (proxy [IdentityRepository] []
+    (getName []
+      ((:get-name callbacks)))
+    (getStatus []
+      ((:get-status callbacks)))
+    (getIdentities []
+      (->> ((:get-identities callbacks))
+           Vector.))
+    (add [^bytes identity-data]
+      ((:add callbacks) identity-data))
+    (remove [^bytes blob]
+      ((:remove callbacks) blob))
+    (removeAll []
+      ((:remove-all callbacks)))))

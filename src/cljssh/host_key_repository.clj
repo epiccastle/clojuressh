@@ -61,44 +61,31 @@
     vector of all `host-key` references.
 
   "
-  [reply-fn]
-  (let [result
-        (proxy [HostKeyRepository] []
-          (check [^String host ^bytes public-key]
-            ({:ok 0
-              :not-included 1
-              :changed 2}
-             (callbacks/call-method
-              reply-fn :check
-              [host public-key])))
-          (add [^HostKey host-key ^UserInfo user-info]
-            (callbacks/call-method
-             reply-fn :add
-             [host-key
-              user-info]))
-          (remove
-            ([^String host ^String type]
-             (callbacks/call-method
-              reply-fn :remove
-              [host type]))
-             ([^String host ^String type ^bytes public-key]
-              (callbacks/call-method
-               reply-fn :remove
-               [host type public-key])))
-          (getKnownHostsRepositoryID []
-            (callbacks/call-method reply-fn :get-known-hosts-repository-id []))
-          (getHostKey
-            ([]
-             (->>
-              (callbacks/call-method reply-fn :get-host-key [])
-              (into-array HostKey)))
-            ([^String host ^String type]
-             (->>
-              (callbacks/call-method reply-fn :get-host-key [host type])
-              (into-array HostKey)))))]
-    (cleaner/register-delete-fn result #(reply-fn [:done] ["done"]))
-    (reply-fn [:result result])
-    nil))
+  [callbacks]
+  (proxy [HostKeyRepository] []
+    (check [^String host ^bytes public-key]
+      ({:ok 0
+        :not-included 1
+        :changed 2}
+       ((:check callbacks) host public-key)))
+    (add [^HostKey host-key ^UserInfo user-info]
+      ((:add callbacks) host-key user-info))
+    (remove
+      ([^String host ^String type]
+       ((:remove callbacks) host type))
+      ([^String host ^String type ^bytes public-key]
+       ((:remove callbacks) host type public-key)))
+    (getKnownHostsRepositoryID []
+      ((:get-known-hosts-repository-id callbacks)))
+    (getHostKey
+      ([]
+       (->>
+        ((:get-host-key callbacks))
+        (into-array HostKey)))
+      ([^String host ^String type]
+       (->>
+        ((:get-host-key callbacks) host type)
+        (into-array HostKey))))))
 
 (defn check
   "Checks the repository for the presence of the passed in public key
