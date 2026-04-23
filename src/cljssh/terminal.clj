@@ -337,6 +337,61 @@
       (in-raw-mode-posix?))))
 
 ;; -----------------------------------------------------------------
+;; Save / restore arbitrary terminal state
+;; -----------------------------------------------------------------
+;;
+;; These are intended as a general-purpose "snapshot the terminal
+;; now, put it back later" mechanism, independent of the raw-mode
+;; machinery. The returned value is opaque: callers should treat it
+;; as a token to pass back to `restore-terminal-state` and not
+;; otherwise inspect it.
+;;
+;; On POSIX the snapshot is the entire `struct termios` of stdin,
+;; as a byte[]. On Windows it is the console-mode DWORD of stdin,
+;; as a Long.
+
+(defn save-terminal-state
+  "Capture the current terminal state of stdin and return an opaque
+  value that can later be passed to `restore-terminal-state` to put
+  the terminal back the way it was.
+
+  On POSIX the returned value is a byte[] containing the full
+  `struct termios`. On Windows it is a Long containing the stdin
+  console-mode DWORD. Returns nil if the underlying syscall fails
+  (e.g. stdin is not a terminal)."
+  []
+  (if (= os :windows)
+    (let [h (get-std-handle STD_INPUT_HANDLE)]
+      (when-let [mode (get-console-mode h)]
+        (long mode)))
+    (let [buf (alloc-termios)]
+      (when-not (neg? (tcgetattr* STDIN_FILENO buf))
+        (let [bs (byte-array (:size layout))]
+          (.read buf 0 bs 0 (:size layout))
+          bs)))))
+
+(defn restore-terminal-state
+  "Restore stdin to the state previously captured by
+  `save-terminal-state`. Pass exactly what was returned from
+  `save-terminal-state`.
+
+  Returns true on success, false on any failure (state is nil or
+  the syscall fails)."
+  [state]
+  (cond
+    (nil? state) false
+
+    (= os :windows)
+    (let [h (get-std-handle STD_INPUT_HANDLE)]
+      (boolean (set-console-mode h (long state))))
+
+    :else
+    (let [^bytes bs state
+          buf       (alloc-termios)]
+      (.write buf 0 bs 0 (:size layout))
+      (not (neg? (tcsetattr* STDIN_FILENO (:TCSADRAIN layout) buf))))))
+
+;; -----------------------------------------------------------------
 ;; Terminal size querying via DSR (Device Status Report)
 ;; -----------------------------------------------------------------
 
@@ -354,15 +409,9 @@
   ^long []
   (.read ^InputStream System/in))
 
-(defn- query-terminal-size
-  "Send the DSR (Device Status Report) escape sequence `ESC[6n` and parse
-   the terminal's reply of the form `ESC[<row>;<col>R`.
-
-  The terminal MUST already be in raw (non-canonical, no-echo) mode, or
-  this will block waiting for a newline and corrupt the user's input.
-
-  Returns `[rows cols]` as integers, or nil if the reply could not be
-  parsed or EOF was reached."
+(defn- dsr-probe
+  "Perform the DSR `ESC[6n` round-trip. Assumes the terminal is
+  already in raw mode. Returns [rows cols] or nil."
   []
   ;; Move cursor to a very high row/column; the terminal clamps this to
   ;; its actual bottom-right. Save/restore cursor around the probe so
@@ -410,13 +459,46 @@
           ;; Unexpected byte; abandon and resync.
           (recur :await-esc (StringBuilder.)))))))
 
+(defn- query-terminal-size
+  "Query the terminal for its size by snapshotting the current
+  terminal state, putting it into raw mode, performing an ANSI DSR
+  (`ESC[6n`) round-trip, and then restoring the saved state.
+
+  Returns `[rows cols]` or nil. Nil can mean: stdin is not a
+  terminal, the terminal failed to respond, or the reply could not
+  be parsed. The terminal state is always restored to what it was
+  before the call, whether the probe succeeds or fails.
+
+  This is a private helper used by `get-width` and `get-height`."
+  []
+  (let [saved (save-terminal-state)]
+    (when saved
+      ;; Preserve the module-level raw-mode bookkeeping across the
+      ;; probe. `enter-raw-mode` mutates these atoms; we roll them
+      ;; back after restoring the termios snapshot so callers who
+      ;; are tracking raw mode via `enter-raw-mode` / `leave-raw-mode`
+      ;; see no spurious change.
+      (let [prev-flag @raw-mode-flag
+            prev-tio  @saved-tio]
+        (try
+          (enter-raw-mode 1)
+          ;; Guard: if enter-raw-mode silently failed we must not
+          ;; run the probe, because reading from stdin in canonical
+          ;; mode would block until the user pressed Enter.
+          (when (in-raw-mode?)
+            (dsr-probe))
+          (finally
+            (restore-terminal-state saved)
+            (reset! raw-mode-flag prev-flag)
+            (reset! saved-tio     prev-tio)))))))
+
 (defn get-width
   "Return the width (columns) of the terminal.
 
-  Works by querying the terminal with the ANSI DSR `ESC[6n` escape
-  sequence and parsing the reply. The terminal MUST already be in raw
-  (non-canonical, no-echo) mode, otherwise this will block waiting
-  for a newline."
+  Uses `query-terminal-size`, which briefly puts the terminal into
+  raw mode and queries it via ANSI DSR. The terminal's prior state
+  is restored before this function returns. Returns nil if the
+  terminal cannot be queried."
   []
   (when-let [[_ cols] (query-terminal-size)]
     cols))
@@ -424,7 +506,7 @@
 (defn get-height
   "Return the height (rows) of the terminal.
 
-  See `get-width` for preconditions."
+  See `get-width` for behaviour and preconditions."
   []
   (when-let [[rows _] (query-terminal-size)]
     rows))
