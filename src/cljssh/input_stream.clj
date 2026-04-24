@@ -64,7 +64,24 @@
   [^PipedInputStream stream ^PipedOutputStream source]
   (.connect stream source))
 
-(defn new-pod-proxy
+(defn make-proxy
+  "Make a babashka java.io.PipedInputStream that calls
+  the pod heap input-stream `stream`."
+  [stream]
+  (proxy [java.io.PipedInputStream] []
+    (close []
+      (close stream))
+    (read
+      ([]
+       (read stream))
+      ([bytes]
+       (read stream bytes))
+      ([bytes offset length]
+       (read stream bytes offset length)))
+    (available []
+      (available stream))))
+
+#_(defn new-pod-proxy
   [callbacks]
   (proxy [InputStream] []
     (available []

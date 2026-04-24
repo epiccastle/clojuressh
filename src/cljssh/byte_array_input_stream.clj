@@ -8,13 +8,19 @@
 
 (set! *warn-on-reflection* true)
 
-(defn new-from-string [^String string & [^String encoding]]
+(defn- new-from-string [^String string & [^String encoding]]
   (ByteArrayInputStream.
    ^bytes (.getBytes string (or encoding "utf-8"))))
 
-(defn new-from-bytes [^String string]
+(defn- new-from-bytes [^bytes string]
   (ByteArrayInputStream.
    ^bytes string))
+
+(defn new
+  [string-or-bytes & [encoding]]
+  (if (string? string-or-bytes)
+    (new-from-string string-or-bytes encoding)
+    (new-from-bytes string-or-bytes)))
 
 (defn available
   "Returns the number of remaining bytes that can be read (or skipped over) from this input stream."

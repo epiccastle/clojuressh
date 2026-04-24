@@ -51,7 +51,23 @@
   [^PipedOutputStream stream]
   (.flush stream))
 
-(defn new-pod-proxy
+(defn make-proxy
+  "Make a java.io.PipedOutputStream"
+  [stream]
+  (proxy [java.io.PipedOutputStream] []
+    (close []
+      (close stream))
+    (write
+      ([bytes]
+       (write stream bytes))
+      ([byte-array offset length]
+       (write stream byte-array offset length)))
+    (connect [sink]
+      (connect stream sink))
+    (flush []
+      (flush stream))))
+
+#_(defn new-pod-proxy
   [callbacks]
   (proxy [OutputStream] []
     (close []
