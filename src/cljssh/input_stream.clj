@@ -19,8 +19,8 @@
       ^int src-or-pipe-size)
      (PipedInputStream.
       ^PipedOutputStream src-or-pipe-size)))
-  ([^PipedOutputStream src ^int pipe-size]
-   (PipedInputStream. src pipe-size)))
+  ([^PipedOutputStream src pipe-size]
+   (PipedInputStream. src ^int pipe-size)))
 
 (defn close
   "Close the stream"

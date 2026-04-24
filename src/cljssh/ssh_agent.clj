@@ -1,7 +1,7 @@
 (ns cljssh.ssh-agent
   "Implements an identity-repository that communicates with your local ssh agent (ssh keychain) over the SSH_AUTH_SOCK unix domain pipe."
-  (:require [pod.epiccastle.bbssh.impl.pack :as pack]
-            [pod.epiccastle.bbssh.impl.socket :as socket]
+  (:require [cljssh.impl.pack :as pack]
+            [cljssh.impl.socket :as socket]
             [cljssh.identity :as identity]
             [cljssh.identity-repository :as identity-repository]))
 

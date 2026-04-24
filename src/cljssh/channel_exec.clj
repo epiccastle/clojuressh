@@ -32,17 +32,17 @@
 (defn get-output-stream [^ChannelExec channel]
   (.getOutputStream channel))
 
-(defn set-pty [^ChannelExec channel ^boolean enable]
-  (.setPty channel enable))
+(defn set-pty [^ChannelExec channel enable]
+  (.setPty channel ^boolean enable))
 
-(defn set-pty-size [^ChannelExec channel ^int col ^int row ^int width-pixels ^int height-pixels]
-  (.setPtySize channel col row width-pixels height-pixels))
+(defn set-pty-size [^ChannelExec channel col row width-pixels height-pixels]
+  (.setPtySize channel ^int col ^int row ^int width-pixels ^int height-pixels))
 
 (defn set-pty-type
   ([^ChannelExec channel ^String terminal-type]
    (.setPtyType channel terminal-type))
-  ([^ChannelExec channel ^String terminal-type ^int col ^int row ^int width-pixels ^int height-pixels]
-   (.setPtyType channel terminal-type col row width-pixels height-pixels)))
+  ([^ChannelExec channel ^String terminal-type col row width-pixels height-pixels]
+   (.setPtyType channel terminal-type ^int col ^int row ^int width-pixels ^int height-pixels)))
 
 (defn set-terminal-mode
   [^ChannelExec channel terminal-mode]
@@ -50,11 +50,11 @@
    channel
    ^bytes terminal-mode))
 
-(defn set-agent-forwarding [^ChannelExec channel ^boolean enable]
-  (.setAgentForwarding channel enable))
+(defn set-agent-forwarding [^ChannelExec channel enable]
+  (.setAgentForwarding channel ^boolean enable))
 
-(defn set-x-forwarding [^ChannelExec channel ^boolean enable]
-  (.setAgentForwarding channel enable))
+(defn set-x-forwarding [^ChannelExec channel enable]
+  (.setAgentForwarding channel ^boolean enable))
 
 (defn set-env [^ChannelExec channel ^String name ^String value]
   (.setEnv channel name value))
