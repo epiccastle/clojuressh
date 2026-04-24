@@ -10,16 +10,18 @@
   or `:ed448`.
   `key-size` is the number of bits and defaults to 2048.
   "
-  [^JSch agent key-type ^int key-size]
-  (KeyPair/genKeyPair
-   agent
-   ^int ({:dsa KeyPair/DSA
-          :rsa KeyPair/RSA
-          :ecdsa KeyPair/ECDSA
-          :ed25519 KeyPair/ED25519
-          :ed448 KeyPair/ED448}
-         key-type)
-   key-size))
+  ([^JSch agent key-type]
+   (generate agent key-type 2048))
+  ([^JSch agent key-type ^long key-size]
+   (KeyPair/genKeyPair
+     agent
+     ^int ({:dsa KeyPair/DSA
+            :rsa KeyPair/RSA
+            :ecdsa KeyPair/ECDSA
+            :ed25519 KeyPair/ED25519
+            :ed448 KeyPair/ED448}
+           key-type)
+     key-size)))
 
 
 (defn set-passphrase
@@ -98,14 +100,13 @@
   `nil` for one of the key portions to only load the public or private
   portion."
   [agent private-key-bytes public-key-bytes]
-  (let [private-key-bytes (when private-key-bytes
-                            private-key-bytes)
-        public-key-bytes (when public-key-bytes
-                           public-key-bytes)]
-    (KeyPair/load
-      ^JSch agent
-      ^bytes private-key-bytes
-      ^bytes public-key-bytes)))
+  (let [^bytes priv (if (or (nil? private-key-bytes) (bytes? private-key-bytes))
+                      private-key-bytes
+                      (.getBytes ^String private-key-bytes))
+        ^bytes pub  (if (or (nil? public-key-bytes) (bytes? public-key-bytes))
+                      public-key-bytes
+                      (.getBytes ^String public-key-bytes))]
+    (KeyPair/load ^JSch agent priv pub)))
 
 (defn get-signature
   "Sign the passed in data with the private key, using algorithm
