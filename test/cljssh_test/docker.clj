@@ -1,7 +1,5 @@
-(ns clj-test.docker
-  (:require [babashka.pods :as pods]
-            [babashka.process :as process]
-            [babashka.wait :as wait]
+(ns cljssh-test.docker
+  (:require [babashka.process :as process]
             [clojure.string :as string])
   (:import [java.lang.ref WeakReference]))
 

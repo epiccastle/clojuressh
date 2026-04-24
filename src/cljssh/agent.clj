@@ -23,7 +23,7 @@
    (.getSession agent host))
   ([^JSch agent ^String username ^String host]
    (.getSession agent username host))
-  ([^JSch agent ^String username ^String host ^int port]
+  ([^JSch agent ^String username ^String host ^long port]
    (.getSession agent username host port)))
 
 (defn get-identity-repository
