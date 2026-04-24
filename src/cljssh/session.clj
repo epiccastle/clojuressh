@@ -1,5 +1,6 @@
 (ns cljssh.session
-  (:require [clojure.string :as string])
+  (:require [clojure.string :as string]
+            [cljssh.impl.utils :as utils])
   (:import [com.jcraft.jsch JSch Session
             UserInfo IdentityRepository
             HostKeyRepository Proxy ProxyHTTP ProxySOCKS4 ProxySOCKS5])
@@ -49,12 +50,21 @@
   "Initiate the ssh connection with an optional `timeout`
   (in milliseconds)."
   [session & [timeout]]
-  (if timeout
-    (.connect
-     ^Session session
-     timeout)
-    (.connect
-     ^Session session)))
+  (try
+    (if timeout
+      (.connect
+        ^Session session
+        timeout)
+      (.connect
+        ^Session session))
+    (catch com.jcraft.jsch.JSchException e
+  (throw (ex-info (.getMessage e)
+                  {:type    ::ssh-connect-error
+                   :cause   (.getCause e)
+                   :message (.getMessage e)}
+
+                  ; original exception
+                  e)))))
 
 (defn disconnect
   "Disconnect the ssh connection"
@@ -205,8 +215,8 @@
 
 (defn set-port
   "Set the port to connect to"
-  [^Session session ^int port]
-  (.setHost session port))
+  [^Session session port]
+  (.setHost session ^int port))
 
 (defn set-config
   "Set the config setting `key` to `value`"
