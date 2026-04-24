@@ -531,3 +531,19 @@
   []
   (when-let [[rows _] (query-terminal-size)]
     rows))
+
+(def ctrl-c 3)
+(def carriage-return 10)
+
+(defn raw-mode-readline
+  "Read input from stdin with terminal in raw mode."
+  []
+  (enter-raw-mode 1)
+  (let [result (loop [text ""]
+                 (let [c (.read *in*)]
+                   (condp = c
+                     ctrl-c nil
+                     carriage-return text
+                     (recur (str text (char c))))))]
+    (leave-raw-mode 1)
+    result))
