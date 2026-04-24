@@ -4,4 +4,4 @@
 
 (deftest placeholder-test
   (testing "Library namespace loads"
-    (is (some? (find-ns 'cljssh)))))
+    (is (find-ns 'cljssh))))
