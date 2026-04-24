@@ -15,7 +15,8 @@ run:
 	clojure -M:run
 
 test:
-	clojure -M:test
+	-mkdir test/files/dir1/dir3
+	umask 0000; clojure -M:test
 
 jar:
 	clojure -T:build jar
