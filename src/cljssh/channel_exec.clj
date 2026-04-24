@@ -95,7 +95,7 @@
       (let [deadline (+ (System/nanoTime) (* timeout 1000000))]
         (loop [remaining (- deadline (System/nanoTime))]
           (when (pos? remaining)
-            (Thread/sleep (min (inc (/ remaining 1000000)) 100))
+            (Thread/sleep ^long (min (inc (/ remaining 1000000)) 100))
             (let [status (get-exit-status channel)]
               (if (<= 0 status)
                 status
