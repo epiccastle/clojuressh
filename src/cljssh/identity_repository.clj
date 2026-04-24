@@ -49,8 +49,7 @@
     (getStatus []
       ((:get-status callbacks)))
     (getIdentities []
-      (->> ((:get-identities callbacks))
-           Vector.))
+      (Vector. ^java.util.Collection ((:get-identities callbacks))))
     (add [^bytes identity-data]
       ((:add callbacks) identity-data))
     (remove [^bytes blob]
