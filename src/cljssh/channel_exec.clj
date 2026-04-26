@@ -14,14 +14,23 @@
 (defn disconnect [^ChannelExec channel]
   (.disconnect channel))
 
-(defn set-input-stream [^ChannelExec channel ^InputStream input-stream ^Boolean dont-close?]
-  (.setInputStream channel input-stream dont-close?))
+(defn set-input-stream
+  ([^ChannelExec channel ^InputStream input-stream]
+   (set-input-stream channel input-stream false))
+  ([^ChannelExec channel ^InputStream input-stream ^Boolean dont-close?]
+   (.setInputStream channel input-stream dont-close?)))
 
-(defn set-output-stream [^ChannelExec channel ^OutputStream output-stream ^Boolean dont-close?]
-  (.setOutputStream channel output-stream dont-close?))
+(defn set-output-stream
+  ([^ChannelExec channel ^OutputStream output-stream]
+   (set-output-stream channel output-stream false))
+  ([^ChannelExec channel ^OutputStream output-stream ^Boolean dont-close?]
+   (.setOutputStream channel output-stream dont-close?)))
 
-(defn set-error-stream [^ChannelExec channel ^OutputStream error-stream ^Boolean dont-close?]
-  (.setErrStream channel error-stream dont-close?))
+(defn set-error-stream
+  ([^ChannelExec channel ^OutputStream error-stream]
+   (set-error-stream channel error-stream false))
+  ([^ChannelExec channel ^OutputStream error-stream ^Boolean dont-close?]
+   (.setErrStream channel error-stream dont-close?)))
 
 (defn get-input-stream [^ChannelExec channel]
   (.getInputStream channel))

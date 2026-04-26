@@ -509,33 +509,9 @@
               (channel-exec/set-input-stream channel in-stream)
               (output-stream/make-proxy in-output-stream))
 
-            (keyword? in) ;; pod input-stream
+            :else
             (do
               (channel-exec/set-input-stream channel in)
-              in)
-
-            :else ;; bb InputStream
-            (do
-              (->> (input-stream/new-pod-proxy
-                    {:available (fn []
-                                  (.available in))
-                     :close (fn []
-                              (.close in))
-                     :mark #(.mark in %)
-                     :mark-supported #(.markSupported in)
-                     :read (fn
-                             ([]
-                              (.read in) ;; returns int
-                              )
-                             ([len]
-                              (let [buff (byte-array len)
-                                    bytes-read (.read in buff)]
-                                (if (neg? bytes-read)
-                                  [bytes-read nil]
-                                  [bytes-read (java.util.Arrays/copyOfRange buff 0 bytes-read)]))))
-                     :reset #(.reset in)
-                     :skip #(.skip in %)})
-                   (channel-exec/set-input-stream channel))
               in))
 
           out-stream
@@ -560,19 +536,10 @@
               (channel-exec/set-output-stream channel out-stream)
               (input-stream/make-proxy out-input-stream))
 
-            (keyword? out) ;; output-stream pod reference
+            :else
             (do
               (channel-exec/set-output-stream channel out)
-              out)
-
-            :else ;; bb OutputStream instance
-            (let [out-stream (output-stream/new-pod-proxy
-                              {:close #(.close out)
-                               :flush #(.flush out)
-                               :write (fn [bytes]
-                                        (.write out bytes))})]
-              (channel-exec/set-output-stream channel out-stream)
-              out-stream))
+              out))
 
           err-stream
           (cond
@@ -596,19 +563,10 @@
               (channel-exec/set-error-stream channel err-stream)
               (input-stream/make-proxy err-input-stream))
 
-            (keyword? err) ;; output-stream pod reference
+            :else
             (do
               (channel-exec/set-error-stream channel err)
-              err)
-
-            :else ;; bb OutputStream instance
-            (let [err-stream (output-stream/new-pod-proxy
-                              {:close #(.close err)
-                               :flush #(.flush err)
-                               :write (fn [bytes]
-                                        (.write err bytes))})]
-              (channel-exec/set-error-stream channel err-stream)
-              err-stream))]
+              err))]
 
       (when-not no-connect
         (channel-exec/connect channel))
