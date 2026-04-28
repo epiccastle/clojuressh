@@ -29,9 +29,9 @@
   Write `length` bytes from `byte-array` beginning at `offset`
   to `stream`.
   "
-  ([^PipedOutputStream stream bytes]
+  ([^PipedOutputStream stream ^bytes bytes]
    (.write stream bytes))
-  ([^PipedOutputStream stream byte-array offset length]
+  ([^PipedOutputStream stream ^bytes byte-array offset length]
    (.write stream byte-array offset length)))
 
 (defn connect
