@@ -16,8 +16,9 @@
 
   :test
   {:extra-paths ["test"]
-   :extra-deps {io.github.cognitect-labs/test-runner
-                {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
+   :extra-deps {io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
+                org.clj-commons/digest {:mvn/version "1.4.100"}
+                }
    :main-opts ["-m" "cognitect.test-runner"]
    :jvm-opts  ["--enable-native-access=ALL-UNNAMED"]
    :exec-fn cognitect.test-runner.api/test}

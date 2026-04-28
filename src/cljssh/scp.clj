@@ -1,7 +1,7 @@
 (ns cljssh.scp
   "Implementation of the scp protocol"
-  (:require [pod.epiccastle.bbssh.impl.utils :as utils]
-            [cljssh.core :as bbssh]
+  (:require [cljssh.impl.utils :as utils]
+            [cljssh.core :as cljssh]
             [clojure.string :as string]
             [clojure.java.io :as io]
             [clojure.edn :as edn])
@@ -371,7 +371,7 @@
                        ]))
 
         {:keys [in out err channel] :as process}
-        (bbssh/exec session remote-command {:in :stream})]
+        (cljssh/exec session remote-command {:in :stream})]
     (recv-ack process)
     (loop [[source & remain] local-sources
            progress-context progress-context
@@ -609,7 +609,7 @@
                        ]))
 
         {:keys [in out err channel] :as process}
-        (bbssh/exec session remote-command {:in :stream})]
+        (cljssh/exec session remote-command {:in :stream})]
     (send-ack process)
     (let [progress-context (scp-from-receive process (io/as-file local-file) options)]
       (.close in)

@@ -39,19 +39,10 @@
   "
   ([^PipedInputStream stream]
    (.read stream))
-  ([stream bytes]
-   (let [arr (byte-array bytes)
-         bytes-read
-         (.read
-          ^PipedInputStream stream
-          arr
-          0
-          bytes)]
-     [bytes-read
-      (case bytes-read
-        -1 nil
-        0 ""
-        (Arrays/copyOfRange arr 0 bytes-read))])))
+  ([^PipedInputStream stream bytes]
+   (.read stream bytes))
+  ([^PipedInputStream stream bytes offset length]
+   (.read stream bytes offset length)))
 
 (defn available
   "Return the number of bytes available and waiting to be read

@@ -29,17 +29,10 @@
   Write `length` bytes from `byte-array` beginning at `offset`
   to `stream`.
   "
-  ([^PipedOutputStream stream base64]
-   (.write
-    stream
-    ^bytes base64))
-  ([stream base64 _length]
-   (let [arr base64]
-     (.write
-      ^PipedOutputStream stream
-      ^bytes arr
-      0
-      (count arr)))))
+  ([^PipedOutputStream stream bytes]
+   (.write stream bytes))
+  ([^PipedOutputStream stream byte-array offset length]
+   (.write stream byte-array offset length)))
 
 (defn connect
   "Connect a bbssh PipedInputStream to this to act as a sink"
