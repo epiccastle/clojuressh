@@ -1,0 +1,33 @@
+(ns cljssh-test.host-key-test
+  (:require [cljssh.agent :as agent]
+            [cljssh.key-pair :as key-pair]
+            [cljssh-test.docker :as docker]
+            [cljssh-test.keys :as keys]
+            [clojure.test :refer [is deftest]]))
+
+(deftest host-key
+  (docker/cleanup)
+  (docker/build {:root-password "root-access-please"})
+  (docker/start {:ssh-port 9876})
+
+  (let [agent (agent/new)
+        kp (keys/create-key-pair agent :rsa-nopassphrase)]
+    (is (= (key-pair/get-finger-print kp)
+             (get-in keys/keys [:rsa-nopassphrase :fingerprint])))
+    (is (= (key-pair/get-key-size kp)
+           1024))
+    (is (= (seq (key-pair/get-public-key-blob kp))
+           (get-in keys/keys [:rsa-nopassphrase :public-blob])))
+    (is (not (key-pair/is-encrypted kp)))
+
+    (let [kp (keys/create-key-pair agent :rsa-passphrase)]
+      (is (= (key-pair/get-finger-print kp)
+             (get-in keys/keys [:rsa-passphrase :fingerprint])))
+      (is (= (key-pair/get-key-size kp)
+             1024))
+      (is (= (seq (key-pair/get-public-key-blob kp))
+             (get-in keys/keys [:rsa-passphrase :public-blob])))
+      (is (key-pair/is-encrypted kp))))
+
+  (docker/cleanup)
+  )
