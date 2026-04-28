@@ -8,7 +8,7 @@
 
 (defn new
   "Create a new PipedOutputStream.
-  Optional first argument can be a bbssh PipedInputStream to
+  Optional first argument can be a PipedInputStream to
   connect as the sink.
   "
   ([]
@@ -35,7 +35,7 @@
    (.write stream byte-array offset length)))
 
 (defn connect
-  "Connect a bbssh PipedInputStream to this to act as a sink"
+  "Connect a PipedInputStream to this to act as a sink"
   [^PipedOutputStream stream ^PipedInputStream sink]
   (.connect stream sink))
 

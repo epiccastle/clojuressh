@@ -84,7 +84,7 @@
      :marker (.getMarker host-key)}))
 
 (defn get-infos
-  "Given a sequence of host-key references and the bbssh agent
+  "Given a sequence of host-key references and the cljssh agent
   reference, return a hashmap of all the info for all the keys. The
   keys are the host-key references and the values are as would be
   returned from `get-info`."

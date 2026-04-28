@@ -51,7 +51,7 @@
   (.available stream))
 
 (defn connect
-  "Connect a bbssh PipedOutputStream to this stream."
+  "Connect a PipedOutputStream to this stream."
   [^PipedInputStream stream ^PipedOutputStream source]
   (.connect stream source))
 

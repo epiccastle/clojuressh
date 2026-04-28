@@ -187,9 +187,9 @@
   - `:public-key` Pass in a string (base64) or byte array of
     the public key associated with the private-key
   - `:strict-host-key-checking` Control strict host key checking.
-    If set to `true`, bbssh will never add host keys to known host
+    If set to `true`, cljssh will never add host keys to known host
     and will refuse to connect to hosts whose host key has changed.
-    If set to `false`, bbssh will allow connection to hosts with
+    If set to `false`, cljssh will allow connection to hosts with
     unknown or changed keys. If the key is unknown it will add it to known
     hosts, but it will not change a key if it is present. A
     value of `:ask` will mean new host keys will be added to the known
@@ -237,8 +237,8 @@
   - `:no-connect` Set to true to prevent the connection from being
     initiated. Just returns the prepared session reference. You will then
     need to call `session/connect` on it to initiate the connection.
-  - `:agent` The bbssh agent to use to construct the session. If none
-    is supplied a new bbssh agent will be created. Note: this is not
+  - `:agent` The cljssh agent to use to construct the session. If none
+    is supplied a new cljssh agent will be created. Note: this is not
     an ssh-agent. It is the root class that contains all the session
     instances and settings.
   - `:identity-repository` Use a custom identity-repository in the
@@ -398,13 +398,9 @@
         encoding `:in-enc`) and then close the input pipe.
       - a byte array: Pass this data into the stdin of the process
         and then close the input pipe.
-      - babashka InputStream instance: Use this instance to provide
+      - InputStream instance: Use this instance to provide
         streaming data to the stdin of the process (the `.read` method
         will be repeatedly called to provide data)
-      - bbssh input-stream reference:   Use this instance to provide
-        streaming data to the stdin of the process (the
-        `input-stream/read` function will be repeatedly called to
-        provide data)
       - `:stream`: A PipedOutputStream/PipedInputStream
         instance pair is created and the PipedOutputStream will be
         returned in the `:in` key of the result (for you to `.write`
@@ -420,12 +416,9 @@
         will deref to a byte array of data. The future deref will
         block until the process is complete and the processes output
         is finished.
-      - babashka OutputStream instance: The OutputStream will have
+      - OutputStream instance: The OutputStream will have
         its `.write` method called as data becomes available from the
         process.
-      - bbssh output-stream reference: The pod side output-stream
-        will be written to with `output-stream/write` as data becomes
-        available from the process.
       - `:stream` *(default)*: A PipedOutputStream/PipedInputStream
         instance pair is created and the PipedInputStream will be
         returned in the `:out` key of the result (for you to `.read`
@@ -442,12 +435,9 @@
         will deref to a byte array of data. The future deref will
         block until the process is complete and the processes output
         is finished.
-      - babashka OutputStream instance: The OutputStream will have
+      - OutputStream instance: The OutputStream will have
         its `.write` method called as data becomes available from the
         process.
-      - bbssh output-stream reference: The pod side output-stream
-        will be written to with `output-stream/write` as data becomes
-        available from the process.
       - `:stream` *(default)*: A PipedOutputStream/PipedInputStream
         instance pair is created and the PipedInputStream will be
         returned in the `:err` key of the result (for you to `.read`

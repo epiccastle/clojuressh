@@ -1,7 +1,7 @@
 (ns cljssh
   "A Clojure library for using SSH in Clojure that is API compatible with bbssh.
 
-  See https://github.com/epiccastle/bbssh for API reference."
+  See https://github.com/epiccastle/cljssh for API reference."
   (:require [cljssh.terminal :as terminal])
   (:gen-class))
 
