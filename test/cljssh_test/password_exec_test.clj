@@ -1,5 +1,5 @@
 (ns cljssh-test.password-exec-test
-  (:require [cljssh.core :as bbssh]
+  (:require [cljssh.core :as cljssh]
             [cljssh.agent :as agent]
             [cljssh.session :as session]
             [cljssh.channel-exec :as channel-exec]
@@ -62,11 +62,11 @@
               :password "root-access-please"
               :port 9876
               :strict-host-key-checking false}
-        session (bbssh/ssh "localhost" opts)]
+        session (cljssh/ssh "localhost" opts)]
 
     ;; :in nil
     (let [{:keys [channel out err in]}
-          (bbssh/exec session "cat" {:in nil})]
+          (cljssh/exec session "cat" {:in nil})]
       (is (= 0 (.available out)))
       (Thread/sleep 100)
       (is (channel-exec/is-closed channel))
@@ -74,7 +74,7 @@
 
     ;; :in string
     (let [{:keys [channel out err in]}
-          (bbssh/exec session "cat" {:in "string\ninput\n"})]
+          (cljssh/exec session "cat" {:in "string\ninput\n"})]
       (is (= "string\ninput\n"
              (with-out-str (io/copy out *out*))))
       (Thread/sleep 100)
@@ -83,7 +83,7 @@
 
     ;; :in string different encoding
     (let [{:keys [channel out err in]}
-          (bbssh/exec session "cat" {:in "🚢"
+          (cljssh/exec session "cat" {:in "🚢"
                                      :in-enc "utf-16"})]
       (is (= "🚢"
              (with-out-str
@@ -94,7 +94,7 @@
 
     ;; :in byte-array
     (let [{:keys [channel out err in]}
-          (bbssh/exec session "cat" {:in (.getBytes "string\ninput\n")})]
+          (cljssh/exec session "cat" {:in (.getBytes "string\ninput\n")})]
       (is (= "string\ninput\n"
              (with-out-str (io/copy out *out*))))
       (Thread/sleep 100)
@@ -103,7 +103,7 @@
 
     ;; :in byte-array different encoding
     (let [{:keys [channel out err in]}
-          (bbssh/exec session "cat" {:in (.getBytes "🚢" "utf-16")})]
+          (cljssh/exec session "cat" {:in (.getBytes "🚢" "utf-16")})]
       (is (= "🚢"
              (with-out-str (io/copy out *out* :encoding "utf-16"))))
       (Thread/sleep 100)
@@ -112,7 +112,7 @@
 
     ;; :in InputStream
     (let [{:keys [channel out err in]}
-          (bbssh/exec
+          (cljssh/exec
            session "cat"
            {:in
             (java.io.ByteArrayInputStream.
@@ -130,7 +130,7 @@
     (let [in-output-stream (output-stream/new)
           in-stream (input-stream/new in-output-stream)
           {:keys [channel out err in]}
-          (bbssh/exec
+          (cljssh/exec
            session "cat"
            {:in in-stream})]
       (output-stream/write in-output-stream (byte-array (range 128)))
@@ -146,7 +146,7 @@
 
     ;; :in :stream
     (let [{:keys [channel out err in]}
-          (bbssh/exec
+          (cljssh/exec
            session "cat"
            {:in :stream})]
       (.write in (byte-array (range 128)))
@@ -171,9 +171,9 @@
               :password "root-access-please"
               :port 9876
               :strict-host-key-checking false}
-        session (bbssh/ssh "localhost" opts)]
+        session (cljssh/ssh "localhost" opts)]
     (let [{:keys [channel] :as process}
-          (bbssh/exec session "sleep 0.5" {:in nil})]
+          (cljssh/exec session "sleep 0.5" {:in nil})]
       (is (nil? (channel-exec/wait channel 0)))
       (is (nil? (channel-exec/wait channel -1)))
       (is (nil? (channel-exec/wait channel 100)))
@@ -181,10 +181,10 @@
       (is (= 0 (channel-exec/wait channel 10000)))
       (is (not (channel-exec/is-connected channel))))
 
-    (let [{:keys [channel]} (bbssh/exec session "sleep 0.5" {:in nil})]
+    (let [{:keys [channel]} (cljssh/exec session "sleep 0.5" {:in nil})]
       (is (= 0 (channel-exec/wait channel))))
 
-    (let [{:keys [channel]} (bbssh/exec session "sleep 0.5; exit 10" {:in nil})]
+    (let [{:keys [channel]} (cljssh/exec session "sleep 0.5; exit 10" {:in nil})]
       (is (= 10 (channel-exec/wait channel)))))
 
   (docker/cleanup))
@@ -198,19 +198,19 @@
               :password "root-access-please"
               :port 9876
               :strict-host-key-checking false}
-        session (bbssh/ssh "localhost" opts)]
+        session (cljssh/ssh "localhost" opts)]
     (let [{:keys [channel exit] :as process}
-          (-> (bbssh/exec session "sleep 0.5" {:in nil})
+          (-> (cljssh/exec session "sleep 0.5" {:in nil})
               deref)]
       (is (not (channel-exec/is-connected channel)))
       (is (= 0 exit)))
     (let [{:keys [channel exit] :as process}
-          (-> (bbssh/exec session "sleep 0.5; exit 10" {:in nil})
+          (-> (cljssh/exec session "sleep 0.5; exit 10" {:in nil})
               deref)]
       (is (not (channel-exec/is-connected channel)))
       (is (= 10 exit)))
     (let [{:keys [channel exit out err] :as process}
-          @(bbssh/exec session
+          @(cljssh/exec session
                        "sleep 0.5; echo foo; echo bar 1>&2; exit 10"
                        {:in nil
                         :out :string
@@ -220,7 +220,7 @@
       (is (= "foo\n" out))
       (is (= "bar\n" err)))
     (let [{:keys [channel exit out err] :as process}
-          @(bbssh/exec session
+          @(cljssh/exec session
                        "sleep 0.5; echo foo; echo bar 1>&2; exit 10"
                        {:in nil
                         :out :bytes
@@ -243,16 +243,16 @@
               :password "root-access-please"
               :port 9876
               :strict-host-key-checking false}
-        session (bbssh/ssh "localhost" opts)]
+        session (cljssh/ssh "localhost" opts)]
     (let [process
           (-> (process/process "echo foo")
-              (bbssh/exec "cat 1>&2" {:session session
+              (cljssh/exec "cat 1>&2" {:session session
                                       :err :string})
               deref)]
       (is (= "foo\n" (:err process))))
     ;; fails on bb<=163
     #_(let [process
-          (-> (bbssh/exec session "echo foo bar baz")
+          (-> (cljssh/exec session "echo foo bar baz")
               (process/process "bash -c 'cat 1>&2'" {:err :string
                                                      :out :string})
               deref)]
