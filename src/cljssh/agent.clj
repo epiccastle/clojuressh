@@ -140,10 +140,10 @@
   ([^String key ^String value]
    (JSch/setConfig key value)))
 
-(defn set-debug-fn [reply-fn]
+(defn set-debug-fn [debug-fn]
   (JSch/setLogger
    (proxy [Logger] []
      (isEnabled [_]
        true)
      (log [level msg]
-       (reply-fn [level msg])))))
+       (debug-fn level msg)))))
