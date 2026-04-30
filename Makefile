@@ -1,15 +1,17 @@
-.PHONY: help test jar install deploy clean repl run
+.PHONY: help test jar install deploy clean repl run codox codox-upload
 
 help:
 	@echo "Available targets:"
-	@echo "  make run      - Run the cljssh entry point"
-	@echo "  make test     - Run the test suite"
-	@echo "  make jar      - Build a jar file"
-	@echo "  make install  - Install jar to local Maven repo (~/.m2)"
-	@echo "  make deploy   - Deploy jar to Clojars (requires CLOJARS_USERNAME/CLOJARS_PASSWORD)"
-	@echo "  make clean    - Remove build artifacts"
-	@echo "  make version  - print the version string derived from the git tags"
-	@echo "  make repl     - Start a Clojure REPL"
+	@echo "  make run          - Run the cljssh entry point"
+	@echo "  make test         - Run the test suite"
+	@echo "  make jar          - Build a jar file"
+	@echo "  make install      - Install jar to local Maven repo (~/.m2)"
+	@echo "  make deploy       - Deploy jar to Clojars (requires CLOJARS_USERNAME/CLOJARS_PASSWORD)"
+	@echo "  make clean        - Remove build artifacts"
+	@echo "  make version      - print the version string derived from the git tags"
+	@echo "  make repl         - Start a Clojure REPL"
+	@echo "  make codox        - Build codox API documentation into target/docs"
+	@echo "  make codox-upload - Upload generated docs to epiccastle.io"
 
 run:
 	clojure -M:run
@@ -35,3 +37,9 @@ version:
 
 repl:
 	rlwrap clojure
+
+codox:
+	clojure -X:codox
+
+codox-upload:
+	rsync -av --delete target/docs/ www-data@epiccastle.io:~/epiccastle.io/public/cljssh/
