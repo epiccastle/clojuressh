@@ -10,27 +10,24 @@ If there are any ssh connections open apon program termination, the JVM will not
 closing sessions after use:
 
 ```clojure
-(let [session (cljssh/ssh "remotehost"
-                  {:username "remoteusername"})]
+(let [session (cljssh/ssh "remotehost" {:username "remoteusername"})]
    (try
       ;; do things with session here
       (finally
-         (session/disconnect session))))
+         (cljssh.session/disconnect session))))
 ```
 
 If you do not care about elegance and just want to force a shutdown, use `System/exit`. This will
 close all connections and exit the JVM.
 
 ```clojure
-(let [session (cljssh/ssh "remotehost"
-                  {:username "remoteusername"})]
+(let [session (cljssh/ssh "remotehost" {:username "remoteusername"})]
    ;; do things here
    ;; dont close
    )
 
 (System/exit 0) ;; closes all connections and exits
 ```
-
 
 ## Debug the ssh connection process
 
