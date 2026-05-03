@@ -41,7 +41,7 @@
                       :themes [:epiccastle]
                       :name "clojuressh"
                       :description "A Clojure library for using SSH in Clojure that is API compatible with bbssh"
-                      :license {:name "Eclipse Public License 1.0"
+                      :license {:name "Eclipse Public License 2.0"
                                 :url "https://github.com/epiccastle/clojuressh/blob/main/LICENSE"}}}}
 
  :lib io.epiccastle/clojuressh

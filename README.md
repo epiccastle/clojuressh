@@ -135,6 +135,7 @@ Run `make help` to list all available targets.
 
 ## License
 
-Copyright © Epic Castle
+Copyright (c) Crispin Wellington. All rights reserved.
 
-Distributed under the Eclipse Public License version 1.0.
+Distributed under the Eclipse Public License version 2.0 which can be
+found in `LICENSE`.

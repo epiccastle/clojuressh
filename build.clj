@@ -63,8 +63,8 @@
                 [[:description "A Clojure library for using SSH in Clojure that is API compatible with bbssh"]
                  [:licenses
                   [:license
-                   [:name "Eclipse Public License 1.0"]
-                   [:url "https://www.eclipse.org/legal/epl-v10.html"]]]]})
+                   [:name "Eclipse Public License 2.0"]
+                   [:url "https://www.eclipse.org/legal/epl-2.0/"]]]]})
   (b/copy-dir {:src-dirs ["src" "resources"]
                :target-dir class-dir})
   (b/jar {:class-dir class-dir
