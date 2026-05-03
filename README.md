@@ -58,6 +58,8 @@ not an error, and it applies to every JNA-using library on modern JDKs —
 not just `clojuressh`. On a future JDK version (currently expected no sooner
 than JDK 26) the warning will become a hard error unless you opt in.
 
+### Silencing
+
 To silence the warning today, and to future-proof your project, start the
 JVM with `--enable-native-access=ALL-UNNAMED`. Pick whichever of these
 matches your launcher:
@@ -92,6 +94,27 @@ No flag is required on JDK 21 and earlier. If you hit an
 `IllegalCallerException` about native access on a JDK where the warning
 has become a hard error, `clojuressh` will rethrow it wrapped in an
 `ex-info` pointing you at this section.
+
+### Printing the warning early
+
+Often the warning prints right as clojuressh asks for a password. This is when
+the library loads the underlying terminal libraries to switch the terminal
+into raw mode. This can be very confusing to the user. It is quite simple to
+trigger the warning to be printed at the start of the program so it doesn't
+interrupt later. Simply run one of the relevantt terminal functions early in your
+code. For example, run `clojuressh.terminal/in-raw-mode?` at the beginning of your
+program:
+
+```
+(ns test-clojuressh
+  (:require [clojuressh.core :as clojuressh]
+            [clojuressh.terminal :as terminal]))
+(defn -main []
+    (terminal/in-raw-mode?) ;; prints native access warning
+
+    (let [session (clojuressh/ssh "hostname")]
+      ...)
+```
 
 ## Development
 
