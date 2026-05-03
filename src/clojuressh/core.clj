@@ -6,7 +6,6 @@
             [clojuressh.user-info :as user-info]
             [clojuressh.host-key-repository :as host-key-repository]
             [clojuressh.config-repository :as config-repository]
-            [clojuressh.terminal :as terminal]
             [clojuressh.channel-exec :as channel-exec]
             [clojuressh.input-stream :as input-stream]
             [clojuressh.output-stream :as output-stream]
@@ -64,21 +63,53 @@
         first-char (first response)]
     (boolean (#{\y \Y} first-char))))
 
+(defn- read-secret-from-console
+  "Prompt the user for a secret (password or passphrase) without
+  echoing input to the terminal.
+
+  Uses `java.io.Console.readPassword`, which suppresses echo via the
+  terminal driver itself rather than relying on raw mode. This works
+  reliably even when the JVM's stdin is not directly connected to a
+  TTY-savvy launcher (for example in raw-mode-hostile environments).
+
+  Returns the entered string, or nil if the user signals EOF (Ctrl-D).
+  Throws ex-info with `:type ::no-console` if no controlling terminal
+  is available — callers should supply credentials another way (e.g.
+  the `:password` / `:passphrase` options or a custom `:user-info`
+  callback) in that case.
+
+  Ctrl-C is handled by the OS: the kernel delivers SIGINT to the JVM
+  and the process terminates, matching the behaviour of `ssh`, `sudo`,
+  etc."
+  [prompt]
+  (if-let [console (System/console)]
+    (let [chars (.readPassword console "%s" (object-array [prompt]))]
+      (when chars
+        (let [s (String. chars)]
+          ;; Best-effort scrub of the char[] buffer. The String copy
+          ;; still lives in the heap until GC, but at least the
+          ;; original buffer doesn't.
+          (java.util.Arrays/fill chars \u0000)
+          s)))
+    (throw (ex-info
+             (str "Cannot prompt for credentials: no controlling terminal "
+                  "is attached to this JVM. Pass `:password` / `:passphrase` "
+                  "in the ssh options, supply a custom `:user-info` callback, "
+                  "or run with a real TTY (e.g. `lein trampoline run`, "
+                  "`clj -M`, or `java -jar`).")
+             {:type ::no-console
+              :prompt prompt}))))
+
 (defn- make-default-user-info
   [{:keys [accept-host-key silence-messages]}]
   (let [message (atom nil)]
     (user-info/new
      {:get-password
       (fn []
-        (print (str "Enter " @message ": "))
-        (.flush *out*)
-        (if-let [password (terminal/raw-mode-readline)]
-          (do
-            (println)
-            password)
-          (do
-            (println "^C")
-            (System/exit 1))))
+        (or (read-secret-from-console (str "Enter " @message ": "))
+            (do
+              (println)
+              (System/exit 1))))
 
       :prompt-yes-no
       (fn [s]
@@ -140,15 +171,10 @@
 
       :get-passphrase
       (fn []
-        (print (str "Enter " @message ": "))
-        (.flush *out*)
-        (if-let [passphrase (terminal/raw-mode-readline)]
-          (do
-            (println)
-            passphrase)
-          (do
-            (println "^C")
-            (System/exit 1))))
+        (or (read-secret-from-console (str "Enter " @message ": "))
+            (do
+              (println)
+              (System/exit 1))))
 
       :prompt-passphrase
       (fn [s]
