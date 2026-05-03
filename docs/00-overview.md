@@ -20,12 +20,15 @@ Try writing the following into `test_cljssh.clj`
 
 ```clojure
 (ns test-cljssh
-  (:require [cljssh.core :as cljssh]))
+  (:require [cljssh.core :as cljssh]
+            [cljssh.session :as session))
 
 (let [session (cljssh/ssh "localhost")]
   (-> (cljssh/exec session "echo 'I am running over ssh'" {:out :string})
       deref
-      :out))
+      :out
+      prn)
+  (session/disconnect session))
 ```
 
 Then execute the file with Clojure. You will be prompted for your ssh password. Enter it and press return:

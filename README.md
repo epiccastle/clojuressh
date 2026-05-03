@@ -16,7 +16,7 @@ io.epiccastle/cljssh {:mvn/version "0.1.0"}
 
 ## Running on JDK 22+
 
-`cljssh` uses JNA to call a handful of native libc / `kernel32` functions
+`cljssh` uses JNA to call a handful of native `libc` / `kernel32` functions
 for terminal handling (raw mode, terminal size). On JDK 22 and newer, the
 JVM prints a warning the first time any native library is loaded:
 
