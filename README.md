@@ -105,7 +105,7 @@ interrupt later. Simply run one of the relevantt terminal functions early in you
 code. For example, run `clojuressh.terminal/in-raw-mode?` at the beginning of your
 program:
 
-```
+```clojure
 (ns test-clojuressh
   (:require [clojuressh.core :as clojuressh]
             [clojuressh.terminal :as terminal]))
