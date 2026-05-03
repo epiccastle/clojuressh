@@ -102,12 +102,12 @@ the library loads the underlying terminal libraries to switch the terminal
 into raw mode. This can be very confusing to the user. It is quite simple to
 trigger the warning to be printed at the start of the program so it doesn't
 interrupt later. Simply run one of the relevantt terminal functions early in your
-code. For example, run `clojuressh.terminal/in-raw-mode?` at the beginning of your
+code. For example, run `clojuressh.terminal/get-width` at the beginning of your
 program:
 
 ```clojure
 (defn -main []
-    (terminal/in-raw-mode?) ;; prints native access warning
+    (terminal/get-width) ;; prints native access warning
 
     (let [session (clojuressh/ssh "hostname")]
       ...)

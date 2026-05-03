@@ -141,3 +141,55 @@ Or perhaps:
     :out)
 ;; => "/dev/pts/72\r\n"
 ```
+
+## Prevent the native access warning
+
+If you are on JDK 22+, as your terminal gets put into raw mode (for a password or passphrase prompt),
+you will see a native access warning. It will probably look like this:
+
+```
+Enter Password for crispin@localhost: WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by com.sun.jna.Native in an unnamed module (file:/home/crispin/.m2/repository/net/java/dev/jna/jna/5.14.0/jna-5.14.0.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+```
+
+You either print this warning early by calling `clojuressh.terminal/get-width`
+
+```
+(clojuressh.terminal/get-width) ;; prints native access warning when first called
+```
+
+You can silence the message completely by starting the JVM with `--enable-native-access=ALL-UNNAMED`.
+Pick whichever of these matches your launcher:
+
+**`deps.edn`** — add to the alias (or top-level) that runs your app:
+
+```clojure
+{:aliases
+ {:run {:main-opts ["-m" "my.app"]
+        :jvm-opts  ["--enable-native-access=ALL-UNNAMED"]}}}
+```
+
+**Leiningen `project.clj`**:
+
+```clojure
+:jvm-opts ["--enable-native-access=ALL-UNNAMED"]
+```
+
+**Plain `java`** (e.g. running an uberjar):
+
+```
+java --enable-native-access=ALL-UNNAMED -jar my-app.jar
+```
+
+**Environment variable** (applies to every JVM spawned in the shell):
+
+```
+export JDK_JAVA_OPTIONS=--enable-native-access=ALL-UNNAMED
+```
+
+No flag is required on JDK 21 and earlier. If you hit an
+`IllegalCallerException` about native access on a JDK where the warning
+has become a hard error, `clojuressh` will rethrow it wrapped in an
+`ex-info` pointing you at this section.
