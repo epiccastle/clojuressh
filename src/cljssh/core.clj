@@ -296,30 +296,30 @@
         session (agent/get-session agent username hostname port)]
     (when (not= false known-hosts)
       (agent/set-known-hosts
-       agent
-       (or known-hosts
-           (str (System/getProperty "user.home")
-                "/.ssh/known_hosts"))))
+        agent
+        (or known-hosts
+            (str (System/getProperty "user.home")
+                 "/.ssh/known_hosts"))))
     (when (not= false config-file)
       (cond
         (string? config-file)
         (agent/set-config-repository
-         agent
-         (config-repository/openssh-config-file config-file))
+          agent
+          (config-repository/openssh-config-file config-file))
 
         (= java.io.File (class config-file))
         (agent/set-config-repository
-         agent
-         (config-repository/openssh-config-file (.getPath config-file)))
+          agent
+          (config-repository/openssh-config-file (.getPath config-file)))
 
         (and (nil? config-file)
              (.exists (io/file (str (System/getProperty "user.home")
                                     "/.ssh/config"))))
         (agent/set-config-repository
-         agent
-         (config-repository/openssh-config-file
-          (str (System/getProperty "user.home")
-               "/.ssh/config")))))
+          agent
+          (config-repository/openssh-config-file
+            (str (System/getProperty "user.home")
+                 "/.ssh/config")))))
     (when password (session/set-password session password))
     (when identity
       (if passphrase
@@ -327,11 +327,11 @@
         (agent/add-identity agent identity)))
     (when private-key
       (agent/add-identity
-       agent
-       (str "inline key for " username "@" hostname)
-       (utils/opt-decode-base64 private-key)
-       (utils/opt-decode-base64 (or public-key ""))
-       (utils/opt-get-bytes (or passphrase ""))))
+        agent
+        (str "inline key for " username "@" hostname)
+        (utils/opt-decode-base64 private-key)
+        (utils/opt-decode-base64 (or public-key ""))
+        (utils/opt-get-bytes (or passphrase ""))))
     (cond
       (#{:ask "ask"} strict-host-key-checking)
       (session/set-config session :strict-host-key-checking "ask")
@@ -347,9 +347,9 @@
         (or identity-repository
             (ssh-agent/new-identity-repository))))
     (session/set-user-info
-     session
-     (or user-info
-         (make-default-user-info options)))
+      session
+      (or user-info
+          (make-default-user-info options)))
     (when host-key-repository
       (session/set-host-key-repository session host-key-repository))
     (when proxy

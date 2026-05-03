@@ -4,8 +4,7 @@
             [clojure.test :refer [is deftest]]
             [clojure.string :as string]
             [clojure.java.io :as io])
-  (:import [java.nio.file.attribute PosixFilePermission])
-  )
+  (:import [java.nio.file.attribute PosixFilePermission]))
 
 (deftest test-permission-set->mode
   (is (= 0644
@@ -133,5 +132,4 @@
            string/split-lines
            second
            (string/starts-with? "drwx------")))
-  (process/sh "rm -rf .test")
-  )
+  (process/sh "rm -rf .test"))
