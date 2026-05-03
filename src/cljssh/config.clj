@@ -73,4 +73,4 @@
   "return a vector of strings that is set for the value `key`
   from a config object"
   [^ConfigRepository$Config config ^String key]
-  (.getValues config key))
+  (vec (.getValues config key)))
