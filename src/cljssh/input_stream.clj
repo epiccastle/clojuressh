@@ -1,4 +1,4 @@
-(ns cljssh.input-stream
+(ns clojuressh.input-stream
   (:refer-clojure :exclude [read])
   (:import [java.io
             PipedInputStream PipedOutputStream

@@ -11,7 +11,7 @@
   ;; Grant the JNA-loaded native libraries access without the
   ;; JDK 24+ "restricted method" warning. Required on JDK 24+,
   ;; harmless on earlier JDKs.
-  {:main-opts ["-m" "cljssh"]
+  {:main-opts ["-m" "clojuressh"]
    :jvm-opts  ["--enable-native-access=ALL-UNNAMED"]}
 
   :test
@@ -39,10 +39,10 @@
                       :output-path "target/docs"
                       :doc-paths ["docs"]
                       :themes [:epiccastle]
-                      :name "cljssh"
+                      :name "clojuressh"
                       :description "A Clojure library for using SSH in Clojure that is API compatible with bbssh"
                       :license {:name "Eclipse Public License 1.0"
-                                :url "https://github.com/epiccastle/cljssh/blob/main/LICENSE"}}}}
+                                :url "https://github.com/epiccastle/clojuressh/blob/main/LICENSE"}}}}
 
- :lib io.epiccastle/cljssh
+ :lib io.epiccastle/clojuressh
  :description "A Clojure library for using SSH in Clojure that is API compatible with bbssh"}

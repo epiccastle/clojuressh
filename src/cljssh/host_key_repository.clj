@@ -1,4 +1,4 @@
-(ns cljssh.host-key-repository
+(ns clojuressh.host-key-repository
   (:refer-clojure :exclude [remove])
   (:import [com.jcraft.jsch HostKeyRepository HostKey UserInfo]))
 

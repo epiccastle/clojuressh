@@ -1,4 +1,4 @@
-(ns cljssh.byte-array-input-stream
+(ns clojuressh.byte-array-input-stream
   (:refer-clojure :exclude [read])
   (:import [java.io
             PipedInputStream PipedOutputStream

@@ -1,22 +1,22 @@
-# cljssh
+# clojuressh
 
 A Clojure library for using SSH in Clojure that is API compatible with [bbssh](https://github.com/epiccastle/bbssh).
 
 ## Coordinates
 
 ```clojure
-io.epiccastle/cljssh {:mvn/version "0.1.0"}
+io.epiccastle/clojuressh {:mvn/version "0.1.0"}
 ```
 
 ## Usage
 
 ```clojure
-(require '[io.epiccastle.cljssh :as ssh])
+(require '[io.epiccastle.clojuressh :as ssh])
 ```
 
 ## Running on JDK 22+
 
-`cljssh` uses JNA to call a handful of native `libc` / `kernel32` functions
+`clojuressh` uses JNA to call a handful of native `libc` / `kernel32` functions
 for terminal handling (raw mode, terminal size). On JDK 22 and newer, the
 JVM prints a warning the first time any native library is loaded:
 
@@ -29,7 +29,7 @@ WARNING: Restricted methods will be blocked in a future release unless native ac
 
 This is a JDK-level warning about any code that performs native access,
 not an error, and it applies to every JNA-using library on modern JDKs —
-not just `cljssh`. On a future JDK version (currently expected no sooner
+not just `clojuressh`. On a future JDK version (currently expected no sooner
 than JDK 26) the warning will become a hard error unless you opt in.
 
 To silence the warning today, and to future-proof your project, start the
@@ -64,7 +64,7 @@ export JDK_JAVA_OPTIONS=--enable-native-access=ALL-UNNAMED
 
 No flag is required on JDK 21 and earlier. If you hit an
 `IllegalCallerException` about native access on a JDK where the warning
-has become a hard error, `cljssh` will rethrow it wrapped in an
+has become a hard error, `clojuressh` will rethrow it wrapped in an
 `ex-info` pointing you at this section.
 
 ## Development

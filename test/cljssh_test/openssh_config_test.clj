@@ -1,12 +1,12 @@
-(ns cljssh-test.openssh-config-test
-  (:require [cljssh.core :as cljssh]
-            [cljssh.agent :as agent]
-            [cljssh.session :as session]
-            [cljssh.key-pair :as key-pair]
-            [cljssh.config-repository :as config-repository]
-            [cljssh.config :as config]
+(ns clojuressh-test.openssh-config-test
+  (:require [clojuressh.core :as clojuressh]
+            [clojuressh.agent :as agent]
+            [clojuressh.session :as session]
+            [clojuressh.key-pair :as key-pair]
+            [clojuressh.config-repository :as config-repository]
+            [clojuressh.config :as config]
             [babashka.process :as process]
-            [cljssh-test.docker :as docker]
+            [clojuressh-test.docker :as docker]
             [clojure.test :refer [is deftest]]))
 
 (deftest test-openssh-config
@@ -36,7 +36,7 @@ Host *
       (session/set-password session "root-access-please")
       (session/set-config session :strict-host-key-checking false)
       (session/connect session)
-      (let [{:keys [exit out]} @(cljssh/exec session "echo test" {:out :string})]
+      (let [{:keys [exit out]} @(clojuressh/exec session "echo test" {:out :string})]
         (is (zero? exit))
         (is (= "test\n" out)))))
 
@@ -72,7 +72,7 @@ Host *
   (docker/build {:root-password "root-access-please"})
   (docker/start {:ssh-port 9876})
 
-  (spit "/tmp/cljssh-config" "
+  (spit "/tmp/clojuressh-config" "
 Port 9876
 
 Host docker-host
@@ -89,14 +89,14 @@ Host *
 ")
 
   (let [agent (agent/new)
-        config (config-repository/openssh-config-file "/tmp/cljssh-config")]
+        config (config-repository/openssh-config-file "/tmp/clojuressh-config")]
     (agent/set-config-repository agent config)
 
     (let [session (agent/get-session agent "docker-host")]
       (session/set-password session "root-access-please")
       (session/set-config session :strict-host-key-checking false)
       (session/connect session)
-      (let [{:keys [exit out]} @(cljssh/exec session "echo test" {:out :string})]
+      (let [{:keys [exit out]} @(clojuressh/exec session "echo test" {:out :string})]
         (is (zero? exit))
         (is (= "test\n" out)))))
 
@@ -109,13 +109,13 @@ Host *
 
   (let [agent (agent/new)
         keypair (key-pair/generate agent :ecdsa 256)]
-    (key-pair/write-private-key keypair "/tmp/cljssh_id_ecdsa")
-    (key-pair/write-public-key keypair "/tmp/cljssh_id_ecdsa.pub" "docker-key")
+    (key-pair/write-private-key keypair "/tmp/clojuressh_id_ecdsa")
+    (key-pair/write-public-key keypair "/tmp/clojuressh_id_ecdsa.pub" "docker-key")
 
-    (process/sh "chmod 0700 /tmp/cljssh_id_rsa")
+    (process/sh "chmod 0700 /tmp/clojuressh_id_rsa")
     (docker/exec "mkdir /root/.ssh")
     (docker/exec "chmod 0700 /root/.ssh")
-    (docker/cp-to "/tmp/cljssh_id_ecdsa.pub" "/root/.ssh/authorized_keys")
+    (docker/cp-to "/tmp/clojuressh_id_ecdsa.pub" "/root/.ssh/authorized_keys")
     (docker/exec "chmod 0600 /root/.ssh/authorized_keys")
     (docker/exec "chown root:root -R /root/.ssh")
 
@@ -129,7 +129,7 @@ Host docker-host
 Host *
   ConnectTime 30000
   PreferredAuthentications publickey
-  IdentityFile /tmp/cljssh_id_ecdsa
+  IdentityFile /tmp/clojuressh_id_ecdsa
   UserKnownHostsFile /tmp/known_hosts
 ")]
       (agent/set-config-repository agent config)
@@ -137,7 +137,7 @@ Host *
       (let [session (agent/get-session agent "docker-host")]
         (session/set-config session :strict-host-key-checking false)
         (session/connect session)
-        (let [{:keys [exit out]} @(cljssh/exec session "echo test" {:out :string})]
+        (let [{:keys [exit out]} @(clojuressh/exec session "echo test" {:out :string})]
           (is (zero? exit))
           (is (= "test\n" out))))))
 
@@ -150,13 +150,13 @@ Host *
 
   (let [agent (agent/new)
         keypair (key-pair/generate agent :rsa 1024)]
-    (key-pair/write-private-key keypair "/tmp/cljssh_id_rsa")
-    (key-pair/write-public-key keypair "/tmp/cljssh_id_rsa.pub" "docker-key")
+    (key-pair/write-private-key keypair "/tmp/clojuressh_id_rsa")
+    (key-pair/write-public-key keypair "/tmp/clojuressh_id_rsa.pub" "docker-key")
 
-    (process/sh "chmod 0700 /tmp/cljssh_id_rsa")
+    (process/sh "chmod 0700 /tmp/clojuressh_id_rsa")
     (docker/exec "mkdir /root/.ssh")
     (docker/exec "chmod 0700 /root/.ssh")
-    (docker/cp-to "/tmp/cljssh_id_rsa.pub" "/root/.ssh/authorized_keys")
+    (docker/cp-to "/tmp/clojuressh_id_rsa.pub" "/root/.ssh/authorized_keys")
     (docker/exec "chmod 0600 /root/.ssh/authorized_keys")
     (docker/exec "chown root:root -R /root/.ssh")
 
@@ -170,7 +170,7 @@ Host docker-host
 Host *
   ConnectTime 30000
   PreferredAuthentications publickey
-  IdentityFile /tmp/cljssh_id_rsa
+  IdentityFile /tmp/clojuressh_id_rsa
   UserKnownHostsFile /tmp/known_hosts
 ")]
       (agent/set-config-repository agent config)
@@ -178,7 +178,7 @@ Host *
       (let [session (agent/get-session agent "docker-host")]
         (session/set-config session :strict-host-key-checking false)
         (session/connect session)
-        (let [{:keys [exit out]} @(cljssh/exec session "echo test" {:out :string})]
+        (let [{:keys [exit out]} @(clojuressh/exec session "echo test" {:out :string})]
           (is (zero? exit))
           (is (= "test\n" out))))))
 

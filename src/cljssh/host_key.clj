@@ -1,4 +1,4 @@
-(ns cljssh.host-key
+(ns clojuressh.host-key
   (:import [com.jcraft.jsch HostKey JSch]))
 
 (def types
@@ -84,7 +84,7 @@
      :marker (.getMarker host-key)}))
 
 (defn get-infos
-  "Given a sequence of host-key references and the cljssh agent
+  "Given a sequence of host-key references and the clojuressh agent
   reference, return a hashmap of all the info for all the keys. The
   keys are the host-key references and the values are as would be
   returned from `get-info`."

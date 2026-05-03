@@ -1,4 +1,4 @@
-(ns cljssh.key-pair
+(ns clojuressh.key-pair
   (:refer-clojure :exclude [load])
   (:import [com.jcraft.jsch JSch KeyPair]))
 

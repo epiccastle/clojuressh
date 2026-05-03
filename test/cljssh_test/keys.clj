@@ -1,6 +1,6 @@
-(ns cljssh-test.keys
+(ns clojuressh-test.keys
   [:refer-clojure :exclude [keys]]
-  (:require [cljssh.key-pair :as key-pair]
+  (:require [clojuressh.key-pair :as key-pair]
             [clojure.string :as string]))
 
 (def keys

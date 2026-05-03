@@ -1,4 +1,4 @@
-(ns cljssh.config-repository
+(ns clojuressh.config-repository
   (:import [com.jcraft.jsch ConfigRepository OpenSSHConfig]
            [java.util Vector]))
 

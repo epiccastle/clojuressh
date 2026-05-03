@@ -1,8 +1,8 @@
-(ns cljssh-test.scp-test
-  (:require [cljssh.core :as bbssh]
-            [cljssh.scp :as scp]
+(ns clojuressh-test.scp-test
+  (:require [clojuressh.core :as bbssh]
+            [clojuressh.scp :as scp]
             [babashka.process :as process]
-            [cljssh-test.docker :as docker]
+            [clojuressh-test.docker :as docker]
             [clojure.test :refer [is deftest]]
             [clojure.java.io :as io]
             [clj-commons.digest :as digest])

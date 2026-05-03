@@ -4,22 +4,22 @@
 
 ```clojure
 (ns my-program
-  (:require [cljssh.core :as cljssh]))
+  (:require [clojuressh.core :as clojuressh]))
 ```
 
 ## Connecting
 
-Use `cljssh.core/ssh` to open an ssh connection to a remote host. The returned session value will be a reference keyword of the following form:
+Use `clojuressh.core/ssh` to open an ssh connection to a remote host. The returned session value will be a reference keyword of the following form:
 
 ```clojure
-(cljssh/ssh "localhost")
+(clojuressh/ssh "localhost")
 ;; => :com.jcraft.jsch/Session-0r0e6yi4m9j8yabp
 ```
 
 Here we open an ssh connection as a user on a remote host:
 
 ```clojure
-(let [session (cljssh/ssh "remotehost"
+(let [session (clojuressh/ssh "remotehost"
                           {:username "remoteusername"
                            :port 22})]
   ;; use session
@@ -31,7 +31,7 @@ If an ssh-agent and valid key is available it will be used for authentication. I
 You can specify a private key file to use for authentication with the option `:identity`:
 
 ```clojure
-(let [session (cljssh/ssh "remotehost"
+(let [session (clojuressh/ssh "remotehost"
                     {:username "remoteusername"
                      :port 22
                      :identity "path/to/id_rsa"})]
@@ -42,7 +42,7 @@ You can specify a private key file to use for authentication with the option `:i
 Alternatively you can specify the contents of a private key to use for authentication with `:private-key`
 
 ```
-(let [session (cljssh/ssh "remotehost"
+(let [session (clojuressh/ssh "remotehost"
                     {:username "remoteusername"
                      :port 22
                      :private-key (slurp "path/to/id_rsa")})]
@@ -52,24 +52,24 @@ Alternatively you can specify the contents of a private key to use for authentic
 
 ## Execution
 
-To execute a remote process on the session use `cljssh.core/exec`. This returns an `cljssh.SshProcess` record:
+To execute a remote process on the session use `clojuressh.core/exec`. This returns an `clojuressh.SshProcess` record:
 
 ```clojure
-(cljssh/exec session "echo 'I am running over ssh'")
-;; => #cljssh.SshProcess{:channel :com.jcraft.jsch/ChannelExec-i9qp6i1wk1uiqpio, :exit nil, :in nil, :out #object[java.io.PipedInputStream 0x6f9c2c47 "java.io.PipedInputStream@6f9c2c47"], :err #object[java.io.PipedInputStream 0x207ed897 "java.io.PipedInputStream@207ed897"], :prev nil, :cmd "echo 'I am running over ssh'"}
+(clojuressh/exec session "echo 'I am running over ssh'")
+;; => #clojuressh.SshProcess{:channel :com.jcraft.jsch/ChannelExec-i9qp6i1wk1uiqpio, :exit nil, :in nil, :out #object[java.io.PipedInputStream 0x6f9c2c47 "java.io.PipedInputStream@6f9c2c47"], :err #object[java.io.PipedInputStream 0x207ed897 "java.io.PipedInputStream@207ed897"], :prev nil, :cmd "echo 'I am running over ssh'"}
 ```
 
 By default no `:in` stream will be used. Streams will be returned for `:out` and `:err`. The funtion will return immediately and `:exit` will be nil as an indicator the process is still running. Dereferencing the return value will block until the process is finished and fill in the exit value of the remote process:
 
 ```clojure
-(:exit @(cljssh/exec session "exit 3"))
+(:exit @(clojuressh/exec session "exit 3"))
 ;; => 3
 ```
 
 Specify the format for the final value of `:out` and `:err` by passing in options:
 
 ```clojure
-(-> @(cljssh/exec session "echo stdout; echo stderr 1>&2; exit 3"
+(-> @(clojuressh/exec session "echo stdout; echo stderr 1>&2; exit 3"
                   {:out :string
                    :err :string})
     (select-keys [:exit :err :out]))
@@ -77,7 +77,7 @@ Specify the format for the final value of `:out` and `:err` by passing in option
 ```
 
 ```clojure
-(-> @(cljssh/exec session "echo stdout"
+(-> @(clojuressh/exec session "echo stdout"
                   {:out :bytes})
        :out
        seq)
@@ -86,11 +86,11 @@ Specify the format for the final value of `:out` and `:err` by passing in option
 
 ## Streaming between local and remote
 
-cljssh interoperates with [babashka.process](https://github.com/babashka/process) pipelining. The first argument of `cljssh.core/exec` can be substituted for an `SshProcess` or a babashka.process `Process`. When doing so you need to pass in the session via the options hashmap. Here we stream from a local process to a remote process and then back to a local process again:
+clojuressh interoperates with [babashka.process](https://github.com/babashka/process) pipelining. The first argument of `clojuressh.core/exec` can be substituted for an `SshProcess` or a babashka.process `Process`. When doing so you need to pass in the session via the options hashmap. Here we stream from a local process to a remote process and then back to a local process again:
 
 ```clojure
 (-> (babashka.process/process "echo this is local")
-    (cljssh/exec "md5sum" {:session session})
+    (clojuressh/exec "md5sum" {:session session})
     (babashka.process/process
         "bash -c \"echo 'our sum: $(cat)'\""
         {:out :string})
@@ -104,8 +104,8 @@ cljssh interoperates with [babashka.process](https://github.com/babashka/process
 In a similar way we can stream from one remote execution to another.
 
 ```clojure
-(-> (cljssh/exec session-one "echo first host")
-    (cljssh/exec "echo $(cat) and now second host"
+(-> (clojuressh/exec session-one "echo first host")
+    (clojuressh/exec "echo $(cat) and now second host"
                  {:session session-two
                   :out :string})
     deref
@@ -117,13 +117,13 @@ In a similar way we can stream from one remote execution to another.
 
 ## Copying files from local to remote
 
-Scp functionality is in the `cljssh.scp` namespace:
+Scp functionality is in the `clojuressh.scp` namespace:
 
 ```clojure
-(require '[cljssh.scp :as scp])
+(require '[clojuressh.scp :as scp])
 ```
 
-You can scp files from the local filesystem to a remote machine with `cljssh.scp/scp-to`.
+You can scp files from the local filesystem to a remote machine with `clojuressh.scp/scp-to`.
 
 ```clojure
 (scp/scp-to [(io/as-file "file1.dat") (io/as-file "file2.dat")]
@@ -148,7 +148,7 @@ You can recursively copy from a local directory to a remote machine by setting t
 
 ## Copying a remote file to the local machine
 
-You can scp files from the local filesystem to a remote machine with `cljssh.scp/scp-from`:
+You can scp files from the local filesystem to a remote machine with `clojuressh.scp/scp-from`:
 
 ```clojure
 (scp/scp-from "remote-file.dat"

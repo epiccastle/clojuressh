@@ -1,8 +1,8 @@
-(ns cljssh-test.key-pair-test
-  (:require [cljssh.agent :as agent]
-            [cljssh.key-pair :as key-pair]
-            [cljssh-test.docker :as docker]
-            [cljssh-test.keys :as keys]
+(ns clojuressh-test.key-pair-test
+  (:require [clojuressh.agent :as agent]
+            [clojuressh.key-pair :as key-pair]
+            [clojuressh-test.docker :as docker]
+            [clojuressh-test.keys :as keys]
             [clojure.test :refer [is deftest]]))
 
 (deftest test-key-pair

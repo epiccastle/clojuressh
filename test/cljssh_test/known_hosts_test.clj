@@ -1,10 +1,10 @@
-(ns cljssh-test.known-hosts-test
-  (:require [cljssh.agent :as agent]
-            [cljssh.user-info :as user-info]
-            [cljssh.host-key :as host-key]
-            [cljssh.host-key-repository :as host-key-repository]
-            [cljssh.impl.utils :as utils]
-            [cljssh-test.keys :as keys]
+(ns clojuressh-test.known-hosts-test
+  (:require [clojuressh.agent :as agent]
+            [clojuressh.user-info :as user-info]
+            [clojuressh.host-key :as host-key]
+            [clojuressh.host-key-repository :as host-key-repository]
+            [clojuressh.impl.utils :as utils]
+            [clojuressh-test.keys :as keys]
             [clojure.test :refer [is deftest]]))
 
 (defn make-salt []

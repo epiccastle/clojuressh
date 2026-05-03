@@ -49,7 +49,7 @@ You can gather a summary of all the local port forwards setup for this session w
 You can setup the local port forwarding when initiating the connection
 
 ```clojure
-(cljssh/ssh "remotehost"
+(clojuressh/ssh "remotehost"
             {:username "remoteusername"
              :port 22
              :port-forward-local [{:bind-address "0.0.0.0"
@@ -105,7 +105,7 @@ You can gather a summary of all the remote port forwards setup for this session 
 You can setup the remote port forwarding when initiating the connection
 
 ```clojure
-(cljssh/ssh "remotehost"
+(clojuressh/ssh "remotehost"
             {:username "remoteusername"
              :port 22
              :port-forward-remote [{:bind-address "0.0.0.0"

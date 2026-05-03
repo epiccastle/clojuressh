@@ -2,7 +2,7 @@
 
 help:
 	@echo "Available targets:"
-	@echo "  make run          - Run the cljssh entry point"
+	@echo "  make run          - Run the clojuressh entry point"
 	@echo "  make test         - Run the test suite"
 	@echo "  make jar          - Build a jar file"
 	@echo "  make install      - Install jar to local Maven repo (~/.m2)"
@@ -42,4 +42,4 @@ codox:
 	clojure -X:codox
 
 codox-upload:
-	rsync -av --delete target/docs/ www-data@epiccastle.io:~/epiccastle.io/public/cljssh/
+	rsync -av --delete target/docs/ www-data@epiccastle.io:~/epiccastle.io/public/clojuressh/

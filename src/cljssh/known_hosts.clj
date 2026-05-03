@@ -1,4 +1,4 @@
-(ns cljssh.known-hosts
+(ns clojuressh.known-hosts
   (:import [com.jcraft.jsch KnownHosts JSch]))
 
 ;; (defn new

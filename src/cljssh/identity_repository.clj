@@ -1,4 +1,4 @@
-(ns cljssh.identity-repository
+(ns clojuressh.identity-repository
   (:import [com.jcraft.jsch IdentityRepository]
            [java.util Vector]))
 

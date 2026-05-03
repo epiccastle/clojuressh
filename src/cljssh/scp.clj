@@ -1,7 +1,7 @@
-(ns cljssh.scp
+(ns clojuressh.scp
   "Implementation of the scp protocol"
-  (:require [cljssh.impl.utils :as utils]
-            [cljssh.core :as cljssh]
+  (:require [clojuressh.impl.utils :as utils]
+            [clojuressh.core :as clojuressh]
             [clojure.string :as string]
             [clojure.java.io :as io]
             [clojure.edn :as edn])
@@ -371,7 +371,7 @@
                        ]))
 
         {:keys [in out err channel] :as process}
-        (cljssh/exec session remote-command {:in :stream})]
+        (clojuressh/exec session remote-command {:in :stream})]
     (recv-ack process)
     (loop [[source & remain] local-sources
            progress-context progress-context
@@ -609,7 +609,7 @@
                        ]))
 
         {:keys [in out err channel] :as process}
-        (cljssh/exec session remote-command {:in :stream})]
+        (clojuressh/exec session remote-command {:in :stream})]
     (send-ack process)
     (let [progress-context (scp-from-receive process (io/as-file local-file) options)]
       (.close in)

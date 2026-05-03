@@ -1,4 +1,4 @@
-(ns cljssh.impl.pack)
+(ns clojuressh.impl.pack)
 
 (defn pack-byte [n]
   [(bit-and n 0xff)])

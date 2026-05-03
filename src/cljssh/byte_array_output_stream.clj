@@ -1,4 +1,4 @@
-(ns cljssh.byte-array-output-stream
+(ns clojuressh.byte-array-output-stream
   (:refer-clojure :exclude [flush])
   (:import [java.io
             ByteArrayOutputStream OutputStream]))

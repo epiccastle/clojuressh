@@ -1,7 +1,7 @@
-(ns cljssh-test.host-key-test
-  (:require [cljssh.agent :as agent]
-            [cljssh.key-pair :as key-pair]
-            [cljssh-test.keys :as keys]
+(ns clojuressh-test.host-key-test
+  (:require [clojuressh.agent :as agent]
+            [clojuressh.key-pair :as key-pair]
+            [clojuressh-test.keys :as keys]
             [clojure.test :refer [is deftest]]))
 
 (deftest host-key

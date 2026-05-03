@@ -1,18 +1,18 @@
-(ns cljssh.core
+(ns clojuressh.core
   "Basic connection, execution, shell and copying functionality."
-  (:require [cljssh.agent :as agent]
-            [cljssh.session :as session]
-            [cljssh.impl.utils :as utils]
-            [cljssh.user-info :as user-info]
-            [cljssh.host-key-repository :as host-key-repository]
-            [cljssh.config-repository :as config-repository]
-            [cljssh.terminal :as terminal]
-            [cljssh.channel-exec :as channel-exec]
-            [cljssh.input-stream :as input-stream]
-            [cljssh.output-stream :as output-stream]
-            [cljssh.byte-array-output-stream :as byte-array-output-stream]
-            [cljssh.byte-array-input-stream :as byte-array-input-stream]
-            [cljssh.ssh-agent :as ssh-agent]
+  (:require [clojuressh.agent :as agent]
+            [clojuressh.session :as session]
+            [clojuressh.impl.utils :as utils]
+            [clojuressh.user-info :as user-info]
+            [clojuressh.host-key-repository :as host-key-repository]
+            [clojuressh.config-repository :as config-repository]
+            [clojuressh.terminal :as terminal]
+            [clojuressh.channel-exec :as channel-exec]
+            [clojuressh.input-stream :as input-stream]
+            [clojuressh.output-stream :as output-stream]
+            [clojuressh.byte-array-output-stream :as byte-array-output-stream]
+            [clojuressh.byte-array-input-stream :as byte-array-input-stream]
+            [clojuressh.ssh-agent :as ssh-agent]
             [clojure.java.io :as io]))
 
 (def ^:private special-config-var-names
@@ -187,9 +187,9 @@
   - `:public-key` Pass in a string (base64) or byte array of
     the public key associated with the private-key
   - `:strict-host-key-checking` Control strict host key checking.
-    If set to `true`, cljssh will never add host keys to known host
+    If set to `true`, clojuressh will never add host keys to known host
     and will refuse to connect to hosts whose host key has changed.
-    If set to `false`, cljssh will allow connection to hosts with
+    If set to `false`, clojuressh will allow connection to hosts with
     unknown or changed keys. If the key is unknown it will add it to known
     hosts, but it will not change a key if it is present. A
     value of `:ask` will mean new host keys will be added to the known
@@ -237,8 +237,8 @@
   - `:no-connect` Set to true to prevent the connection from being
     initiated. Just returns the prepared session reference. You will then
     need to call `session/connect` on it to initiate the connection.
-  - `:agent` The cljssh agent to use to construct the session. If none
-    is supplied a new cljssh agent will be created. Note: this is not
+  - `:agent` The clojuressh agent to use to construct the session. If none
+    is supplied a new clojuressh agent will be created. Note: this is not
     an ssh-agent. It is the root class that contains all the session
     instances and settings.
   - `:identity-repository` Use a custom identity-repository in the

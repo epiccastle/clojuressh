@@ -1,14 +1,14 @@
-(ns cljssh-test.identity-repository-test
-  (:require [cljssh.agent :as agent]
-            [cljssh.session :as session]
-            [cljssh.channel-exec :as channel-exec]
-            [cljssh.input-stream :as input-stream]
-            [cljssh.output-stream :as output-stream]
-            [cljssh.key-pair :as key-pair]
-            [cljssh.identity :as identity]
-            [cljssh.identity-repository :as identity-repository]
-            [cljssh-test.docker :as docker]
-            [cljssh-test.keys :as keys]
+(ns clojuressh-test.identity-repository-test
+  (:require [clojuressh.agent :as agent]
+            [clojuressh.session :as session]
+            [clojuressh.channel-exec :as channel-exec]
+            [clojuressh.input-stream :as input-stream]
+            [clojuressh.output-stream :as output-stream]
+            [clojuressh.key-pair :as key-pair]
+            [clojuressh.identity :as identity]
+            [clojuressh.identity-repository :as identity-repository]
+            [clojuressh-test.docker :as docker]
+            [clojuressh-test.keys :as keys]
             [clojure.test :refer [is deftest]]
             [clojure.string :as string]))
 

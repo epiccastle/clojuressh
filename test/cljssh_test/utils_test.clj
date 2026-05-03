@@ -1,5 +1,5 @@
-(ns cljssh-test.utils-test
-  (:require [cljssh.impl.utils :as utils]
+(ns clojuressh-test.utils-test
+  (:require [clojuressh.impl.utils :as utils]
             [babashka.process :as process]
             [clojure.test :refer [is deftest]]
             [clojure.string :as string]

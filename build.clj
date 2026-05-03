@@ -3,7 +3,7 @@
             [clojure.tools.build.api :as b]
             [deps-deploy.deps-deploy :as dd]))
 
-(def lib 'io.epiccastle/cljssh)
+(def lib 'io.epiccastle/clojuressh)
 
 (defn- latest-version-tag
   "Return the most recent git tag that looks like a version string
@@ -55,9 +55,9 @@
                 :version version-tag
                 :basis @basis
                 :src-dirs ["src"]
-                :scm {:url "https://github.com/epiccastle/cljssh"
-                      :connection "scm:git:git://github.com/epiccastle/cljssh.git"
-                      :developerConnection "scm:git:ssh://git@github.com/epiccastle/cljssh.git"
+                :scm {:url "https://github.com/epiccastle/clojuressh"
+                      :connection "scm:git:git://github.com/epiccastle/clojuressh.git"
+                      :developerConnection "scm:git:ssh://git@github.com/epiccastle/clojuressh.git"
                       :tag (str "v" version-tag)}
                 :pom-data
                 [[:description "A Clojure library for using SSH in Clojure that is API compatible with bbssh"]

@@ -1,4 +1,4 @@
-(ns cljssh.user-info
+(ns clojuressh.user-info
   (:import [com.jcraft.jsch UserInfo]))
 
 (set! *warn-on-reflection* true)

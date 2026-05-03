@@ -1,8 +1,8 @@
-(ns cljssh-test.user-info-test
-  (:require [cljssh.user-info :as user-info]
-            [cljssh.agent :as agent]
-            [cljssh.session :as session]
-            [cljssh-test.docker :as docker]
+(ns clojuressh-test.user-info-test
+  (:require [clojuressh.user-info :as user-info]
+            [clojuressh.agent :as agent]
+            [clojuressh.session :as session]
+            [clojuressh-test.docker :as docker]
             [clojure.test :refer [is deftest]]))
 
 (deftest user-info

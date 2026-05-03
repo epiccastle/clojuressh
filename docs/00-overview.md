@@ -1,30 +1,30 @@
 # Overview
 
-cljssh is a Clojure library that provides ssh support to Clojure code. It is API compatible with [bbssh](https://github.com/epiccastle/bbssh).
+clojuressh is a Clojure library that provides ssh support to Clojure code. It is API compatible with [bbssh](https://github.com/epiccastle/bbssh).
 
-Project repository is [here](https://github.com/epiccastle/cljssh)
+Project repository is [here](https://github.com/epiccastle/clojuressh)
 
 A local installation of ssh is **not required**.
 
 ## Installation
 
-Add cljssh as a dependency in your `deps.edn`:
+Add clojuressh as a dependency in your `deps.edn`:
 
 ```clojure
-io.epiccastle/cljssh {:mvn/version "0.1.0"}
+io.epiccastle/clojuressh {:mvn/version "0.1.0"}
 ```
 
 ## Quickstart
 
-Try writing the following into `test_cljssh.clj`
+Try writing the following into `test_clojuressh.clj`
 
 ```clojure
-(ns test-cljssh
-  (:require [cljssh.core :as cljssh]
-            [cljssh.session :as session))
+(ns test-clojuressh
+  (:require [clojuressh.core :as clojuressh]
+            [clojuressh.session :as session))
 
-(let [session (cljssh/ssh "localhost")]
-  (-> (cljssh/exec session "echo 'I am running over ssh'" {:out :string})
+(let [session (clojuressh/ssh "localhost")]
+  (-> (clojuressh/exec session "echo 'I am running over ssh'" {:out :string})
       deref
       :out
       prn)
@@ -34,12 +34,12 @@ Try writing the following into `test_cljssh.clj`
 Then execute the file with Clojure. You will be prompted for your ssh password. Enter it and press return:
 
 ```bash-shell
-$ clojure -M test_cljssh.clj
+$ clojure -M test_clojuressh.clj
 Enter Password for crispin@localhost:
 "I am running over ssh\n"
 ```
 
-> **Note:** if you are running an ssh-agent and you have a relevant key you may not be asked for your password. cljssh supports authentication by ssh agent.
+> **Note:** if you are running an ssh-agent and you have a relevant key you may not be asked for your password. clojuressh supports authentication by ssh agent.
 
 ## Copyright
 

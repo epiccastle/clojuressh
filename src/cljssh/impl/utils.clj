@@ -1,4 +1,4 @@
-(ns cljssh.impl.utils
+(ns clojuressh.impl.utils
   (:require [babashka.fs :as fs]
             [clojure.string :as string])
   (:import [java.nio.file.attribute PosixFilePermission FileTime]))

@@ -1,4 +1,4 @@
-(ns cljssh.channel-exec
+(ns clojuressh.channel-exec
   (:import [com.jcraft.jsch JSch Session UserInfo ChannelExec Channel ChannelSession]
            [java.io InputStream OutputStream])
   )

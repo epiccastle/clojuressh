@@ -1,7 +1,7 @@
-(ns cljssh-test
+(ns clojuressh-test
   (:require [clojure.test :refer [deftest is testing]]
-            [cljssh :as cljssh]))
+            [clojuressh :as clojuressh]))
 
 (deftest placeholder-test
   (testing "Library namespace loads"
-    (is (find-ns 'cljssh))))
+    (is (find-ns 'clojuressh))))

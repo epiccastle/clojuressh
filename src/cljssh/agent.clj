@@ -1,4 +1,4 @@
-(ns cljssh.agent
+(ns clojuressh.agent
   (:require [clojure.java.io :as io])
   (:import [com.jcraft.jsch JSch Logger
             IdentityRepository HostKeyRepository

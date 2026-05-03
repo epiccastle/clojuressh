@@ -1,6 +1,6 @@
-(ns cljssh.session
+(ns clojuressh.session
   (:require [clojure.string :as string]
-            [cljssh.impl.utils :as utils])
+            [clojuressh.impl.utils :as utils])
   (:import [com.jcraft.jsch JSch Session
             UserInfo IdentityRepository
             HostKeyRepository Proxy ProxyHTTP ProxySOCKS4 ProxySOCKS5])

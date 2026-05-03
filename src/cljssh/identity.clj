@@ -1,4 +1,4 @@
-(ns cljssh.identity
+(ns clojuressh.identity
   (:import [com.jcraft.jsch Identity]))
 
 (set! *warn-on-reflection* true)

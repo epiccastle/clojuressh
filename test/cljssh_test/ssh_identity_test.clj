@@ -1,8 +1,8 @@
-(ns cljssh-test.ssh-identity-test
-  (:require [cljssh.core :as cljssh]
-            [cljssh.user-info :as user-info]
-            [cljssh-test.docker :as docker]
-            [cljssh-test.keys :as keys]
+(ns clojuressh-test.ssh-identity-test
+  (:require [clojuressh.core :as clojuressh]
+            [clojuressh.user-info :as user-info]
+            [clojuressh-test.docker :as docker]
+            [clojuressh-test.keys :as keys]
             [clojure.test :refer [is deftest]]))
 
 (defn setup-server-client-keys [key-name]
@@ -12,11 +12,11 @@
   (docker/put-file (get-in keys/keys [key-name :public]) "/root/.ssh/authorized_keys")
 
   ;; setup client private key
-  (docker/run "rm -rf .test/cljssh-test-key" "could not clean .test/cljssh-test-key")
-  (docker/run "mkdir -p .test/cljssh-test-key" "could not mkdir .test/cljssh-test-key")
-  (docker/run "chmod 0700 .test/cljssh-test-key" "could not chmod .test/cljssh-test-key")
-  (spit ".test/cljssh-test-key/cljssh_test_id_key" (get-in keys/keys [key-name :private]) )
-  (docker/run "chmod 0600 .test/cljssh-test-key/cljssh_test_id_key" "could not chmod .test/cljssh-test-key/cljssh_test_id_key"))
+  (docker/run "rm -rf .test/clojuressh-test-key" "could not clean .test/clojuressh-test-key")
+  (docker/run "mkdir -p .test/clojuressh-test-key" "could not mkdir .test/clojuressh-test-key")
+  (docker/run "chmod 0700 .test/clojuressh-test-key" "could not chmod .test/clojuressh-test-key")
+  (spit ".test/clojuressh-test-key/clojuressh_test_id_key" (get-in keys/keys [key-name :private]) )
+  (docker/run "chmod 0600 .test/clojuressh-test-key/clojuressh_test_id_key" "could not chmod .test/clojuressh-test-key/clojuressh_test_id_key"))
 
 (defn passphrase [key-name]
   (get-in keys/keys [key-name :passphrase]))
@@ -27,11 +27,11 @@
   (docker/start {:ssh-port 9876})
   (setup-server-client-keys :rsa-nopassphrase)
 
-  (-> (cljssh/ssh "localhost" {:port 9876
+  (-> (clojuressh/ssh "localhost" {:port 9876
                               :username "root"
-                              :identity ".test/cljssh-test-key/cljssh_test_id_key"
+                              :identity ".test/clojuressh-test-key/clojuressh_test_id_key"
                               :strict-host-key-checking false})
-      (cljssh/exec "echo 'running remote'" {:out :string})
+      (clojuressh/exec "echo 'running remote'" {:out :string})
       deref
       :out
       (= "running remote\n")
@@ -45,12 +45,12 @@
   (docker/start {:ssh-port 9876})
   (setup-server-client-keys :rsa-passphrase)
 
-  (-> (cljssh/ssh "localhost" {:port 9876
+  (-> (clojuressh/ssh "localhost" {:port 9876
                               :username "root"
-                              :identity ".test/cljssh-test-key/cljssh_test_id_key"
+                              :identity ".test/clojuressh-test-key/clojuressh_test_id_key"
                               :passphrase (passphrase :rsa-passphrase)
                               :strict-host-key-checking false})
-      (cljssh/exec "echo 'running remote'" {:out :string})
+      (clojuressh/exec "echo 'running remote'" {:out :string})
       deref
       :out
       (= "running remote\n")
@@ -66,9 +66,9 @@
 
   ;; ensure passphrase is asked for is key is encrypted and no passphrase given
   (let [state-asked? (atom false)]
-    (-> (cljssh/ssh "localhost" {:port 9876
+    (-> (clojuressh/ssh "localhost" {:port 9876
                                 :username "root"
-                                :identity ".test/cljssh-test-key/cljssh_test_id_key"
+                                :identity ".test/clojuressh-test-key/clojuressh_test_id_key"
                                 :strict-host-key-checking false
                                 :user-info
                                 (user-info/new
@@ -76,7 +76,7 @@
                                                         (reset! state-asked? true)
                                                         true)
                                    :get-passphrase #(passphrase :rsa-passphrase)})})
-        (cljssh/exec "echo 'running remote'" {:out :string})
+        (clojuressh/exec "echo 'running remote'" {:out :string})
         deref
         :out
         (= "running remote\n")
@@ -85,9 +85,9 @@
 
   ;; ensure connection fails if passphrase is asked for and wrong passphrase given
   ;; and then wrong password is given
-  (->> (-> (cljssh/ssh "localhost" {:port 9876
+  (->> (-> (clojuressh/ssh "localhost" {:port 9876
                                    :username "root"
-                                   :identity ".test/cljssh-test-key/cljssh_test_id_key"
+                                   :identity ".test/clojuressh-test-key/clojuressh_test_id_key"
                                    :strict-host-key-checking false
                                    :user-info
                                    (user-info/new
@@ -97,16 +97,16 @@
                                       :show-message (fn [_] nil)
                                       :prompt-passphrase (fn [_] true)
                                       :get-passphrase (fn [] "wrong passphrase")})})
-           (cljssh/exec "echo 'running remote'" {:out :string})
+           (clojuressh/exec "echo 'running remote'" {:out :string})
            deref)
        (thrown? clojure.lang.ExceptionInfo)
        is)
 
   ;; ensure connection fails if passphrase falls back to password, but password
   ;; auth is cancelled
-  (->> (-> (cljssh/ssh "localhost" {:port 9876
+  (->> (-> (clojuressh/ssh "localhost" {:port 9876
                                    :username "root"
-                                   :identity ".test/cljssh-test-key/cljssh_test_id_key"
+                                   :identity ".test/clojuressh-test-key/clojuressh_test_id_key"
                                    :strict-host-key-checking false
                                    :user-info
                                    (user-info/new
@@ -118,15 +118,15 @@
                                       :show-message (fn [_] nil)
                                       :prompt-passphrase (fn [_] true)
                                       :get-passphrase (fn [] "wrong passphrase")})})
-           (cljssh/exec "echo 'running remote'" {:out :string})
+           (clojuressh/exec "echo 'running remote'" {:out :string})
            deref)
        (thrown? clojure.lang.ExceptionInfo)
        is)
 
   ;; ensure connection fails if passphrase decryption is denied
-  (->> (-> (cljssh/ssh "localhost" {:port 9876
+  (->> (-> (clojuressh/ssh "localhost" {:port 9876
                                    :username "root"
-                                   :identity ".test/cljssh-test-key/cljssh_test_id_key"
+                                   :identity ".test/clojuressh-test-key/clojuressh_test_id_key"
                                    :strict-host-key-checking false
                                    :user-info
                                    (user-info/new
@@ -138,7 +138,7 @@
                                                            ;; cancel decrypting passphrase
                                                            false)
                                       :get-passphrase (fn [] "wrong passphrase")})})
-           (cljssh/exec "echo 'running remote'" {:out :string})
+           (clojuressh/exec "echo 'running remote'" {:out :string})
            deref)
        (thrown? clojure.lang.ExceptionInfo)
        is)
@@ -151,11 +151,11 @@
   (docker/start {:ssh-port 9876})
   (setup-server-client-keys :ed25519-no-passphrase)
 
-  (-> (cljssh/ssh "localhost" {:port 9876
+  (-> (clojuressh/ssh "localhost" {:port 9876
                               :username "root"
-                              :identity ".test/cljssh-test-key/cljssh_test_id_key"
+                              :identity ".test/clojuressh-test-key/clojuressh_test_id_key"
                               :strict-host-key-checking false})
-      (cljssh/exec "echo 'running remote'" {:out :string})
+      (clojuressh/exec "echo 'running remote'" {:out :string})
       deref
       :out
       (= "running remote\n")
@@ -169,12 +169,12 @@
   (docker/start {:ssh-port 9876})
   (setup-server-client-keys :ed25519-passphrase)
 
-  (-> (cljssh/ssh "localhost" {:port 9876
+  (-> (clojuressh/ssh "localhost" {:port 9876
                               :username "root"
-                              :identity ".test/cljssh-test-key/cljssh_test_id_key"
+                              :identity ".test/clojuressh-test-key/clojuressh_test_id_key"
                               :passphrase (passphrase :ed25519-passphrase)
                               :strict-host-key-checking false})
-      (cljssh/exec "echo 'running remote'" {:out :string})
+      (clojuressh/exec "echo 'running remote'" {:out :string})
       deref
       :out
       (= "running remote\n")

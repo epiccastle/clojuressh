@@ -1,9 +1,9 @@
-(ns cljssh-test.port-forward-test
-  (:require [cljssh.core :as cljssh]
-            [cljssh.session :as session]
+(ns clojuressh-test.port-forward-test
+  (:require [clojuressh.core :as clojuressh]
+            [clojuressh.session :as session]
             [babashka.process :as process]
             [babashka.curl :as curl]
-            [cljssh-test.docker :as docker]
+            [clojuressh-test.docker :as docker]
             [clojure.test :refer [is deftest]]
             [clojure.java.io :as io]
             [clj-commons.digest :as digest])
@@ -24,7 +24,7 @@
   (docker/start {:ssh-port 9876})
 
   (let [session
-        (cljssh/ssh "localhost" {:port 9876
+        (clojuressh/ssh "localhost" {:port 9876
                                 :username "root"
                                 :password "root-access-please"
                                 :strict-host-key-checking false})]
@@ -60,7 +60,7 @@
   (docker/start {:ssh-port 9876})
 
   (let [session
-        (cljssh/ssh "localhost" {:port 9876
+        (clojuressh/ssh "localhost" {:port 9876
                                 :username "root"
                                 :password "root-access-please"
                                 :strict-host-key-checking false})]
@@ -91,7 +91,7 @@
   (docker/start {:ssh-port 9876})
 
   (let [session
-        (cljssh/ssh
+        (clojuressh/ssh
          "localhost"
          {:port 9876
           :username "root"
@@ -126,7 +126,7 @@
   (docker/start {:ssh-port 9876})
 
   (let [session
-        (cljssh/ssh
+        (clojuressh/ssh
          "localhost"
          {:port 9876
           :username "root"
@@ -172,7 +172,7 @@
   (start-unix-socket-server)
 
   (let [session
-        (cljssh/ssh "localhost" {:port 9876
+        (clojuressh/ssh "localhost" {:port 9876
                                 :username "root"
                                 :password "root-access-please"
                                 :strict-host-key-checking false})]
@@ -208,7 +208,7 @@
   (start-unix-socket-server)
 
   (let [session
-        (cljssh/ssh
+        (clojuressh/ssh
          "localhost"
          {:port 9876
           :username "root"

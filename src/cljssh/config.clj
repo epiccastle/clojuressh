@@ -1,4 +1,4 @@
-(ns cljssh.config
+(ns clojuressh.config
   (:import [com.jcraft.jsch ConfigRepository$Config]))
 
 (set! *warn-on-reflection* true)

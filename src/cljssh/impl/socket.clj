@@ -1,4 +1,4 @@
-(ns cljssh.impl.socket
+(ns clojuressh.impl.socket
   "Unix domain socket client operations implemented using
   java.net.UnixDomainSocketAddress and java.nio.channels.SocketChannel."
   (:refer-clojure :exclude [read])

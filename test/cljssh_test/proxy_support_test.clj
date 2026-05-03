@@ -1,12 +1,12 @@
-(ns cljssh-test.proxy-support-test
-  (:require [cljssh.core :as cljssh]
-            [cljssh.agent :as agent]
+(ns clojuressh-test.proxy-support-test
+  (:require [clojuressh.core :as clojuressh]
+            [clojuressh.agent :as agent]
             [clojure.string :as string]
-            [cljssh.session :as session]
-            [cljssh.key-pair :as key-pair]
-            [cljssh.config-repository :as config-repository]
+            [clojuressh.session :as session]
+            [clojuressh.key-pair :as key-pair]
+            [clojuressh.config-repository :as config-repository]
             [babashka.process :as process]
-            [cljssh-test.docker :as docker]
+            [clojuressh-test.docker :as docker]
             [clojure.test :refer [is deftest testing]]
             [clojure.java.io :as io]
             [clj-commons.digest :as digest])
@@ -19,12 +19,12 @@
 (def proxy-auth-port 2080)
 
 ;; Proxy auth credentials we use for testing.
-(def proxy-username "cljssh-test-proxy-username")
-(def proxy-password "cljssh-test-proxy-password")
+(def proxy-username "clojuressh-test-proxy-username")
+(def proxy-password "clojuressh-test-proxy-password")
 
 (defn create-session
   [& {:keys [host port proxy]}]
-  (cljssh/ssh host
+  (clojuressh/ssh host
              (cond-> {:port port
                       :username "root"
                       :password "root-access-please"

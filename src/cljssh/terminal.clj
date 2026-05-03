@@ -1,4 +1,4 @@
-(ns cljssh.terminal
+(ns clojuressh.terminal
   (:require [clojure.string :as str])
   (:import [java.io InputStream]
            [com.sun.jna Function Memory Native NativeLibrary Pointer]
@@ -133,7 +133,7 @@
     (NativeLibrary/getInstance libname)
     (catch Throwable t
       (throw (ex-info
-               (str "cljssh.terminal could not load native library \"" libname "\". "
+               (str "clojuressh.terminal could not load native library \"" libname "\". "
                     "This is usually because the JVM was started without "
                     "--enable-native-access=ALL-UNNAMED on a JDK version that "
                     "requires it. Add that flag to your :jvm-opts (in deps.edn) "

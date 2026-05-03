@@ -1,9 +1,9 @@
-(ns cljssh.ssh-agent
+(ns clojuressh.ssh-agent
   "Implements an identity-repository that communicates with your local ssh agent (ssh keychain) over the SSH_AUTH_SOCK unix domain pipe."
-  (:require [cljssh.impl.pack :as pack]
-            [cljssh.impl.socket :as socket]
-            [cljssh.identity :as identity]
-            [cljssh.identity-repository :as identity-repository]))
+  (:require [clojuressh.impl.pack :as pack]
+            [clojuressh.impl.socket :as socket]
+            [clojuressh.identity :as identity]
+            [clojuressh.identity-repository :as identity-repository]))
 
 (def ^:private codes
   {:ssh-agent-failure 5
