@@ -15,6 +15,8 @@ closing sessions after use:
       ;; do things with session here
       (finally
          (clojuressh.session/disconnect session))))
+
+(shutdown-agents)
 ```
 
 If you do not care about elegance and just want to force a shutdown, use `System/exit`. This will
