@@ -8,7 +8,7 @@ library. A local installation of `ssh` is **not required**.
 ## Coordinates
 
 ```clojure
-io.epiccastle/clojuressh {:mvn/version "0.1.0"}
+io.epiccastle/clojuressh {:mvn/version "0.7.0"}
 ```
 
 ## Usage
