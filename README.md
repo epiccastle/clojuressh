@@ -106,9 +106,6 @@ code. For example, run `clojuressh.terminal/in-raw-mode?` at the beginning of yo
 program:
 
 ```clojure
-(ns test-clojuressh
-  (:require [clojuressh.core :as clojuressh]
-            [clojuressh.terminal :as terminal]))
 (defn -main []
     (terminal/in-raw-mode?) ;; prints native access warning
 
