@@ -1,6 +1,9 @@
 # clojuressh
 
-A Clojure library for using SSH in Clojure that is API compatible with [bbssh](https://github.com/epiccastle/bbssh).
+A Clojure library for SSH support, API compatible with [bbssh](https://github.com/epiccastle/bbssh).
+
+`clojuressh` is a port of the `bbssh` babashka pod into a native Clojure
+library. A local installation of `ssh` is **not required**.
 
 ## Coordinates
 
@@ -10,9 +13,32 @@ io.epiccastle/clojuressh {:mvn/version "0.1.0"}
 
 ## Usage
 
+Here is a simple example that connects over ssh, runs a command, and
+disconnects, returning the standard output:
+
 ```clojure
-(require '[io.epiccastle.clojuressh :as ssh])
+(ns test-clojuressh
+  (:require [clojuressh.core :as clojuressh]
+            [clojuressh.session :as session]))
+
+(let [session (clojuressh/ssh "remotehost" {:username "remote-user"})]
+  (-> (clojuressh/exec session "echo 'I am running remotely'" {:out :string})
+      deref
+      :out
+      prn)
+  (session/disconnect session))
 ```
+
+> **Note:** if you are running an ssh-agent and you have a relevant key
+> loaded you may not be asked for a password. `clojuressh` supports
+> authentication via ssh agent.
+
+## API documentation
+
+The full documentation [can be found here](https://epiccastle.io/clojuressh).
+
+See also the docs in the [`docs/`](docs) directory for an overview, basics,
+port forwarding, and how-to guides.
 
 ## Running on JDK 22+
 
