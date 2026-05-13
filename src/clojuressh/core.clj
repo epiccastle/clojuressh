@@ -12,6 +12,7 @@
             [clojuressh.byte-array-output-stream :as byte-array-output-stream]
             [clojuressh.byte-array-input-stream :as byte-array-input-stream]
             [clojuressh.ssh-agent :as ssh-agent]
+            [clojuressh.terminal :as terminal]
             [clojure.java.io :as io]))
 
 (def ^:private special-config-var-names
@@ -83,14 +84,16 @@
   etc."
   [prompt]
   (if-let [console (System/console)]
-    (let [chars (.readPassword console "%s" (object-array [prompt]))]
-      (when chars
-        (let [s (String. chars)]
-          ;; Best-effort scrub of the char[] buffer. The String copy
-          ;; still lives in the heap until GC, but at least the
-          ;; original buffer doesn't.
-          (java.util.Arrays/fill chars \u0000)
-          s)))
+    (do
+      (print prompt)
+      (.flush *out*)
+      (if-let [password (terminal/raw-mode-readline)]
+        (do
+          (println)
+          password)
+        (do
+          (println "^C")
+          (System/exit 1))))
     (throw (ex-info
              (str "Cannot prompt for credentials: no controlling terminal "
                   "is attached to this JVM. Pass `:password` / `:passphrase` "
@@ -104,95 +107,90 @@
   [{:keys [accept-host-key silence-messages]}]
   (let [message (atom nil)]
     (user-info/new
-     {:get-password
-      (fn []
-        (or (read-secret-from-console (str "Enter " @message ": "))
-            (do
-              (println)
-              (System/exit 1))))
+      {:get-password
+       (fn []
+         (read-secret-from-console (str "Enter " @message ": ")))
 
-      :prompt-yes-no
-      (fn [s]
-        (let [host-key-missing?
-              (and (.contains s "authenticity of host")
-                   (.contains s "can't be established"))
-              host-key-changed?
-              (.contains s "IDENTIFICATION HAS CHANGED")
-              ]
-          (cond
-            host-key-missing?
-            (let [fingerprint (second (re-find #"fingerprint is (.+)." s))]
-              (cond
-                (#{:new "new"} accept-host-key)
-                true
+       :prompt-yes-no
+       (fn [s]
+         (let [host-key-missing?
+               (and (.contains s "authenticity of host")
+                    (.contains s "can't be established"))
+               host-key-changed?
+               (.contains s "IDENTIFICATION HAS CHANGED")
+               ]
+           (cond
+             host-key-missing?
+             (let [fingerprint (second (re-find #"fingerprint is (.+)." s))]
+               (cond
+                 (#{:new "new"} accept-host-key)
+                 true
 
-                (= true accept-host-key)
-                true
+                 (= true accept-host-key)
+                 true
 
-                (= false accept-host-key)
-                false
+                 (= false accept-host-key)
+                 false
 
-                (and (string? accept-host-key)
-                     (= fingerprint
-                        accept-host-key))
-                true ;; fingerprint matches
+                 (and (string? accept-host-key)
+                      (= fingerprint
+                         accept-host-key))
+                 true ;; fingerprint matches
 
-                (string? accept-host-key)
-                false ;; fingerprint does not match
+                 (string? accept-host-key)
+                 false ;; fingerprint does not match
 
-                :else
-                (print-flush-ask-yes-no s)))
+                 :else
+                 (print-flush-ask-yes-no s)))
 
-            host-key-changed?
-            (let [fingerprint (second (re-find #"The fingerprint for the .+ key sent by the remote host .+ is\n(.+).\n" s))]
-              (cond
-                (#{:new "new"} accept-host-key)
-                false
+             host-key-changed?
+             (let [fingerprint (second (re-find #"The fingerprint for the .+ key sent by the remote host .+ is\n(.+).\n" s))]
+               (cond
+                 (#{:new "new"} accept-host-key)
+                 false
 
-                (= true accept-host-key)
-                true
+                 (= true accept-host-key)
+                 true
 
-                (= false accept-host-key)
-                false
+                 (= false accept-host-key)
+                 false
 
-                (and (string? accept-host-key)
-                     (= fingerprint
-                        accept-host-key))
-                true ;; fingerprint matches
+                 (and (string? accept-host-key)
+                      (= fingerprint
+                         accept-host-key))
+                 true ;; fingerprint matches
 
-                (string? accept-host-key)
-                false ;; fingerprint does not match
+                 (string? accept-host-key)
+                 false ;; fingerprint does not match
 
-                :else
-                (print-flush-ask-yes-no s)))
+                 :else
+                 (print-flush-ask-yes-no s)))
 
-            :else
-            (print-flush-ask-yes-no s))))
+             :else
+             (print-flush-ask-yes-no s))))
 
-      :get-passphrase
-      (fn []
-        (or (read-secret-from-console (str "Enter " @message ": "))
-            (do
-              (println)
-              (System/exit 1))))
+       :get-passphrase
+       (fn []
+         (read-secret-from-console (str "Enter " @message ": "))
+         )
 
-      :prompt-passphrase
-      (fn [s]
-        (reset! message s)
-        ;; true: continue to decrypt key. false: cancel key decrypt
-        true)
+       :prompt-passphrase
+       (fn [s]
+         (reset! message s)
+         ;; true: continue to decrypt key. false: cancel key decrypt
+         true)
 
-      :prompt-password
-      (fn [s]
-        (reset! message s)
-        ;; true: continue to connect. false: cancel authentication
-        true)
+       :prompt-password
+       (fn [s]
+         (reset! message s)
+         ;; true: continue to connect. false: cancel authentication
+         true)
 
-      :show-message
-      (if silence-messages
-        (fn [_])
-        (fn [s]
-          (println s)))})))
+       :show-message
+       (if silence-messages
+         (fn [_])
+         (fn [s]
+           (println s)))})))
 
 (defn ssh
   "Start an SSH session. If connection is successful, returns the SSH
