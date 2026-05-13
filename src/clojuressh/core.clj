@@ -1,19 +1,24 @@
 (ns clojuressh.core
   "Basic connection, execution, shell and copying functionality."
-  (:require [clojuressh.agent :as agent]
-            [clojuressh.session :as session]
-            [clojuressh.impl.utils :as utils]
-            [clojuressh.user-info :as user-info]
-            [clojuressh.host-key-repository :as host-key-repository]
-            [clojuressh.config-repository :as config-repository]
-            [clojuressh.channel-exec :as channel-exec]
-            [clojuressh.input-stream :as input-stream]
-            [clojuressh.output-stream :as output-stream]
-            [clojuressh.byte-array-output-stream :as byte-array-output-stream]
-            [clojuressh.byte-array-input-stream :as byte-array-input-stream]
-            [clojuressh.ssh-agent :as ssh-agent]
-            [clojuressh.terminal :as terminal]
-            [clojure.java.io :as io]))
+  #?(:bb (:require [babashka.pods :as pods])
+     :clj (:require [clojuressh.agent :as agent]
+                    [clojuressh.session :as session]
+                    [clojuressh.impl.utils :as utils]
+                    [clojuressh.user-info :as user-info]
+                    [clojuressh.host-key-repository :as host-key-repository]
+                    [clojuressh.config-repository :as config-repository]
+                    [clojuressh.channel-exec :as channel-exec]
+                    [clojuressh.input-stream :as input-stream]
+                    [clojuressh.output-stream :as output-stream]
+                    [clojuressh.byte-array-output-stream :as byte-array-output-stream]
+                    [clojuressh.byte-array-input-stream :as byte-array-input-stream]
+                    [clojuressh.ssh-agent :as ssh-agent]
+                    [clojuressh.terminal :as terminal]
+                    [clojure.java.io :as io])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.core :as bbssh]
+                '[pod.epiccastle.bbssh.channel-exec :as channel-exec]))
 
 (def ^:private special-config-var-names
   {"kex" ["kex"]
@@ -38,34 +43,40 @@
    "compression-level" ["compression_level"]
    "client-pubkey" ["PubkeyAcceptedAlgorithms"]})
 
-(defn- process-session-connection-options
-  "process the ssh connection-options setting and setup session
+#?(:bb nil
+   :clj
+   (defn- process-session-connection-options
+     "process the ssh connection-options setting and setup session
   accordingly"
-  [session options]
-  (doseq [[k v] options]
-    (let [nk (name k)
-          config-var-names
-          (get special-config-var-names nk [nk])]
-      (if (ifn? v)
-        ;; function value based config
-        (doseq [n config-var-names]
-          (prn 'get-config session n '=> (session/get-config session n))
-          (session/set-config
-           session n
-           (v (session/get-config session n))))
-        ;; string value based config
-        (doseq [n config-var-names]
-          (session/set-config session n v))))))
+     [session options]
+     (doseq [[k v] options]
+       (let [nk (name k)
+             config-var-names
+             (get special-config-var-names nk [nk])]
+         (if (ifn? v)
+           ;; function value based config
+           (doseq [n config-var-names]
+             (prn 'get-config session n '=> (session/get-config session n))
+             (session/set-config
+               session n
+               (v (session/get-config session n))))
+           ;; string value based config
+           (doseq [n config-var-names]
+             (session/set-config session n v)))))))
 
-(defn- print-flush-ask-yes-no [s]
-  (print (str s " "))
-  (.flush *out*)
-  (let [response (read-line)
-        first-char (first response)]
-    (boolean (#{\y \Y} first-char))))
+#?(:bb nil
+   :clj
+   (defn- print-flush-ask-yes-no [s]
+     (print (str s " "))
+     (.flush *out*)
+     (let [response (read-line)
+           first-char (first response)]
+       (boolean (#{\y \Y} first-char)))))
 
-(defn- read-secret-from-console
-  "Prompt the user for a secret (password or passphrase) without
+#?(:bb nil
+   :clj
+   (defn- read-secret-from-console
+     "Prompt the user for a secret (password or passphrase) without
   echoing input to the terminal.
 
   Uses `java.io.Console.readPassword`, which suppresses echo via the
@@ -82,115 +93,117 @@
   Ctrl-C is handled by the OS: the kernel delivers SIGINT to the JVM
   and the process terminates, matching the behaviour of `ssh`, `sudo`,
   etc."
-  [prompt]
-  (if-let [console (System/console)]
-    (do
-      (print prompt)
-      (.flush *out*)
-      (if-let [password (terminal/raw-mode-readline)]
-        (do
-          (println)
-          password)
-        (do
-          (println "^C")
-          (System/exit 1))))
-    (throw (ex-info
-             (str "Cannot prompt for credentials: no controlling terminal "
-                  "is attached to this JVM. Pass `:password` / `:passphrase` "
-                  "in the ssh options, supply a custom `:user-info` callback, "
-                  "or run with a real TTY (e.g. `lein trampoline run`, "
-                  "`clj -M`, or `java -jar`).")
-             {:type ::no-console
-              :prompt prompt}))))
+     [prompt]
+     (if-let [console (System/console)]
+       (do
+         (print prompt)
+         (.flush *out*)
+         (if-let [password (terminal/raw-mode-readline)]
+           (do
+             (println)
+             password)
+           (do
+             (println "^C")
+             (System/exit 1))))
+       (throw (ex-info
+                (str "Cannot prompt for credentials: no controlling terminal "
+                     "is attached to this JVM. Pass `:password` / `:passphrase` "
+                     "in the ssh options, supply a custom `:user-info` callback, "
+                     "or run with a real TTY (e.g. `lein trampoline run`, "
+                     "`clj -M`, or `java -jar`).")
+                {:type ::no-console
+                 :prompt prompt})))))
 
-(defn- make-default-user-info
-  [{:keys [accept-host-key silence-messages]}]
-  (let [message (atom nil)]
-    (user-info/new
-      {:get-password
-       (fn []
-         (read-secret-from-console (str "Enter " @message ": ")))
+#?(:bb nil
+   :clj
+   (defn- make-default-user-info
+     [{:keys [accept-host-key silence-messages]}]
+     (let [message (atom nil)]
+       (user-info/new
+         {:get-password
+          (fn []
+            (read-secret-from-console (str "Enter " @message ": ")))
 
-       :prompt-yes-no
-       (fn [s]
-         (let [host-key-missing?
-               (and (.contains s "authenticity of host")
-                    (.contains s "can't be established"))
-               host-key-changed?
-               (.contains s "IDENTIFICATION HAS CHANGED")
-               ]
-           (cond
-             host-key-missing?
-             (let [fingerprint (second (re-find #"fingerprint is (.+)." s))]
-               (cond
-                 (#{:new "new"} accept-host-key)
-                 true
+          :prompt-yes-no
+          (fn [s]
+            (let [host-key-missing?
+                  (and (.contains s "authenticity of host")
+                       (.contains s "can't be established"))
+                  host-key-changed?
+                  (.contains s "IDENTIFICATION HAS CHANGED")
+                  ]
+              (cond
+                host-key-missing?
+                (let [fingerprint (second (re-find #"fingerprint is (.+)." s))]
+                  (cond
+                    (#{:new "new"} accept-host-key)
+                    true
 
-                 (= true accept-host-key)
-                 true
+                    (= true accept-host-key)
+                    true
 
-                 (= false accept-host-key)
-                 false
+                    (= false accept-host-key)
+                    false
 
-                 (and (string? accept-host-key)
-                      (= fingerprint
-                         accept-host-key))
-                 true ;; fingerprint matches
+                    (and (string? accept-host-key)
+                         (= fingerprint
+                            accept-host-key))
+                    true ;; fingerprint matches
 
-                 (string? accept-host-key)
-                 false ;; fingerprint does not match
+                    (string? accept-host-key)
+                    false ;; fingerprint does not match
 
-                 :else
-                 (print-flush-ask-yes-no s)))
+                    :else
+                    (print-flush-ask-yes-no s)))
 
-             host-key-changed?
-             (let [fingerprint (second (re-find #"The fingerprint for the .+ key sent by the remote host .+ is\n(.+).\n" s))]
-               (cond
-                 (#{:new "new"} accept-host-key)
-                 false
+                host-key-changed?
+                (let [fingerprint (second (re-find #"The fingerprint for the .+ key sent by the remote host .+ is\n(.+).\n" s))]
+                  (cond
+                    (#{:new "new"} accept-host-key)
+                    false
 
-                 (= true accept-host-key)
-                 true
+                    (= true accept-host-key)
+                    true
 
-                 (= false accept-host-key)
-                 false
+                    (= false accept-host-key)
+                    false
 
-                 (and (string? accept-host-key)
-                      (= fingerprint
-                         accept-host-key))
-                 true ;; fingerprint matches
+                    (and (string? accept-host-key)
+                         (= fingerprint
+                            accept-host-key))
+                    true ;; fingerprint matches
 
-                 (string? accept-host-key)
-                 false ;; fingerprint does not match
+                    (string? accept-host-key)
+                    false ;; fingerprint does not match
 
-                 :else
-                 (print-flush-ask-yes-no s)))
+                    :else
+                    (print-flush-ask-yes-no s)))
 
-             :else
-             (print-flush-ask-yes-no s))))
+                :else
+                (print-flush-ask-yes-no s))))
 
-       :get-passphrase
-       (fn []
-         (read-secret-from-console (str "Enter " @message ": "))
-         )
+          :get-passphrase
+          (fn []
+            (read-secret-from-console (str "Enter " @message ": "))
+            )
 
-       :prompt-passphrase
-       (fn [s]
-         (reset! message s)
-         ;; true: continue to decrypt key. false: cancel key decrypt
-         true)
+          :prompt-passphrase
+          (fn [s]
+            (reset! message s)
+            ;; true: continue to decrypt key. false: cancel key decrypt
+            true)
 
-       :prompt-password
-       (fn [s]
-         (reset! message s)
-         ;; true: continue to connect. false: cancel authentication
-         true)
+          :prompt-password
+          (fn [s]
+            (reset! message s)
+            ;; true: continue to connect. false: cancel authentication
+            true)
 
-       :show-message
-       (if silence-messages
-         (fn [_])
-         (fn [s]
-           (println s)))})))
+          :show-message
+          (if silence-messages
+            (fn [_])
+            (fn [s]
+              (println s)))}))))
 
 (defn ssh
   "Start an SSH session. If connection is successful, returns the SSH
@@ -315,87 +328,89 @@
             accept-host-key false
             connection-options {}}
        :as options}]]
-  (let [username (or username (System/getProperty "user.name"))
-        agent (or agent (agent/new))
-        session (agent/get-session agent username hostname port)]
-    (when (not= false known-hosts)
-      (agent/set-known-hosts
-        agent
-        (or known-hosts
-            (str (System/getProperty "user.home")
-                 "/.ssh/known_hosts"))))
-    (when (not= false config-file)
-      (cond
-        (string? config-file)
-        (agent/set-config-repository
-          agent
-          (config-repository/openssh-config-file config-file))
+  #?(:bb (bbssh/ssh hostname options)
+     :clj
+     (let [username (or username (System/getProperty "user.name"))
+           agent (or agent (agent/new))
+           session (agent/get-session agent username hostname port)]
+       (when (not= false known-hosts)
+         (agent/set-known-hosts
+           agent
+           (or known-hosts
+               (str (System/getProperty "user.home")
+                    "/.ssh/known_hosts"))))
+       (when (not= false config-file)
+         (cond
+           (string? config-file)
+           (agent/set-config-repository
+             agent
+             (config-repository/openssh-config-file config-file))
 
-        (= java.io.File (class config-file))
-        (agent/set-config-repository
-          agent
-          (config-repository/openssh-config-file (.getPath config-file)))
+           (= java.io.File (class config-file))
+           (agent/set-config-repository
+             agent
+             (config-repository/openssh-config-file (.getPath config-file)))
 
-        (and (nil? config-file)
-             (.exists (io/file (str (System/getProperty "user.home")
-                                    "/.ssh/config"))))
-        (agent/set-config-repository
-          agent
-          (config-repository/openssh-config-file
-            (str (System/getProperty "user.home")
-                 "/.ssh/config")))))
-    (when password (session/set-password session password))
-    (when identity
-      (if passphrase
-        (agent/add-identity agent identity passphrase)
-        (agent/add-identity agent identity)))
-    (when private-key
-      (agent/add-identity
-        agent
-        (str "inline key for " username "@" hostname)
-        (utils/opt-decode-base64 private-key)
-        (utils/opt-decode-base64 (or public-key ""))
-        (utils/opt-get-bytes (or passphrase ""))))
-    (cond
-      (#{:ask "ask"} strict-host-key-checking)
-      (session/set-config session :strict-host-key-checking "ask")
-      strict-host-key-checking
-      (session/set-config session :strict-host-key-checking true)
-      :else
-      (session/set-config session :strict-host-key-checking false))
-    (when connection-options
-      (process-session-connection-options session connection-options))
-    (when (and (not identity) (not password))
-      (session/set-identity-repository
-        session
-        (or identity-repository
-            (ssh-agent/new-identity-repository))))
-    (session/set-user-info
-      session
-      (or user-info
-          (make-default-user-info options)))
-    (when host-key-repository
-      (session/set-host-key-repository session host-key-repository))
-    (when proxy
-      (session/set-proxy session proxy))
-    (when-not no-connect
-      (session/connect session))
-    (when port-forward-local
-      (doseq [local port-forward-local]
-        (session/set-port-forwarding-local session local)))
-    (when port-forward-remote
-      (doseq [remote port-forward-remote]
-        (session/set-port-forwarding-remote session remote)))
-    session))
+           (and (nil? config-file)
+                (.exists (io/file (str (System/getProperty "user.home")
+                                       "/.ssh/config"))))
+           (agent/set-config-repository
+             agent
+             (config-repository/openssh-config-file
+               (str (System/getProperty "user.home")
+                    "/.ssh/config")))))
+       (when password (session/set-password session password))
+       (when identity
+         (if passphrase
+           (agent/add-identity agent identity passphrase)
+           (agent/add-identity agent identity)))
+       (when private-key
+         (agent/add-identity
+           agent
+           (str "inline key for " username "@" hostname)
+           (utils/opt-decode-base64 private-key)
+           (utils/opt-decode-base64 (or public-key ""))
+           (utils/opt-get-bytes (or passphrase ""))))
+       (cond
+         (#{:ask "ask"} strict-host-key-checking)
+         (session/set-config session :strict-host-key-checking "ask")
+         strict-host-key-checking
+         (session/set-config session :strict-host-key-checking true)
+         :else
+         (session/set-config session :strict-host-key-checking false))
+       (when connection-options
+         (process-session-connection-options session connection-options))
+       (when (and (not identity) (not password))
+         (session/set-identity-repository
+           session
+           (or identity-repository
+               (ssh-agent/new-identity-repository))))
+       (session/set-user-info
+         session
+         (or user-info
+             (make-default-user-info options)))
+       (when host-key-repository
+         (session/set-host-key-repository session host-key-repository))
+       (when proxy
+         (session/set-proxy session proxy))
+       (when-not no-connect
+         (session/connect session))
+       (when port-forward-local
+         (doseq [local port-forward-local]
+           (session/set-port-forwarding-local session local)))
+       (when port-forward-remote
+         (doseq [remote port-forward-remote]
+           (session/set-port-forwarding-remote session remote)))
+       session)))
 
 (defrecord SshProcess
     [channel exit in out err prev cmd]
-    clojure.lang.IDeref
-    (deref [this]
-      (assoc this
-             :exit (channel-exec/wait channel)
-             :out (if (future? out) @out out)
-             :err (if (future? err) @err err))))
+  clojure.lang.IDeref
+  (deref [this]
+    (assoc this
+           :exit (channel-exec/wait channel)
+           :out (if (future? out) @out out)
+           :err (if (future? err) @err err))))
 
 (defn exec
   "Execute a `command` on the remote host over the ssh `session`.
@@ -491,105 +506,107 @@
             out-enc "utf-8"
             err-enc "utf-8"}
        :as options}]]
-  (let [process? (map? session-or-process)
-        channel (session/open-channel (or session session-or-process) "exec")]
-    (channel-exec/set-command channel command)
-    (when pty
-      (channel-exec/set-pty channel (boolean pty)))
-    (when agent-forwarding
-      (channel-exec/set-agent-forwarding channel (boolean agent-forwarding)))
-    (let [in (if process? (:out session-or-process) in)
-          in-stream
-          (cond
-            (nil? in)
-            (do
-              (->> (byte-array-input-stream/new "")
-                   (channel-exec/set-input-stream channel))
-              nil)
+  #?(:bb (bbssh/exec session-or-process command options)
+     :clj
+     (let [process? (map? session-or-process)
+           channel (session/open-channel (or session session-or-process) "exec")]
+       (channel-exec/set-command channel command)
+       (when pty
+         (channel-exec/set-pty channel (boolean pty)))
+       (when agent-forwarding
+         (channel-exec/set-agent-forwarding channel (boolean agent-forwarding)))
+       (let [in (if process? (:out session-or-process) in)
+             in-stream
+             (cond
+               (nil? in)
+               (do
+                 (->> (byte-array-input-stream/new "")
+                      (channel-exec/set-input-stream channel))
+                 nil)
 
-            (string? in)
-            (let [in-stream (byte-array-input-stream/new in in-enc)]
-              (channel-exec/set-input-stream channel in-stream)
-              in-stream)
+               (string? in)
+               (let [in-stream (byte-array-input-stream/new in in-enc)]
+                 (channel-exec/set-input-stream channel in-stream)
+                 in-stream)
 
-            (bytes? in)
-            (let [in-stream (byte-array-input-stream/new in)]
-              (channel-exec/set-input-stream channel in-stream)
-              in-stream)
+               (bytes? in)
+               (let [in-stream (byte-array-input-stream/new in)]
+                 (channel-exec/set-input-stream channel in-stream)
+                 in-stream)
 
-            (= :stream in)
-            (let [in-output-stream (output-stream/new)
-                  in-stream (input-stream/new in-output-stream pipe-buffer-size)]
-              (channel-exec/set-input-stream channel in-stream)
-              (output-stream/make-proxy in-output-stream))
+               (= :stream in)
+               (let [in-output-stream (output-stream/new)
+                     in-stream (input-stream/new in-output-stream pipe-buffer-size)]
+                 (channel-exec/set-input-stream channel in-stream)
+                 (output-stream/make-proxy in-output-stream))
 
-            :else
-            (do
-              (channel-exec/set-input-stream channel in)
-              in))
+               :else
+               (do
+                 (channel-exec/set-input-stream channel in)
+                 in))
 
-          out-stream
-          (cond
-            (= :string out)
-            (let [out-stream (byte-array-output-stream/new)]
-              (channel-exec/set-output-stream channel out-stream)
-              (future
-                (channel-exec/wait channel)
-                (byte-array-output-stream/to-string out-stream out-enc)))
+             out-stream
+             (cond
+               (= :string out)
+               (let [out-stream (byte-array-output-stream/new)]
+                 (channel-exec/set-output-stream channel out-stream)
+                 (future
+                   (channel-exec/wait channel)
+                   (byte-array-output-stream/to-string out-stream out-enc)))
 
-            (= :bytes out)
-            (let [out-stream (byte-array-output-stream/new)]
-              (channel-exec/set-output-stream channel out-stream)
-              (future
-                (channel-exec/wait channel)
-                (byte-array-output-stream/to-byte-array out-stream)))
+               (= :bytes out)
+               (let [out-stream (byte-array-output-stream/new)]
+                 (channel-exec/set-output-stream channel out-stream)
+                 (future
+                   (channel-exec/wait channel)
+                   (byte-array-output-stream/to-byte-array out-stream)))
 
-            (or (nil? out) (= :stream out))
-            (let [out-stream (output-stream/new)
-                  out-input-stream (input-stream/new out-stream pipe-buffer-size)]
-              (channel-exec/set-output-stream channel out-stream)
-              (input-stream/make-proxy out-input-stream))
+               (or (nil? out) (= :stream out))
+               (let [out-stream (output-stream/new)
+                     out-input-stream (input-stream/new out-stream pipe-buffer-size)]
+                 (channel-exec/set-output-stream channel out-stream)
+                 (input-stream/make-proxy out-input-stream))
 
-            :else
-            (do
-              (channel-exec/set-output-stream channel out)
-              out))
+               :else
+               (do
+                 (channel-exec/set-output-stream channel out)
+                 out))
 
-          err-stream
-          (cond
-            (= :string err)
-            (let [err-stream (byte-array-output-stream/new)]
-              (channel-exec/set-error-stream channel err-stream)
-              (future
-                (channel-exec/wait channel)
-                (byte-array-output-stream/to-string err-stream err-enc)))
+             err-stream
+             (cond
+               (= :string err)
+               (let [err-stream (byte-array-output-stream/new)]
+                 (channel-exec/set-error-stream channel err-stream)
+                 (future
+                   (channel-exec/wait channel)
+                   (byte-array-output-stream/to-string err-stream err-enc)))
 
-            (= :bytes err)
-            (let [err-stream (byte-array-output-stream/new)]
-              (channel-exec/set-error-stream channel err-stream)
-              (future
-                (channel-exec/wait channel)
-                (byte-array-output-stream/to-byte-array err-stream)))
+               (= :bytes err)
+               (let [err-stream (byte-array-output-stream/new)]
+                 (channel-exec/set-error-stream channel err-stream)
+                 (future
+                   (channel-exec/wait channel)
+                   (byte-array-output-stream/to-byte-array err-stream)))
 
-            (or (nil? err) (= :stream err))
-            (let [err-stream (output-stream/new)
-                  err-input-stream (input-stream/new err-stream pipe-buffer-size)]
-              (channel-exec/set-error-stream channel err-stream)
-              (input-stream/make-proxy err-input-stream))
+               (or (nil? err) (= :stream err))
+               (let [err-stream (output-stream/new)
+                     err-input-stream (input-stream/new err-stream pipe-buffer-size)]
+                 (channel-exec/set-error-stream channel err-stream)
+                 (input-stream/make-proxy err-input-stream))
 
-            :else
-            (do
-              (channel-exec/set-error-stream channel err)
-              err))]
+               :else
+               (do
+                 (channel-exec/set-error-stream channel err)
+                 err))]
 
-      (when-not no-connect
-        (channel-exec/connect channel))
+         (when-not no-connect
+           (channel-exec/connect channel))
 
-      (->SshProcess
-       channel
-       nil ;; exit
-       in-stream
-       out-stream
-       err-stream
-       (when process? session-or-process) ;;prev
-       command))))
+         (->SshProcess
+           channel
+           nil ;; exit
+           in-stream
+           out-stream
+           err-stream
+           (when process? session-or-process) ;;prev
+           command)))))
