@@ -1,6 +1,11 @@
 (ns clojuressh.config-repository
-  (:import [com.jcraft.jsch ConfigRepository OpenSSHConfig]
-           [java.util Vector]))
+  #?(:bb (:require [babashka.pods :as pods]))
+  #?(:bb (:import)
+     :clj (:import [com.jcraft.jsch ConfigRepository OpenSSHConfig]
+                   [java.util Vector])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.config-repository :as config-repository]))
 
 (set! *warn-on-reflection* true)
 
@@ -15,24 +20,28 @@
      return a config object to be used for the specified hostname.
   "
   [callbacks]
-  (proxy [ConfigRepository] []
-    (getConfig [hostname]
-      ((:get-config callbacks) hostname))))
+  #?(:bb (config-repository/new callbacks)
+     :clj (proxy [ConfigRepository] []
+            (getConfig [hostname]
+              ((:get-config callbacks) hostname)))))
 
 (defn get-config
   "return the config reference for the specified `hostname` in
   the `config-repository`"
-  [^ConfigRepository config-repository ^String hostname]
-  (.getConfig config-repository hostname))
+  [config-repository hostname]
+  #?(:bb (config-repository/get-config config-repository hostname)
+     :clj (.getConfig ^ConfigRepository config-repository ^String hostname)))
 
 (defn openssh-config-file
   "Create an OpenSSH config-repository from a file. `config-file`
   can be a string (supports tilde expansion of home directory)
   or a java.io.File instance."
   [config-file]
-  (OpenSSHConfig/parseFile config-file))
+  #?(:bb (config-repository/openssh-config-file config-file)
+     :clj (OpenSSHConfig/parseFile ^String config-file)))
 
 (defn openssh-config-string
   "Create and OpenSSH config-repository from a data string."
   [config]
-  (OpenSSHConfig/parse config))
+  #?(:bb (config-repository/openssh-config-string config)
+     :clj (OpenSSHConfig/parse ^String config)))

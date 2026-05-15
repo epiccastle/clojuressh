@@ -1,5 +1,10 @@
 (ns clojuressh.host-key
-  (:import [com.jcraft.jsch HostKey JSch]))
+  #?(:bb (:require [babashka.pods :as pods]))
+  #?(:bb (:import)
+     :clj (:import [com.jcraft.jsch HostKey JSch])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.host-key :as host-key]))
 
 (def types
   {:unknown HostKey/UNKNOWN
@@ -25,63 +30,73 @@
   - `comment`: A string comment for the key.
   - `marker`: A string marker for the key.
   "
-  ([^String host ^bytes key]
-   (HostKey. host key))
-  ([^String host type ^bytes key]
-   (HostKey. host (types type HostKey/GUESS) key))
-  ([^String host type ^bytes key ^String comment]
-   (HostKey. host (types type HostKey/GUESS) key comment))
-  ([^String marker ^String host type ^bytes key ^String comment]
-   (HostKey. marker host (types type HostKey/GUESS) key comment)
-   ))
+  ([host key]
+   #?(:bb (host-key/new host key)
+      :clj (HostKey. ^String host ^bytes key)))
+  ([host type key]
+   #?(:bb (host-key/new host type key)
+      :clj (HostKey. ^String host (types type HostKey/GUESS) ^bytes key)))
+  ([host type key comment]
+   #?(:bb (host-key/new host type key comment)
+      :clj (HostKey. ^String host (types type HostKey/GUESS) ^bytes key ^String comment)))
+  ([marker host type key comment]
+   #?(:bb (host-key/new marker host type key comment)
+      :clj (HostKey. ^String marker ^String host (types type HostKey/GUESS) ^bytes key ^String comment))))
 
 (defn get-host
   "Returns the hostname for the host-key."
-  [^HostKey host-key]
-  (.getHost host-key))
+  [host-key]
+  #?(:bb (host-key/get-host host-key)
+     :clj (.getHost ^HostKey host-key)))
 
 (defn get-type
   "Returns the key type string for the host-key.
   `\"ssh-rsa\"`, `\"ssh-dss\"`, `\"ecdsa-sha2-nistp256\"` or
   `\"ssh-ed25519\"`.
   "
-  [^HostKey host-key]
-  (.getType host-key))
+  [host-key]
+  #?(:bb (host-key/get-type host-key)
+     :clj (.getType ^HostKey host-key)))
 
 (defn get-key
   "Returns the key as a base64 encoded string."
-  [^HostKey host-key]
-  (.getKey host-key))
+  [host-key]
+  #?(:bb (host-key/get-key host-key)
+     :clj (.getKey ^HostKey host-key)))
 
 (defn get-finger-print
   "Returns the fingerprint of the key."
-  [^HostKey host-key ^JSch agent]
-  (.getFingerPrint host-key agent))
+  [host-key agent]
+  #?(:bb (host-key/get-finger-print host-key agent)
+     :clj (.getFingerPrint ^HostKey host-key ^JSch agent)))
 
 (defn get-comment
   "Returns the comment associated with the key."
-  [^HostKey host-key]
-  (.getComment host-key))
+  [host-key]
+  #?(:bb (host-key/get-comment host-key)
+     :clj (.getComment ^HostKey host-key)))
 
 (defn get-marker
   "Returns any @ marker associated with the key. If no marker is
   associated returns the empty string."
-  [^HostKey host-key]
-  (.getMarker host-key))
+  [host-key]
+  #?(:bb (host-key/get-marker host-key)
+     :clj (.getMarker ^HostKey host-key)))
 
 (defn get-info
   "Returns all the associated information of the key as a single hashmap
   with keys `:host`, `:type`, `:key`, `:finger-print`, `:comment` and
   `:marker`."
   [host-key agent]
-  (let [host-key ^HostKey host-key
-        agent ^JSch agent]
-    {:host (.getHost host-key)
-     :type (.getType host-key)
-     :key (.getKey host-key)
-     :finger-print (.getFingerPrint host-key agent)
-     :comment (.getComment host-key)
-     :marker (.getMarker host-key)}))
+  #?(:bb (host-key/get-info host-key agent)
+     :clj (let [host-key ^HostKey host-key
+                agent ^JSch agent]
+            {:host (.getHost host-key)
+             :type (.getType host-key)
+             :key (.getKey host-key)
+             :finger-print (.getFingerPrint host-key agent)
+             :comment (.getComment host-key)
+             :marker (.getMarker host-key)})))
 
 (defn get-infos
   "Given a sequence of host-key references and the clojuressh agent
@@ -89,15 +104,16 @@
   keys are the host-key references and the values are as would be
   returned from `get-info`."
   [host-keys agent]
-  (into
-   {}
-   (for [host-key host-keys]
-     (let [instance ^HostKey host-key
-           agent ^JSch agent]
-       [host-key
-        {:host (.getHost instance)
-         :type (.getType instance)
-         :key (.getKey instance)
-         :finger-print (.getFingerPrint instance agent)
-         :comment (.getComment instance)
-         :marker (.getMarker instance)}]))))
+  #?(:bb (host-key/get-infos host-keys agent)
+     :clj (into
+           {}
+           (for [host-key host-keys]
+             (let [instance ^HostKey host-key
+                   agent ^JSch agent]
+               [host-key
+                {:host (.getHost instance)
+                 :type (.getType instance)
+                 :key (.getKey instance)
+                 :finger-print (.getFingerPrint instance agent)
+                 :comment (.getComment instance)
+                 :marker (.getMarker instance)}])))))

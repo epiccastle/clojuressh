@@ -1,5 +1,10 @@
 (ns clojuressh.identity
-  (:import [com.jcraft.jsch Identity]))
+  #?(:bb (:require [babashka.pods :as pods]))
+  #?(:bb (:import)
+     :clj (:import [com.jcraft.jsch Identity])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.identity :as identity]))
 
 (set! *warn-on-reflection* true)
 
@@ -57,25 +62,26 @@
 
   "
   [callbacks]
-  (proxy [Identity] []
-    (setPassphrase [^bytes passphrase]
-      ((:set-passphrase callbacks) passphrase))
-    (getPublicKeyBlob []
-      ((:get-public-key-blob callbacks)))
-    (getSignature
-      ([^bytes data]
-       ((:get-signature callbacks) data))
-      ([^bytes data ^String alg]
-       ((:get-signature callbacks) data alg)))
-    ;; deprecated in JSch
-    #_(decrypt []
-      ((:decrypt callbacks)))
-    (getAlgName []
-      ((:get-alg-name callbacks)))
-    (getName []
-      ((:get-name callbacks)))
-    (isEncrypted []
-      (boolean
-       ((:is-encrypted callbacks))))
-    (clear []
-      ((:clear callbacks)))))
+  #?(:bb (identity/new callbacks)
+     :clj (proxy [Identity] []
+            (setPassphrase [^bytes passphrase]
+              ((:set-passphrase callbacks) passphrase))
+            (getPublicKeyBlob []
+              ((:get-public-key-blob callbacks)))
+            (getSignature
+              ([^bytes data]
+               ((:get-signature callbacks) data))
+              ([^bytes data ^String alg]
+               ((:get-signature callbacks) data alg)))
+            ;; deprecated in JSch
+            #_(decrypt []
+                ((:decrypt callbacks)))
+            (getAlgName []
+              ((:get-alg-name callbacks)))
+            (getName []
+              ((:get-name callbacks)))
+            (isEncrypted []
+              (boolean
+               ((:is-encrypted callbacks))))
+            (clear []
+              ((:clear callbacks))))))

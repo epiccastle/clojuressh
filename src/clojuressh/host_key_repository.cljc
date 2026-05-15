@@ -1,6 +1,11 @@
 (ns clojuressh.host-key-repository
   (:refer-clojure :exclude [remove])
-  (:import [com.jcraft.jsch HostKeyRepository HostKey UserInfo]))
+  #?(:bb (:require [babashka.pods :as pods]))
+  #?(:bb (:import)
+     :clj (:import [com.jcraft.jsch HostKeyRepository HostKey UserInfo])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.host-key-repository :as host-key-repository]))
 
 (set! *warn-on-reflection* true)
 
@@ -62,30 +67,31 @@
 
   "
   [callbacks]
-  (proxy [HostKeyRepository] []
-    (check [^String host ^bytes public-key]
-      ({:ok 0
-        :not-included 1
-        :changed 2}
-       ((:check callbacks) host public-key)))
-    (add [^HostKey host-key ^UserInfo user-info]
-      ((:add callbacks) host-key user-info))
-    (remove
-      ([^String host ^String type]
-       ((:remove callbacks) host type))
-      ([^String host ^String type ^bytes public-key]
-       ((:remove callbacks) host type public-key)))
-    (getKnownHostsRepositoryID []
-      ((:get-known-hosts-repository-id callbacks)))
-    (getHostKey
-      ([]
-       (->>
-        ((:get-host-key callbacks))
-        (into-array HostKey)))
-      ([^String host ^String type]
-       (->>
-        ((:get-host-key callbacks) host type)
-        (into-array HostKey))))))
+  #?(:bb (host-key-repository/new callbacks)
+     :clj (proxy [HostKeyRepository] []
+            (check [^String host ^bytes public-key]
+              ({:ok 0
+                :not-included 1
+                :changed 2}
+               ((:check callbacks) host public-key)))
+            (add [^HostKey host-key ^UserInfo user-info]
+              ((:add callbacks) host-key user-info))
+            (remove
+              ([^String host ^String type]
+               ((:remove callbacks) host type))
+              ([^String host ^String type ^bytes public-key]
+               ((:remove callbacks) host type public-key)))
+            (getKnownHostsRepositoryID []
+              ((:get-known-hosts-repository-id callbacks)))
+            (getHostKey
+              ([]
+               (->>
+                ((:get-host-key callbacks))
+                (into-array HostKey)))
+              ([^String host ^String type]
+               (->>
+                ((:get-host-key callbacks) host type)
+                (into-array HostKey)))))))
 
 (defn check
   "Checks the repository for the presence of the passed in public key
@@ -94,40 +100,47 @@
   `:changed` if there is a conflicting key of that type stored against
   the hostname."
   [host-key-repository host key]
-  ({0 :ok
-    1 :not-included
-    2 :changed}
-   (.check
-    ^HostKeyRepository host-key-repository
-    ^String host
-    key)))
+  #?(:bb (host-key-repository/check host-key-repository host key)
+     :clj ({0 :ok
+            1 :not-included
+            2 :changed}
+           (.check
+            ^HostKeyRepository host-key-repository
+            ^String host
+            ^bytes key))))
 
 (defn add
   "Add the referenced `host-key` into the repository. If the key
   requires user interaction use the passed in `user-info` to do so."
-  [^HostKeyRepository host-key-repository ^HostKey host-key ^UserInfo user-info]
-  (.add host-key-repository host-key user-info))
+  [host-key-repository host-key user-info]
+  #?(:bb (host-key-repository/add host-key-repository host-key user-info)
+     :clj (.add ^HostKeyRepository host-key-repository ^HostKey host-key ^UserInfo user-info)))
 
 (defn remove
   "Remove the referenced `public-key` of `type` being stored for
   `host`. If `public-key` is not passed, remove all keys of `type` for
   `host`. `type` should be a SSH public key prefix
   string. `public-key` should be a `byte-array` of raw data."
-  ([^HostKeyRepository host-key-repository ^String host ^String type]
-   (.remove host-key-repository host type))
-  ([^HostKeyRepository host-key-repository ^String host ^String type key]
-   (.remove host-key-repository host type ^bytes key)))
+  ([host-key-repository host type]
+   #?(:bb (host-key-repository/remove host-key-repository host type)
+      :clj (.remove ^HostKeyRepository host-key-repository ^String host ^String type)))
+  ([host-key-repository host type key]
+   #?(:bb (host-key-repository/remove host-key-repository host type key)
+      :clj (.remove ^HostKeyRepository host-key-repository ^String host ^String type ^bytes key))))
 
 (defn get-host-key
   "Get a vector of `host-key` references from the repository.
   If passed a `host` and `type` then only return keys matching
   these. Otherwise return all the keys."
-  ([^HostKeyRepository host-key-repository]
-   (.getHostKey host-key-repository))
-  ([^HostKeyRepository host-key-repository ^String host ^String type]
-   (.getHostKey host-key-repository host type)))
+  ([host-key-repository]
+   #?(:bb (host-key-repository/get-host-key host-key-repository)
+      :clj (.getHostKey ^HostKeyRepository host-key-repository)))
+  ([host-key-repository host type]
+   #?(:bb (host-key-repository/get-host-key host-key-repository host type)
+      :clj (.getHostKey ^HostKeyRepository host-key-repository ^String host ^String type))))
 
 (defn get-known-hosts-repository-id
   "Returns and identification string for this repository."
-  [^HostKeyRepository host-key-repository]
-  (.getKnownHostsRepositoryID host-key-repository))
+  [host-key-repository]
+  #?(:bb (host-key-repository/get-known-hosts-repository-id host-key-repository)
+     :clj (.getKnownHostsRepositoryID ^HostKeyRepository host-key-repository)))
