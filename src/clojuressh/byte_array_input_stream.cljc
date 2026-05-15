@@ -1,46 +1,58 @@
 (ns clojuressh.byte-array-input-stream
   (:refer-clojure :exclude [read])
-  (:import [java.io
-            PipedInputStream PipedOutputStream
-            ByteArrayInputStream ByteArrayOutputStream
-            InputStream]
-           [java.util Arrays]))
+  #?(:bb (:require [babashka.pods :as pods]))
+  #?(:bb (:import)
+     :clj (:import [java.io
+                    PipedInputStream PipedOutputStream
+                    ByteArrayInputStream ByteArrayOutputStream
+                    InputStream]
+                   [java.util Arrays])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.byte-array-input-stream :as byte-array-input-stream]))
 
 (set! *warn-on-reflection* true)
 
-(defn- new-from-string [^String string & [^String encoding]]
-  (ByteArrayInputStream.
-   ^bytes (.getBytes string (or encoding "utf-8"))))
+(defn- new-from-string [string & [encoding]]
+  #?(:bb (byte-array-input-stream/new-from-string string encoding)
+     :clj (ByteArrayInputStream.
+           ^bytes (.getBytes ^String string ^String (or encoding "utf-8")))))
 
-(defn- new-from-bytes [^bytes string]
-  (ByteArrayInputStream.
-   ^bytes string))
+(defn- new-from-bytes [string]
+  #?(:bb (byte-array-input-stream/new-from-bytes string)
+     :clj (ByteArrayInputStream.
+           ^bytes string)))
 
 (defn new
   [string-or-bytes & [encoding]]
-  (if (string? string-or-bytes)
-    (new-from-string string-or-bytes encoding)
-    (new-from-bytes string-or-bytes)))
+  #?(:bb (byte-array-input-stream/new string-or-bytes encoding)
+     :clj (if (string? string-or-bytes)
+            (new-from-string string-or-bytes encoding)
+            (new-from-bytes string-or-bytes))))
 
 (defn available
   "Returns the number of remaining bytes that can be read (or skipped over) from this input stream."
-  [^ByteArrayInputStream stream]
-  (.available stream))
+  [stream]
+  #?(:bb (byte-array-input-stream/available stream)
+     :clj (.available ^ByteArrayInputStream stream)))
 
 (defn close
   "Closing a ByteArrayInputStream has no effect."
-  [^ByteArrayInputStream stream]
-  (.close stream))
+  [stream]
+  #?(:bb (byte-array-input-stream/close stream)
+     :clj (.close ^ByteArrayInputStream stream)))
 
 (defn mark
   "Set the current marked position in the stream."
-  [^ByteArrayInputStream stream read-ahead-limit]
-  (.mark stream read-ahead-limit))
+  [stream read-ahead-limit]
+  #?(:bb (byte-array-input-stream/mark stream read-ahead-limit)
+     :clj (.mark ^ByteArrayInputStream stream read-ahead-limit)))
 
 (defn mark-supported
   "Tests if this InputStream supports mark/reset."
-  [^ByteArrayInputStream stream]
-  (.markSupported stream))
+  [stream]
+  #?(:bb (byte-array-input-stream/mark-supported stream)
+     :clj (.markSupported ^ByteArrayInputStream stream)))
 
 (defn read
   "`(read stream)`
@@ -52,28 +64,32 @@
   a `byte-array` starting at `offset`. Returns the number of bytes
   successfully read. Does not block.
   "
-  ([^ByteArrayInputStream stream]
-   (.read stream))
+  ([stream]
+   #?(:bb (byte-array-input-stream/read stream)
+      :clj (.read ^ByteArrayInputStream stream)))
   ([stream bytes]
-   (let [arr (byte-array bytes)
-         bytes-read
-         (.read
-          ^ByteArrayInputStream stream
-          arr
-          0
-          bytes)]
-     [bytes-read
-      (case bytes-read
-        -1 nil
-        0 ""
-         (Arrays/copyOfRange arr 0 bytes-read))])))
+   #?(:bb (byte-array-input-stream/read stream bytes)
+      :clj (let [arr (byte-array bytes)
+                 bytes-read
+                 (.read
+                  ^ByteArrayInputStream stream
+                  arr
+                  0
+                  bytes)]
+             [bytes-read
+              (case bytes-read
+                -1 nil
+                0 ""
+                 (Arrays/copyOfRange arr 0 bytes-read))]))))
 
 (defn reset
   "Resets the buffer to the marked position."
-  [^ByteArrayInputStream stream]
-  (.reset stream))
+  [stream]
+  #?(:bb (byte-array-input-stream/reset stream)
+     :clj (.reset ^ByteArrayInputStream stream)))
 
 (defn skip
   "Skips `n` bytes of input from this input stream."
-  [^ByteArrayInputStream stream n]
-  (.skip stream n))
+  [stream n]
+  #?(:bb (byte-array-input-stream/skip stream n)
+     :clj (.skip ^ByteArrayInputStream stream n)))
