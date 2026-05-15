@@ -1,10 +1,14 @@
 (ns clojuressh.agent
-  (:require [clojure.java.io :as io])
-  (:import [com.jcraft.jsch JSch Logger
-            IdentityRepository HostKeyRepository
-            ConfigRepository Identity]
-           [java.io InputStream])
-  )
+  (:require [clojure.java.io :as io]
+            #?(:bb [babashka.pods :as pods]))
+  #?(:bb (:import)
+     :clj (:import [com.jcraft.jsch JSch Logger
+                    IdentityRepository HostKeyRepository
+                    ConfigRepository Identity]
+                   [java.io InputStream])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.agent :as agent]))
 
 (set! *warn-on-reflection* true)
 
@@ -13,18 +17,22 @@
   It is the base java class that holds and controls the
   sessions."
   []
-  (JSch.))
+  #?(:bb (agent/new)
+     :clj (JSch.)))
 
 (defn get-session
   "Construct a new JSch connection session. Does not start the ssh
   connection.
   "
-  ([^JSch agent ^String host]
-   (.getSession agent host))
-  ([^JSch agent ^String username ^String host]
-   (.getSession agent username host))
-  ([^JSch agent ^String username ^String host ^long port]
-   (.getSession agent username host port)))
+  ([agent host]
+   #?(:bb (agent/get-session agent host)
+      :clj (.getSession ^JSch agent ^String host)))
+  ([agent username host]
+   #?(:bb (agent/get-session agent username host)
+      :clj (.getSession ^JSch agent ^String username ^String host)))
+  ([agent username host port]
+   #?(:bb (agent/get-session agent username host port)
+      :clj (.getSession ^JSch agent ^String username ^String host ^long port))))
 
 (defn get-identity-repository
   "Get the current identity-repository from the agent."
