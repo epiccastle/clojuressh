@@ -36,90 +36,90 @@
 
 (defn get-identity-repository
   "Get the current identity-repository from the agent."
-  [^JSch agent]
-  (.getIdentityRepository agent))
+  [agent]
+  (.getIdentityRepository ^JSch agent))
 
 (defn set-identity-repository
   "Set the identity-repository the agent should use."
-  [^JSch agent ^IdentityRepository identity-repository]
-  (.setIdentityRepository agent identity-repository))
+  [agent identity-repository]
+  (.setIdentityRepository ^JSch agent ^IdentityRepository identity-repository))
 
 (defn get-config-repository
   "Get the current config-repository from the agent."
-  [^JSch agent]
-  (.getConfigRepository agent))
+  [agent]
+  (.getConfigRepository ^JSch agent))
 
 (defn set-config-repository
   "Set the config-repository the agent should use."
-  [^JSch agent ^ConfigRepository config-repository]
-  (.setConfigRepository agent config-repository))
+  [agent config-repository]
+  (.setConfigRepository ^JSch agent ^ConfigRepository config-repository))
 
 (defn get-host-key-repository
   "Get the current host-key-repository from the agent."
-  [^JSch agent]
-  (.getHostKeyRepository agent))
+  [agent]
+  (.getHostKeyRepository ^JSch agent))
 
 (defn set-host-key-repository
   "Set the host-key-repository the agent should use."
-  [^JSch agent ^HostKeyRepository host-key-repository]
-  (.setHostKeyRepository agent host-key-repository))
+  [agent host-key-repository]
+  (.setHostKeyRepository ^JSch agent ^HostKeyRepository host-key-repository))
 
 (defn set-known-hosts
   "Set the known hosts file location"
-  [^JSch agent ^String filename]
-  (.setKnownHosts agent filename))
+  [agent filename]
+  (.setKnownHosts ^JSch agent ^String filename))
 
 (defn set-known-hosts-content
   "Set the known hosts file location"
-  [^JSch agent content]
+  [agent content]
   (.setKnownHosts
-   agent
+   ^JSch agent
    ^InputStream (io/input-stream content)))
 
 (defn add-identity
   "Add the private key to be used in authentication. Optionally
   add the public key aswell. Private key can be decrypted with passphrase."
-  ([^JSch agent ^String filename]
-   (.addIdentity agent filename))
-  ([^JSch agent ^String filename ^String passphrase]
-   (.addIdentity agent filename passphrase))
-  ([^JSch agent ^String private-key-filename ^String public-key-filename passphrase]
+  ([agent filename]
+   (.addIdentity ^JSch agent ^String filename))
+  ([agent filename passphrase]
+   (.addIdentity ^JSch agent ^String filename ^String passphrase))
+  ([agent private-key-filename public-key-filename passphrase]
    (.addIdentity
-    agent
-    private-key-filename
-    public-key-filename
+    ^JSch agent
+    ^String private-key-filename
+    ^String public-key-filename
     ^bytes passphrase))
-  ([^JSch agent ^String identity-name private-key public-key passphrase]
+  ([agent identity-name private-key public-key passphrase]
    (.addIdentity
-    agent
-    identity-name
+    ^JSch agent
+    ^String identity-name
     ^bytes private-key
     ^bytes public-key
     ^bytes passphrase)))
 
 (defn add-identity2
-  [^JSch agent ^String filename passphrase]
+  [agent filename passphrase]
   (.addIdentity
-   agent
-   filename
+   ^JSch agent
+   ^String filename
    ^bytes passphrase))
 
 (defn add-identity3
-  [^JSch agent ^Identity identity passphrase]
+  [agent identity passphrase]
   (.addIdentity
-   agent
-   identity
+   ^JSch agent
+   ^Identity identity
    ^bytes passphrase))
 
 (defn remove-identity
   "remove an identity by its name or its reference"
-  [^JSch agent ^String identity-name]
-  (.removeIdentity agent identity-name))
+  [agent identity-name]
+  (.removeIdentity ^JSch agent ^String identity-name))
 
 (defn remove-identity2
   "remove an identity by its name or its reference"
-  [^JSch agent ^Identity identity]
-  (.removeIdentity agent identity))
+  [agent identity]
+  (.removeIdentity ^JSch agent ^Identity identity))
 
 (defn get-identity-names
   "Lists names of identities included in the identity-repository"
@@ -130,13 +130,13 @@
 
 (defn remove-all-identities
   "Removes all identities from the identity-repository."
-  [^JSch agent]
-  (.removeAllIdentity agent))
+  [agent]
+  (.removeAllIdentity ^JSch agent))
 
 (defn get-config
   "Returns the config value for the specified key"
-  [^String key]
-  (JSch/getConfig key))
+  [key]
+  (JSch/getConfig ^String key))
 
 (defn set-config
   "Sets or overrides the configuration."
@@ -145,8 +145,8 @@
      (JSch/setConfig
       ^String key
       ^String value)))
-  ([^String key ^String value]
-   (JSch/setConfig key value)))
+  ([key value]
+   (JSch/setConfig ^String key ^String value)))
 
 (defn set-debug-fn [debug-fn]
   (JSch/setLogger
