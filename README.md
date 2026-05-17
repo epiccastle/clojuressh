@@ -5,6 +5,10 @@ A Clojure library for SSH support, API compatible with [bbssh](https://github.co
 `clojuressh` is a port of the `bbssh` babashka pod into a native Clojure
 library. A local installation of `ssh` is **not required**.
 
+This library when loaded into babashka acts as a shim to the bbssh pod. Thus you can refer to this
+in your `bb-deps.edn` and use it like you would in clojure, allowing you to write one codebase that
+will run on both clojure and babashka.
+
 ## Coordinates
 
 ```clojure
@@ -17,21 +21,54 @@ Here is a simple example that connects over ssh, runs a command, and
 disconnects, returning the standard output:
 
 ```clojure
-(ns test-clojuressh
-  (:require [clojuressh.core :as clojuressh]
-            [clojuressh.session :as session]))
 
-(let [session (clojuressh/ssh "remotehost" {:username "remote-user"})]
-  (-> (clojuressh/exec session "echo 'I am running remotely'" {:out :string})
-      deref
-      :out
-      prn)
-  (session/disconnect session))
 ```
 
 > **Note:** if you are running an ssh-agent and you have a relevant key
 > loaded you may not be asked for a password. `clojuressh` supports
 > authentication via ssh agent.
+
+## Quickstart on clojure
+
+Here is a simple example that connects over ssh, runs a command, and
+disconnects, returning the standard output. Put this in `src/testssh/core.clj`:
+
+```clojure
+(ns testssh.core
+  (:require [clojuressh.core :as clojuressh]
+            [clojuressh.session :as session]))
+
+(defn -main []
+  (let [session (clojuressh/ssh "localhost")]
+    (-> (clojuressh/exec session "echo 'I am running remotely'" {:out :string})
+        deref
+        :out
+        prn)
+    (session/disconnect session)
+    (shutdown-agents)))
+```
+
+Make a `deps.edn` like:
+
+```clojure
+{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.11.1"}
+        io.epiccastle/clojuressh {:mvn/version "0.0.0-SNAPSHOT"}}}
+```
+
+Run your mainline with:
+
+```
+clj -M -m testssh.core
+```
+
+## Running on babashka
+
+Using the same `src/testssh/core.clj` and `deps.edn` shown above, run your mainline with:
+
+```
+bb --config deps.edn -m testssh.core
+```
 
 ## API documentation
 
