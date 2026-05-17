@@ -3,7 +3,8 @@
 help:
 	@echo "Available targets:"
 	@echo "  make run          - Run the clojuressh entry point"
-	@echo "  make test         - Run the test suite"
+	@echo "  make test-clojure - Run the test suite under clojure"
+	@echo "  make test-bb      - Run the test suite under babashka"
 	@echo "  make jar          - Build a jar file"
 	@echo "  make install      - Install jar to local Maven repo (~/.m2)"
 	@echo "  make deploy       - Deploy jar to Clojars (requires CLOJARS_USERNAME/CLOJARS_PASSWORD)"
@@ -16,9 +17,13 @@ help:
 run:
 	clojure -M:run
 
-test:
+test-clojure:
 	-mkdir test/files/dir1/dir3
 	umask 0000; clojure -M:test
+
+test-bb:
+	-mkdir test/files/dir1/dir3
+	umask 0000; bb -cp `clojure -Spath -M:test` -m cognitect.test-runner
 
 jar:
 	clojure -T:build jar
