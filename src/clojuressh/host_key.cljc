@@ -1,10 +1,8 @@
 (ns clojuressh.host-key
-  #?(:bb (:require [babashka.pods :as pods]))
+  (:require [clojuressh.impl.load-pod]
+            #?(:bb [pod.epiccastle.bbssh.host-key :as host-key]))
   #?(:bb (:import)
      :clj (:import [com.jcraft.jsch HostKey JSch])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.host-key :as host-key]))
 
 (def types
   {:unknown HostKey/UNKNOWN

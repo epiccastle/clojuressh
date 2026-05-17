@@ -1,11 +1,9 @@
 (ns clojuressh.config-repository
-  #?(:bb (:require [babashka.pods :as pods]))
+  (:require [clojuressh.impl.load-pod]
+            #?(:bb [pod.epiccastle.bbssh.config-repository :as config-repository]))
   #?(:bb (:import)
      :clj (:import [com.jcraft.jsch ConfigRepository OpenSSHConfig]
                    [java.util Vector])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.config-repository :as config-repository]))
 
 (set! *warn-on-reflection* true)
 

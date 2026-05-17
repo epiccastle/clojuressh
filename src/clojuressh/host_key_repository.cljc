@@ -1,11 +1,9 @@
 (ns clojuressh.host-key-repository
   (:refer-clojure :exclude [remove])
-  #?(:bb (:require [babashka.pods :as pods]))
+  (:require [clojuressh.impl.load-pod]
+            #?(:bb [pod.epiccastle.bbssh.host-key-repository :as host-key-repository]))
   #?(:bb (:import)
      :clj (:import [com.jcraft.jsch HostKeyRepository HostKey UserInfo])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.host-key-repository :as host-key-repository]))
 
 (set! *warn-on-reflection* true)
 

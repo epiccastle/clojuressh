@@ -1,6 +1,8 @@
 (ns clojuressh.core
   "Basic connection, execution, shell and copying functionality."
-  #?(:bb (:require [babashka.pods :as pods])
+  #?(:bb (:require [clojuressh.impl.load-pod]
+                   [pod.epiccastle.bbssh.core :as bbssh]
+                   [pod.epiccastle.bbssh.channel-exec :as channel-exec])
      :clj (:require [clojuressh.agent :as agent]
                     [clojuressh.session :as session]
                     [clojuressh.impl.utils :as utils]
@@ -15,10 +17,6 @@
                     [clojuressh.ssh-agent :as ssh-agent]
                     [clojuressh.terminal :as terminal]
                     [clojure.java.io :as io])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.core :as bbssh]
-                '[pod.epiccastle.bbssh.channel-exec :as channel-exec]))
 
 (def ^:private special-config-var-names
   {"kex" ["kex"]
