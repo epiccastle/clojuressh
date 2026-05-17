@@ -1,13 +1,11 @@
 (ns clojuressh.terminal
-  (:require [clojure.string :as str]
-            #?(:bb [babashka.pods :as pods]))
+  (:require [clojuressh.impl.load-pod]
+            [clojure.string :as str]
+            #?(:bb [pod.epiccastle.bbssh.terminal :as terminal]))
   #?(:bb (:import)
      :clj (:import [java.io InputStream]
                    [com.sun.jna Function Memory Native NativeLibrary Pointer]
                    [com.sun.jna.ptr IntByReference])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.terminal :as terminal]))
 
 (defn is-terminal?
   "Returns true if stdout is connected to a terminal.

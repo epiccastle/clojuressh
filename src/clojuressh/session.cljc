@@ -1,14 +1,12 @@
 (ns clojuressh.session
-  (:require [clojure.string :as string]
+  (:require [clojuressh.impl.load-pod]
+            [clojure.string :as string]
             [clojuressh.impl.utils :as utils]
-            #?(:bb [babashka.pods :as pods]))
+            #?(:bb [pod.epiccastle.bbssh.session :as session]))
   #?(:bb (:import)
      :clj (:import [com.jcraft.jsch JSch Session
                     UserInfo IdentityRepository
                     HostKeyRepository Proxy ProxyHTTP ProxySOCKS4 ProxySOCKS5])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.session :as session]))
 
 (set! *warn-on-reflection* true)
 

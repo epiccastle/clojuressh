@@ -1,15 +1,13 @@
 (ns clojuressh.input-stream
   (:refer-clojure :exclude [read])
-  #?(:bb (:require [babashka.pods :as pods]))
+  (:require [clojuressh.impl.load-pod]
+            #?(:bb [pod.epiccastle.bbssh.input-stream :as input-stream]))
   #?(:bb (:import)
      :clj (:import [java.io
                     PipedInputStream PipedOutputStream
                     ByteArrayInputStream ByteArrayOutputStream
                     InputStream]
                    [java.util Arrays])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.input-stream :as input-stream]))
 
 (set! *warn-on-reflection* true)
 

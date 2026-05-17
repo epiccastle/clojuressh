@@ -1,10 +1,8 @@
 (ns clojuressh.user-info
-  #?(:bb (:require [babashka.pods :as pods]))
+  (:require [clojuressh.impl.load-pod]
+            #?(:bb [pod.epiccastle.bbssh.user-info :as user-info]))
   #?(:bb (:import)
      :clj (:import [com.jcraft.jsch UserInfo])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.user-info :as user-info]))
 
 (set! *warn-on-reflection* true)
 

@@ -1,18 +1,16 @@
 (ns clojuressh.scp
   "Implementation of the scp protocol"
-  (:require [clojuressh.impl.utils :as utils]
+  (:require [clojuressh.impl.load-pod]
+            [clojuressh.impl.utils :as utils]
             [clojuressh.core :as clojuressh]
             [clojure.string :as string]
             [clojure.java.io :as io]
             [clojure.edn :as edn]
-            #?(:bb [babashka.pods :as pods]))
+            #?(:bb [pod.epiccastle.bbssh.scp :as scp]))
   #?(:bb (:import)
      :clj (:import [java.util Arrays]
                    [java.io File]
                    [java.time Instant])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.scp :as scp]))
 
 (def ^:private default-buffer-size (* 256 1024))
 

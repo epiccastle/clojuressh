@@ -1,11 +1,9 @@
 (ns clojuressh.key-pair
   (:refer-clojure :exclude [load])
-  #?(:bb (:require [babashka.pods :as pods]))
+  (:require [clojuressh.impl.load-pod]
+            #?(:bb [pod.epiccastle.bbssh.key-pair :as key-pair]))
   #?(:bb (:import)
      :clj (:import [com.jcraft.jsch JSch KeyPair])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.key-pair :as key-pair]))
 
 (set! *warn-on-reflection* true)
 

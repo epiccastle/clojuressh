@@ -1,13 +1,11 @@
 (ns clojuressh.output-stream
   (:refer-clojure :exclude [flush])
-  #?(:bb (:require [babashka.pods :as pods]))
+  (:require [clojuressh.impl.load-pod]
+            #?(:bb [pod.epiccastle.bbssh.output-stream :as output-stream]))
   #?(:bb (:import)
      :clj (:import [java.io
                     PipedOutputStream PipedInputStream
                     OutputStream])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.output-stream :as output-stream]))
 
 (set! *warn-on-reflection* true)
 

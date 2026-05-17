@@ -1,13 +1,11 @@
 (ns clojuressh.ssh-agent
   "Implements an identity-repository that communicates with your local ssh agent (ssh keychain) over the SSH_AUTH_SOCK unix domain pipe."
-  (:require [clojuressh.impl.pack :as pack]
+  (:require [clojuressh.impl.load-pod]
+            [clojuressh.impl.pack :as pack]
             [clojuressh.impl.socket :as socket]
             [clojuressh.identity :as identity]
             [clojuressh.identity-repository :as identity-repository]
-            #?(:bb [babashka.pods :as pods])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.ssh-agent :as ssh-agent]))
+            #?(:bb [pod.epiccastle.bbssh.ssh-agent :as ssh-agent])))
 
 (def ^:private codes
   {:ssh-agent-failure 5

@@ -1,10 +1,8 @@
 (ns clojuressh.identity
-  #?(:bb (:require [babashka.pods :as pods]))
+  (:require [clojuressh.impl.load-pod]
+            #?(:bb [pod.epiccastle.bbssh.identity :as identity]))
   #?(:bb (:import)
      :clj (:import [com.jcraft.jsch Identity])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.identity :as identity]))
 
 (set! *warn-on-reflection* true)
 
