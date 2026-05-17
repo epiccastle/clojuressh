@@ -1,14 +1,12 @@
 (ns clojuressh.agent
-  (:require #?(:bb [babashka.pods :as pods]
-               :clj [clojure.java.io :as io]))
+  (:require [clojuressh.impl.load-pod]
+            [clojure.java.io :as io]
+            #?(:bb [pod.epiccastle.bbssh.agent :as agent]))
   #?(:bb (:import)
      :clj (:import [com.jcraft.jsch JSch Logger
                     IdentityRepository HostKeyRepository
                     ConfigRepository Identity]
                    [java.io InputStream])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.agent :as agent]))
 
 (set! *warn-on-reflection* true)
 

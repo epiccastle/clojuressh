@@ -1,11 +1,9 @@
 (ns clojuressh.channel-exec
-  #?(:bb (:require [babashka.pods :as pods]))
+  (:require [clojuressh.impl.load-pod]
+            #?(:bb [pod.epiccastle.bbssh.channel-exec :as channel-exec]))
   #?(:bb (:import)
      :clj (:import [com.jcraft.jsch JSch Session UserInfo ChannelExec Channel ChannelSession]
                    [java.io InputStream OutputStream])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.channel-exec :as channel-exec]))
 
 (set! *warn-on-reflection* true)
 

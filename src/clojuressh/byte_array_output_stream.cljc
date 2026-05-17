@@ -1,12 +1,10 @@
 (ns clojuressh.byte-array-output-stream
   (:refer-clojure :exclude [flush])
-  #?(:bb (:require [babashka.pods :as pods]))
+  (:require [clojuressh.impl.load-pod]
+            #?(:bb [pod.epiccastle.bbssh.byte-array-output-stream :as byte-array-output-stream]))
   #?(:bb (:import)
      :clj (:import [java.io
                     ByteArrayOutputStream OutputStream])))
-
-#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
-#?(:bb (require '[pod.epiccastle.bbssh.byte-array-output-stream :as byte-array-output-stream]))
 
 (set! *warn-on-reflection* true)
 
