@@ -26,7 +26,7 @@
 
 (defn make-proxy
   [{:keys [type host port username password] :as opts}]
-  #?(:bb (session/make-proxy opts)
+  #?(:bb nil
      :clj (let [proxy (case type
                         :http (ProxyHTTP. host port)
                         :socks4 (ProxySOCKS4. host port)

@@ -4,17 +4,19 @@
   #?(:bb (:import)
      :clj (:import [com.jcraft.jsch HostKey JSch])))
 
-(def types
-  {:unknown HostKey/UNKNOWN
-   :guess HostKey/GUESS
-   :sshdss HostKey/SSHDSS
-   :sshrsa HostKey/SSHRSA
-   :ecdsa256 HostKey/ECDSA256
-   :ecdsa384 HostKey/ECDSA384
-   :ecdsa521 HostKey/ECDSA521
-   :ed25519 HostKey/ED25519
-   :ed448 HostKey/ED448
-   })
+#?(:bb nil
+   :clj
+   (def types
+     {:unknown HostKey/UNKNOWN
+      :guess HostKey/GUESS
+      :sshdss HostKey/SSHDSS
+      :sshrsa HostKey/SSHRSA
+      :ecdsa256 HostKey/ECDSA256
+      :ecdsa384 HostKey/ECDSA384
+      :ecdsa521 HostKey/ECDSA521
+      :ed25519 HostKey/ED25519
+      :ed448 HostKey/ED448
+      }))
 
 (defn new
   "Create a new host-key with some subset of:
