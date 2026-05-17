@@ -14,7 +14,7 @@
 (defn- new-from-string [string & [encoding]]
   #?(:bb (byte-array-input-stream/new-from-string string encoding)
      :clj (ByteArrayInputStream.
-           ^bytes (.getBytes ^String string ^String (or encoding "utf-8")))))
+           ^bytes (.getBytes ^String string (or ^String encoding "utf-8")))))
 
 (defn- new-from-bytes [string]
   #?(:bb (byte-array-input-stream/new-from-bytes string)
