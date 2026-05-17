@@ -4,10 +4,15 @@
             [clojuressh.core :as clojuressh]
             [clojure.string :as string]
             [clojure.java.io :as io]
-            [clojure.edn :as edn])
-  (:import [java.util Arrays]
-           [java.io File]
-           [java.time Instant]))
+            [clojure.edn :as edn]
+            #?(:bb [babashka.pods :as pods]))
+  #?(:bb (:import)
+     :clj (:import [java.util Arrays]
+                   [java.io File]
+                   [java.time Instant])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.scp :as scp]))
 
 (def ^:private default-buffer-size (* 256 1024))
 
@@ -360,40 +365,41 @@
                 "'"))}
     :as options}
    ]
-  (let [remote-command
-        (scp-command-fn
-         (string/join " "
-                      ["scp"
-                       (when recurse? "-r")
-                       (when preserve-times? "-p")
-                       "-t" ;; to
-                       (utils/quote-path remote-path)
-                       ]))
+  #?(:bb (scp/scp-to local-sources remote-path options)
+     :clj (let [remote-command
+                (scp-command-fn
+                 (string/join " "
+                              ["scp"
+                               (when recurse? "-r")
+                               (when preserve-times? "-p")
+                               "-t" ;; to
+                               (utils/quote-path remote-path)
+                               ]))
 
-        {:keys [in out err channel] :as process}
-        (clojuressh/exec session remote-command {:in :stream})]
-    (recv-ack process)
-    (loop [[source & remain] local-sources
-           progress-context progress-context
-           ]
-      (let [options (assoc options :progress-context progress-context)
-            progress-context
-            (cond
-              (vector? source)
-              (scp-copy-data process source options)
+                {:keys [in out err channel] :as process}
+                (clojuressh/exec session remote-command {:in :stream})]
+            (recv-ack process)
+            (loop [[source & remain] local-sources
+                   progress-context progress-context
+                   ]
+              (let [options (assoc options :progress-context progress-context)
+                    progress-context
+                    (cond
+                      (vector? source)
+                      (scp-copy-data process source options)
 
-              (.isDirectory ^File source)
-              (scp-copy-dir process source options)
+                      (.isDirectory ^File source)
+                      (scp-copy-dir process source options)
 
-              (.isFile ^File source)
-              (scp-copy-file process source options))]
-        (if remain
-          (recur remain progress-context)
-          (do
-            (.close in)
-            (.close out)
-            (.close err)
-            progress-context))))))
+                      (.isFile ^File source)
+                      (scp-copy-file process source options))]
+                (if remain
+                  (recur remain progress-context)
+                  (do
+                    (.close in)
+                    (.close out)
+                    (.close err)
+                    progress-context)))))))
 
 ;;
 ;; scp from remote to local
@@ -598,21 +604,22 @@
                                 scp-command-fn identity}
                            :as options}
    ]
-  (let [remote-command
-        (scp-command-fn
-         (string/join " "
-                      ["scp"
-                       (when recurse? "-r")
-                       (when preserve-times? "-p")
-                       "-f" ;; from
-                       (utils/quote-path remote-path)
-                       ]))
+  #?(:bb (scp/scp-from remote-path local-file options)
+     :clj (let [remote-command
+                (scp-command-fn
+                 (string/join " "
+                              ["scp"
+                               (when recurse? "-r")
+                               (when preserve-times? "-p")
+                               "-f" ;; from
+                               (utils/quote-path remote-path)
+                               ]))
 
-        {:keys [in out err channel] :as process}
-        (clojuressh/exec session remote-command {:in :stream})]
-    (send-ack process)
-    (let [progress-context (scp-from-receive process (io/as-file local-file) options)]
-      (.close in)
-      (.close out)
-      (.close err)
-      progress-context)))
+                {:keys [in out err channel] :as process}
+                (clojuressh/exec session remote-command {:in :stream})]
+            (send-ack process)
+            (let [progress-context (scp-from-receive process (io/as-file local-file) options)]
+              (.close in)
+              (.close out)
+              (.close err)
+              progress-context))))

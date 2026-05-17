@@ -1,39 +1,46 @@
 (ns clojuressh.session
   (:require [clojure.string :as string]
-            [clojuressh.impl.utils :as utils])
-  (:import [com.jcraft.jsch JSch Session
-            UserInfo IdentityRepository
-            HostKeyRepository Proxy ProxyHTTP ProxySOCKS4 ProxySOCKS5])
-  )
+            [clojuressh.impl.utils :as utils]
+            #?(:bb [babashka.pods :as pods]))
+  #?(:bb (:import)
+     :clj (:import [com.jcraft.jsch JSch Session
+                    UserInfo IdentityRepository
+                    HostKeyRepository Proxy ProxyHTTP ProxySOCKS4 ProxySOCKS5])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.session :as session]))
 
 (set! *warn-on-reflection* true)
 
 (defn set-password
   "Set the password the session will use to authenticate to
   `password`"
-  [^Session session ^String password]
-  (.setPassword session password))
+  [session password]
+  #?(:bb (session/set-password session password)
+     :clj (.setPassword ^Session session ^String password)))
 
 (defn set-user-info
   "Set the `user-info` for the `session`. The session will
   use this user-info structure to ask for passwords and passphrases."
-  [^Session session ^UserInfo user-info]
-  (.setUserInfo session user-info))
+  [session user-info]
+  #?(:bb (session/set-user-info session user-info)
+     :clj (.setUserInfo ^Session session ^UserInfo user-info)))
 
 (defn make-proxy
-  [{:keys [type host port username password]}]
-  (let [proxy (case type
-                :http (ProxyHTTP. host port)
-                :socks4 (ProxySOCKS4. host port)
-                :socks5 (ProxySOCKS5. host port))]
-    (when username
-      (case type
-        ;; Seems we don't have a better way to avoid the code duplication since
-        ;; the setUserPasswd method is not in the jsch `Proxy` interface.
-        :http (.setUserPasswd ^ProxyHTTP proxy username password)
-        :socks4 (.setUserPasswd ^ProxySOCKS4 proxy username password)
-        :socks5 (.setUserPasswd ^ProxySOCKS5 proxy username password)))
-    proxy))
+  [{:keys [type host port username password] :as opts}]
+  #?(:bb (session/make-proxy opts)
+     :clj (let [proxy (case type
+                        :http (ProxyHTTP. host port)
+                        :socks4 (ProxySOCKS4. host port)
+                        :socks5 (ProxySOCKS5. host port))]
+            (when username
+              (case type
+                ;; Seems we don't have a better way to avoid the code duplication since
+                ;; the setUserPasswd method is not in the jsch `Proxy` interface.
+                :http (.setUserPasswd ^ProxyHTTP proxy username password)
+                :socks4 (.setUserPasswd ^ProxySOCKS4 proxy username password)
+                :socks5 (.setUserPasswd ^ProxySOCKS5 proxy username password)))
+            proxy)))
 
 (defn set-proxy
   "sets the http/socks proxy to connect with the ssh server.
@@ -41,35 +48,37 @@
   The provided arg must have at least `:type` (one of
   `#{:http :socks4 :socks5}`), `:host`, `:port` and optionally `:username` and
   `:password` for proxy authentication. "
-  [^Session session proxy]
-  (.setProxy
-    session
-    ^Proxy (make-proxy proxy)))
+  [session proxy]
+  #?(:bb (session/set-proxy session proxy)
+     :clj (.setProxy
+           ^Session session
+           ^Proxy (make-proxy proxy))))
 
 (defn connect
   "Initiate the ssh connection with an optional `timeout`
   (in milliseconds)."
   [session & [timeout]]
-  (try
-    (if timeout
-      (.connect
-        ^Session session
-        timeout)
-      (.connect
-        ^Session session))
-    (catch com.jcraft.jsch.JSchException e
-  (throw (ex-info (.getMessage e)
-                  {:type    ::ssh-connect-error
-                   :cause   (.getCause e)
-                   :message (.getMessage e)}
-
-                  ; original exception
-                  e)))))
+  #?(:bb (session/connect session timeout)
+     :clj (try
+            (if timeout
+              (.connect
+               ^Session session
+               ^int timeout)
+              (.connect
+               ^Session session))
+            (catch com.jcraft.jsch.JSchException e
+              (throw (ex-info (.getMessage e)
+                              {:type    ::ssh-connect-error
+                               :cause   (.getCause e)
+                               :message (.getMessage e)}
+                              ; original exception
+                              e))))))
 
 (defn disconnect
   "Disconnect the ssh connection"
-  [^Session session]
-  (.disconnect session))
+  [session]
+  #?(:bb (session/disconnect session)
+     :clj (.disconnect ^Session session)))
 
 (defn set-port-forwarding-local
   "Register the local port to forward all connection to the remote
@@ -96,6 +105,7 @@
     :remote-unix-socket \"/var/run/socket\"  ;; the remote host to forward the connection to on the remote side
     :connect-timeout 30000                 ;; how long to try to connect for
   }
+  ```
   "
   [session
    {:keys [bind-address
@@ -105,53 +115,57 @@
            remote-port
            connect-timeout]
     :or {bind-address "127.0.0.1"
-         connect-timeout 0}}]
-  (if remote-unix-socket
-    (.setSocketForwardingL
-      ^Session session
-      ^String bind-address
-      ^int local-port
-      ^String remote-unix-socket
-      nil
-      ^int connect-timeout
-      )
-    (.setPortForwardingL
-      ^Session session
-      ^String bind-address
-      ^int local-port
-      ^String remote-host
-      ^int remote-port
-      nil
-      ^int connect-timeout)))
+         connect-timeout 0}
+    :as opts}]
+  #?(:bb (session/set-port-forwarding-local session opts)
+     :clj (if remote-unix-socket
+            (.setSocketForwardingL
+             ^Session session
+             ^String bind-address
+             ^int local-port
+             ^String remote-unix-socket
+             nil
+             ^int connect-timeout)
+            (.setPortForwardingL
+             ^Session session
+             ^String bind-address
+             ^int local-port
+             ^String remote-host
+             ^int remote-port
+             nil
+             ^int connect-timeout))))
 
 (defn delete-port-forwarding-local
   "Cancels the specified local port forwarding"
   [session
    {:keys [bind-address
            local-port]
-    :or {bind-address "127.0.0.1"}}]
-  (.delPortForwardingL
-   ^Session session
-   ^String bind-address
-   ^int local-port))
+    :or {bind-address "127.0.0.1"}
+    :as opts}]
+  #?(:bb (session/delete-port-forwarding-local session opts)
+     :clj (.delPortForwardingL
+           ^Session session
+           ^String bind-address
+           ^int local-port)))
 
 (defn get-port-forwarding-local
   "return a list of all the local port forwards. List elements
   are of the form \"local-port:host:host-port\"."
   [session]
-  (->>
-   (.getPortForwardingL
-    ^Session session)
-   (mapv (fn [s]
-           (let [[local-port remote-host remote-port]
-                 (string/split s #":")]
-             (if (and (= remote-host "null")
-                      (= remote-port "0"))
-               ;; Jsch PortWatcher doesn't report socket forwarding path details
-               {:local-port (Integer/parseInt local-port)}
-               {:local-port (Integer/parseInt local-port)
-                :remote-host remote-host
-                :remote-port (Integer/parseInt remote-port)}))))))
+  #?(:bb (session/get-port-forwarding-local session)
+     :clj (->>
+           (.getPortForwardingL
+            ^Session session)
+           (mapv (fn [s]
+                   (let [[local-port remote-host remote-port]
+                         (string/split s #":")]
+                     (if (and (= remote-host "null")
+                              (= remote-port "0"))
+                       ;; Jsch PortWatcher doesn't report socket forwarding path details
+                       {:local-port (Integer/parseInt local-port)}
+                       {:local-port (Integer/parseInt local-port)
+                        :remote-host remote-host
+                        :remote-port (Integer/parseInt remote-port)})))))))
 
 (defn set-port-forwarding-remote
   "Register the remote port to forward to the local machine and then
@@ -175,98 +189,112 @@
            local-host
            local-port]
     :or {bind-address "127.0.0.1"
-         local-host "127.0.0.1"}}]
-  (.setPortForwardingR
-   ^Session session
-   ^String bind-address
-   ^int remote-port
-   ^String local-host
-   ^int local-port))
+         local-host "127.0.0.1"}
+    :as opts}]
+  #?(:bb (session/set-port-forwarding-remote session opts)
+     :clj (.setPortForwardingR
+           ^Session session
+           ^String bind-address
+           ^int remote-port
+           ^String local-host
+           ^int local-port)))
 
 (defn delete-port-forwarding-remote
   "Cancels the specified remote port forwarding"
   [session
    {:keys [bind-address
            remote-port]
-    :or {bind-address "127.0.0.1"}}]
-  (.delPortForwardingR
-   ^Session session
-   ^String bind-address
-   ^int remote-port))
+    :or {bind-address "127.0.0.1"}
+    :as opts}]
+  #?(:bb (session/delete-port-forwarding-remote session opts)
+     :clj (.delPortForwardingR
+           ^Session session
+           ^String bind-address
+           ^int remote-port)))
 
 (defn get-port-forwarding-remote
   "return a list of all the remote port forwards. List elements
   are of the form \"local-port:host:host-port\"."
   [session]
-  (->>
-   (.getPortForwardingR
-    ^Session session)
-   (mapv (fn [s]
-           (let [[local-port remote-host remote-port]
-                 (string/split s #":")]
-             {:remote-port (Integer/parseInt local-port)
-              :local-host remote-host
-              :local-port (Integer/parseInt remote-port)})))))
+  #?(:bb (session/get-port-forwarding-remote session)
+     :clj (->>
+           (.getPortForwardingR
+            ^Session session)
+           (mapv (fn [s]
+                   (let [[local-port remote-host remote-port]
+                         (string/split s #":")]
+                     {:remote-port (Integer/parseInt local-port)
+                      :local-host remote-host
+                      :local-port (Integer/parseInt remote-port)}))))))
 
 (defn set-host
   "Set the host to connect to"
-  [^Session session ^String host]
-  (.setHost session host))
+  [session host]
+  #?(:bb (session/set-host session host)
+     :clj (.setHost ^Session session ^String host)))
 
 (defn set-port
   "Set the port to connect to"
-  [^Session session port]
-  (.setHost session ^int port))
+  [session port]
+  #?(:bb (session/set-port session port)
+     :clj (.setPort ^Session session ^int port)))
 
 (defn set-config
   "Set the config setting `key` to `value`"
-  [^Session session key value]
-  (.setConfig
-   session
-   ^String (if (keyword? key)
-             (utils/to-camel-case (name key))
-             key)
-   ^String (utils/boolean-to-yes-no value)))
+  [session key value]
+  #?(:bb (session/set-config session key value)
+     :clj (.setConfig
+           ^Session session
+           ^String (if (keyword? key)
+                     (utils/to-camel-case (name key))
+                     key)
+           ^String (utils/boolean-to-yes-no value))))
 
 (defn set-configs
   "Merge the config values from the passed in hashmap into the session
   config"
   [session hashmap]
-  (doseq [[key value] hashmap]
-    (.setConfig
-     ^Session session
-     ^String (if (keyword? key)
-               (utils/to-camel-case (name key))
-               key)
-     ^String (utils/boolean-to-yes-no value))))
+  #?(:bb (session/set-configs session hashmap)
+     :clj (doseq [[key value] hashmap]
+            (.setConfig
+             ^Session session
+             ^String (if (keyword? key)
+                       (utils/to-camel-case (name key))
+                       key)
+             ^String (utils/boolean-to-yes-no value)))))
 
 (defn get-config
   "Get the current config setting `key`"
-  [^Session session key]
-  (.getConfig
-   session
-   ^String (if (keyword? key)
-             (utils/to-camel-case (name key))
-             key)))
+  [session key]
+  #?(:bb (session/get-config session key)
+     :clj (.getConfig
+           ^Session session
+           ^String (if (keyword? key)
+                     (utils/to-camel-case (name key))
+                     key))))
 
 (defn connected?
   "return true if session is currently connected"
-  [^Session session]
-  (.isConnected session))
+  [session]
+  #?(:bb (session/connected? session)
+     :clj (.isConnected ^Session session)))
 
 (defn open-channel
   "open a channel on the session and return it"
-  [^Session session ^String type]
-  (.openChannel session type))
+  [session type]
+  #?(:bb (session/open-channel session type)
+     :clj (.openChannel ^Session session ^String type)))
 
 (defn set-identity-repository
   "sets the identity-repository that will be used in the
   public key authentication"
-  [^Session session ^IdentityRepository identity-repository]
-  (.setIdentityRepository session identity-repository))
+  [session identity-repository]
+  #?(:bb (session/set-identity-repository session identity-repository)
+     :clj (.setIdentityRepository ^Session session ^IdentityRepository identity-repository)))
 
 (defn set-host-key-repository
   "sets the host-key-repository that will be used in the
   public key authentication"
-  [^Session session ^HostKeyRepository host-key-repository]
-  (.setHostKeyRepository session host-key-repository))
+  [session host-key-repository]
+  #?(:bb (session/set-host-key-repository session host-key-repository)
+     :clj (.setHostKeyRepository ^Session session ^HostKeyRepository host-key-repository)))

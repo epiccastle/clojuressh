@@ -1,5 +1,10 @@
 (ns clojuressh.user-info
-  (:import [com.jcraft.jsch UserInfo]))
+  #?(:bb (:require [babashka.pods :as pods]))
+  #?(:bb (:import)
+     :clj (:import [com.jcraft.jsch UserInfo])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.user-info :as user-info]))
 
 (set! *warn-on-reflection* true)
 
@@ -48,19 +53,20 @@
 
   "
   [callbacks]
-  (proxy [UserInfo] []
-    (getPassword []
-      ((:get-password callbacks)))
-    (promptYesNo [^String s]
-      (boolean
-       ((:prompt-yes-no callbacks) s)))
-    (getPassphrase []
-      ((:get-passphrase callbacks)))
-    (promptPassphrase [^String s]
-      (boolean
-       ((:prompt-passphrase callbacks) s)))
-    (promptPassword [^String s]
-      (boolean
-       ((:prompt-password callbacks) s)))
-    (showMessage [^String s]
-      ((:show-message callbacks) s))))
+  #?(:bb (user-info/new callbacks)
+     :clj (proxy [UserInfo] []
+            (getPassword []
+              ((:get-password callbacks)))
+            (promptYesNo [^String s]
+              (boolean
+               ((:prompt-yes-no callbacks) s)))
+            (getPassphrase []
+              ((:get-passphrase callbacks)))
+            (promptPassphrase [^String s]
+              (boolean
+               ((:prompt-passphrase callbacks) s)))
+            (promptPassword [^String s]
+              (boolean
+               ((:prompt-password callbacks) s)))
+            (showMessage [^String s]
+              ((:show-message callbacks) s)))))

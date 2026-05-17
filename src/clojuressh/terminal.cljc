@@ -1,8 +1,13 @@
 (ns clojuressh.terminal
-  (:require [clojure.string :as str])
-  (:import [java.io InputStream]
-           [com.sun.jna Function Memory Native NativeLibrary Pointer]
-           [com.sun.jna.ptr IntByReference]))
+  (:require [clojure.string :as str]
+            #?(:bb [babashka.pods :as pods]))
+  #?(:bb (:import)
+     :clj (:import [java.io InputStream]
+                   [com.sun.jna Function Memory Native NativeLibrary Pointer]
+                   [com.sun.jna.ptr IntByReference])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.terminal :as terminal]))
 
 (defn is-terminal?
   "Returns true if stdout is connected to a terminal.
@@ -11,7 +16,8 @@
   streams are not attached to a terminal (e.g. redirected to a file
   or piped). No shell process is invoked."
   []
-  (some? (System/console)))
+  #?(:bb (terminal/is-terminal?)
+     :clj (some? (System/console))))
 
 ;; -----------------------------------------------------------------
 ;; Raw-mode support via JNA + POSIX termios
@@ -291,10 +297,11 @@
   Failures do not throw; on failure the previous mode is left in
   place."
   [quiet]
-  (let [quiet? (not (zero? (int quiet)))]
-    (if (= os :windows)
-      (enter-raw-mode-windows quiet?)
-      (enter-raw-mode-posix   quiet?))))
+  #?(:bb (terminal/enter-raw-mode quiet)
+     :clj (let [quiet? (not (zero? (int quiet)))]
+            (if (= os :windows)
+              (enter-raw-mode-windows quiet?)
+              (enter-raw-mode-posix   quiet?)))))
 
 (defn leave-raw-mode
   "Restore stdin echo/canonical settings after `enter-raw-mode`.
@@ -304,10 +311,11 @@
   we are not currently in raw mode. On Windows it unconditionally
   re-enables ENABLE_ECHO_INPUT, matching the C original."
   [quiet]
-  (let [quiet? (not (zero? (int quiet)))]
-    (if (= os :windows)
-      (leave-raw-mode-windows quiet?)
-      (leave-raw-mode-posix   quiet?))))
+  #?(:bb (terminal/leave-raw-mode quiet)
+     :clj (let [quiet? (not (zero? (int quiet)))]
+            (if (= os :windows)
+              (leave-raw-mode-windows quiet?)
+              (leave-raw-mode-posix   quiet?)))))
 
 ;; -----------------------------------------------------------------
 ;; Terminal-state query
@@ -352,10 +360,11 @@
   Returns false (not nil) on any error — e.g. stdin is not a
   terminal, or the underlying syscall fails."
   []
-  (boolean
-    (if (= os :windows)
-      (in-raw-mode-windows?)
-      (in-raw-mode-posix?))))
+  #?(:bb (terminal/in-raw-mode?)
+     :clj (boolean
+           (if (= os :windows)
+             (in-raw-mode-windows?)
+             (in-raw-mode-posix?)))))
 
 ;; -----------------------------------------------------------------
 ;; Save / restore arbitrary terminal state
@@ -381,15 +390,16 @@
   console-mode DWORD. Returns nil if the underlying syscall fails
   (e.g. stdin is not a terminal)."
   []
-  (if (= os :windows)
-    (let [h (get-std-handle STD_INPUT_HANDLE)]
-      (when-let [mode (get-console-mode h)]
-        (long mode)))
-    (let [buf (alloc-termios)]
-      (when-not (neg? (tcgetattr* STDIN_FILENO buf))
-        (let [bs (byte-array (:size layout))]
-          (.read buf 0 bs 0 (:size layout))
-          bs)))))
+  #?(:bb (terminal/save-terminal-state)
+     :clj (if (= os :windows)
+            (let [h (get-std-handle STD_INPUT_HANDLE)]
+              (when-let [mode (get-console-mode h)]
+                (long mode)))
+            (let [buf (alloc-termios)]
+              (when-not (neg? (tcgetattr* STDIN_FILENO buf))
+                (let [bs (byte-array (:size layout))]
+                  (.read buf 0 bs 0 (:size layout))
+                  bs))))))
 
 (defn restore-terminal-state
   "Restore stdin to the state previously captured by
@@ -399,18 +409,19 @@
   Returns true on success, false on any failure (state is nil or
   the syscall fails)."
   [state]
-  (cond
-    (nil? state) false
+  #?(:bb (terminal/restore-terminal-state state)
+     :clj (cond
+            (nil? state) false
 
-    (= os :windows)
-    (let [h (get-std-handle STD_INPUT_HANDLE)]
-      (boolean (set-console-mode h (long state))))
+            (= os :windows)
+            (let [h (get-std-handle STD_INPUT_HANDLE)]
+              (boolean (set-console-mode h (long state))))
 
-    :else
-    (let [^bytes bs state
-          buf       (alloc-termios)]
-      (.write buf 0 bs 0 (:size layout))
-      (not (neg? (tcsetattr* STDIN_FILENO (:TCSADRAIN layout) buf))))))
+            :else
+            (let [^bytes bs state
+                  buf       (alloc-termios)]
+              (.write buf 0 bs 0 (:size layout))
+              (not (neg? (tcsetattr* STDIN_FILENO (:TCSADRAIN layout) buf)))))))
 
 ;; -----------------------------------------------------------------
 ;; Terminal size querying via DSR (Device Status Report)
@@ -521,16 +532,18 @@
   is restored before this function returns. Returns nil if the
   terminal cannot be queried."
   []
-  (when-let [[_ cols] (query-terminal-size)]
-    cols))
+  #?(:bb (terminal/get-width)
+     :clj (when-let [[_ cols] (query-terminal-size)]
+            cols)))
 
 (defn get-height
   "Return the height (rows) of the terminal.
 
   See `get-width` for behaviour and preconditions."
   []
-  (when-let [[rows _] (query-terminal-size)]
-    rows))
+  #?(:bb (terminal/get-height)
+     :clj (when-let [[rows _] (query-terminal-size)]
+            rows)))
 
 (def ctrl-c 3)
 (def carriage-return 10)
@@ -541,13 +554,15 @@
   The terminal's prior state is restored on every exit path,
   including when the read loop throws."
   []
-  (enter-raw-mode 1)
-  (try
-    (loop [text ""]
-      (let [c (.read *in*)]
-        (condp = c
-          ctrl-c nil
-          carriage-return text
-          (recur (str text (char c))))))
-    (finally
-      (leave-raw-mode 1))))
+  #?(:bb (terminal/raw-mode-readline)
+     :clj (do
+            (enter-raw-mode 1)
+            (try
+              (loop [text ""]
+                (let [c (.read *in*)]
+                  (condp = c
+                    ctrl-c nil
+                    carriage-return text
+                    (recur (str text (char c))))))
+              (finally
+                (leave-raw-mode 1))))))

@@ -1,10 +1,15 @@
 (ns clojuressh.input-stream
   (:refer-clojure :exclude [read])
-  (:import [java.io
-            PipedInputStream PipedOutputStream
-            ByteArrayInputStream ByteArrayOutputStream
-            InputStream]
-           [java.util Arrays]))
+  #?(:bb (:require [babashka.pods :as pods]))
+  #?(:bb (:import)
+     :clj (:import [java.io
+                    PipedInputStream PipedOutputStream
+                    ByteArrayInputStream ByteArrayOutputStream
+                    InputStream]
+                   [java.util Arrays])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.input-stream :as input-stream]))
 
 (set! *warn-on-reflection* true)
 
@@ -12,20 +17,24 @@
   "Create a new PipedInputStream on the pod heap. Return
   a reference to it for babashka use."
   ([]
-   (PipedInputStream.))
+   #?(:bb (input-stream/new)
+      :clj (PipedInputStream.)))
   ([src-or-pipe-size]
-   (if (int? src-or-pipe-size)
-     (PipedInputStream.
-      ^int src-or-pipe-size)
-     (PipedInputStream.
-      ^PipedOutputStream src-or-pipe-size)))
-  ([^PipedOutputStream src pipe-size]
-   (PipedInputStream. src ^int pipe-size)))
+   #?(:bb (input-stream/new src-or-pipe-size)
+      :clj (if (int? src-or-pipe-size)
+             (PipedInputStream.
+              ^int src-or-pipe-size)
+             (PipedInputStream.
+              ^PipedOutputStream src-or-pipe-size))))
+  ([src pipe-size]
+   #?(:bb (input-stream/new src pipe-size)
+      :clj (PipedInputStream. ^PipedOutputStream src ^int pipe-size))))
 
 (defn close
   "Close the stream"
-  [^PipedInputStream stream]
-  (.close stream))
+  [stream]
+  #?(:bb (input-stream/close stream)
+     :clj (.close ^PipedInputStream stream)))
 
 (defn read
   "`(read stream)`
@@ -37,40 +46,46 @@
   a `byte-array` starting at `offset`. Returns the number of bytes
   successfully read. Does not block.
   "
-  ([^PipedInputStream stream]
-   (.read stream))
-  ([^PipedInputStream stream bytes]
-   (.read stream bytes))
-  ([^PipedInputStream stream bytes offset length]
-   (.read stream bytes offset length)))
+  ([stream]
+   #?(:bb (input-stream/read stream)
+      :clj (.read ^PipedInputStream stream)))
+  ([stream bytes]
+   #?(:bb (input-stream/read stream bytes)
+      :clj (.read ^PipedInputStream stream ^bytes bytes)))
+  ([stream bytes offset length]
+   #?(:bb (input-stream/read stream bytes offset length)
+      :clj (.read ^PipedInputStream stream ^bytes bytes ^int offset ^int length))))
 
 (defn available
   "Return the number of bytes available and waiting to be read
   immediately in the stream"
-  [^PipedInputStream stream]
-  (.available stream))
+  [stream]
+  #?(:bb (input-stream/available stream)
+     :clj (.available ^PipedInputStream stream)))
 
 (defn connect
   "Connect a PipedOutputStream to this stream."
-  [^PipedInputStream stream ^PipedOutputStream source]
-  (.connect stream source))
+  [stream source]
+  #?(:bb (input-stream/connect stream source)
+     :clj (.connect ^PipedInputStream stream ^PipedOutputStream source)))
 
 (defn make-proxy
   "Make a babashka java.io.PipedInputStream that calls
   the pod heap input-stream `stream`."
   [stream]
-  (proxy [java.io.PipedInputStream] []
-    (close []
-      (close stream))
-    (read
-      ([]
-       (read stream))
-      ([bytes]
-       (read stream bytes))
-      ([bytes offset length]
-       (read stream bytes offset length)))
-    (available []
-      (available stream))))
+  #?(:bb (input-stream/make-proxy stream)
+     :clj (proxy [java.io.PipedInputStream] []
+            (close []
+              (close stream))
+            (read
+              ([]
+               (read stream))
+              ([bytes]
+               (read stream bytes))
+              ([bytes offset length]
+               (read stream bytes offset length)))
+            (available []
+              (available stream)))))
 
 #_(defn new-pod-proxy
   [callbacks]

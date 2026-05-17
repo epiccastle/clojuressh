@@ -1,8 +1,13 @@
 (ns clojuressh.output-stream
   (:refer-clojure :exclude [flush])
-  (:import [java.io
-            PipedOutputStream PipedInputStream
-            OutputStream]))
+  #?(:bb (:require [babashka.pods :as pods]))
+  #?(:bb (:import)
+     :clj (:import [java.io
+                    PipedOutputStream PipedInputStream
+                    OutputStream])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.output-stream :as output-stream]))
 
 (set! *warn-on-reflection* true)
 
@@ -12,14 +17,17 @@
   connect as the sink.
   "
   ([]
-   (PipedOutputStream.))
+   #?(:bb (output-stream/new)
+      :clj (PipedOutputStream.)))
   ([sink]
-   (PipedOutputStream. sink)))
+   #?(:bb (output-stream/new sink)
+      :clj (PipedOutputStream. ^PipedInputStream sink))))
 
 (defn close
   "Close the stream"
-  [^PipedOutputStream stream]
-  (.close stream))
+  [stream]
+  #?(:bb (output-stream/close stream)
+     :clj (.close ^PipedOutputStream stream)))
 
 (defn write
   "`(write stream bytes)`
@@ -29,36 +37,41 @@
   Write `length` bytes from `byte-array` beginning at `offset`
   to `stream`.
   "
-  ([^PipedOutputStream stream ^bytes bytes]
-   (.write stream bytes))
-  ([^PipedOutputStream stream ^bytes byte-array offset length]
-   (.write stream byte-array offset length)))
+  ([stream bytes]
+   #?(:bb (output-stream/write stream bytes)
+      :clj (.write ^PipedOutputStream stream ^bytes bytes)))
+  ([stream byte-array offset length]
+   #?(:bb (output-stream/write stream byte-array offset length)
+      :clj (.write ^PipedOutputStream stream ^bytes byte-array ^int offset ^int length))))
 
 (defn connect
   "Connect a PipedInputStream to this to act as a sink"
-  [^PipedOutputStream stream ^PipedInputStream sink]
-  (.connect stream sink))
+  [stream sink]
+  #?(:bb (output-stream/connect stream sink)
+     :clj (.connect ^PipedOutputStream stream ^PipedInputStream sink)))
 
 (defn flush
   "Flush the stream"
-  [^PipedOutputStream stream]
-  (.flush stream))
+  [stream]
+  #?(:bb (output-stream/flush stream)
+     :clj (.flush ^PipedOutputStream stream)))
 
 (defn make-proxy
   "Make a java.io.PipedOutputStream"
   [stream]
-  (proxy [java.io.PipedOutputStream] []
-    (close []
-      (close stream))
-    (write
-      ([bytes]
-       (write stream bytes))
-      ([byte-array offset length]
-       (write stream byte-array offset length)))
-    (connect [sink]
-      (connect stream sink))
-    (flush []
-      (flush stream))))
+  #?(:bb (output-stream/make-proxy stream)
+     :clj (proxy [java.io.PipedOutputStream] []
+            (close []
+              (close stream))
+            (write
+              ([bytes]
+               (write stream bytes))
+              ([byte-array offset length]
+               (write stream byte-array offset length)))
+            (connect [sink]
+              (connect stream sink))
+            (flush []
+              (flush stream)))))
 
 #_(defn new-pod-proxy
   [callbacks]

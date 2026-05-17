@@ -3,7 +3,11 @@
   (:require [clojuressh.impl.pack :as pack]
             [clojuressh.impl.socket :as socket]
             [clojuressh.identity :as identity]
-            [clojuressh.identity-repository :as identity-repository]))
+            [clojuressh.identity-repository :as identity-repository]
+            #?(:bb [babashka.pods :as pods])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.ssh-agent :as ssh-agent]))
 
 (def ^:private codes
   {:ssh-agent-failure 5
@@ -98,38 +102,39 @@
                        :response response})))))
 
 (defn new-identity [[blob comment]]
-  (identity/new
-   {:set-passphrase (fn [bytes] true)
-    :get-public-key-blob (fn [] blob)
-    :get-signature
-    (fn [data algorithm]
-      (when-let [auth-sock-path (get-sock-path)]
-        (when-let [sock (socket/open auth-sock-path)]
-          (let [signature (sign-request sock blob data algorithm)]
-            (socket/close sock)
-            signature))))
-    :get-alg-name
-    (fn []
-      (->> blob pack/decode-string first (map char) (apply str)))
-    :get-name
-    (fn [] comment)
-    :is-encrypted (fn [] false)
-    :clear (fn [] nil)
-    }))
+  #?(:bb (ssh-agent/new-identity [blob comment])
+     :clj (identity/new
+           {:set-passphrase (fn [bytes] true)
+            :get-public-key-blob (fn [] blob)
+            :get-signature
+            (fn [data algorithm]
+              (when-let [auth-sock-path (get-sock-path)]
+                (when-let [sock (socket/open auth-sock-path)]
+                  (let [signature (sign-request sock blob data algorithm)]
+                    (socket/close sock)
+                    signature))))
+            :get-alg-name
+            (fn []
+              (->> blob pack/decode-string first (map char) (apply str)))
+            :get-name
+            (fn [] comment)
+            :is-encrypted (fn [] false)
+            :clear (fn [] nil)})))
 
 (defn new-identity-repository []
-  (identity-repository/new
-   {:get-name (fn [] "ssh-agent")
-    :get-status (fn [] (if (get-sock-path)
-                         :running
-                         :unavailable))
-    :get-identities
-    (fn []
-      (when-let [auth-sock-path (get-sock-path)]
-        (if-let [sock (socket/open auth-sock-path)]
-          (let [identities (request-identities sock)]
-            (socket/close sock)
-            (let [result (mapv new-identity identities)]
-              result))
-          ;; socket failed to open. windows?
-          [])))}))
+  #?(:bb (ssh-agent/new-identity-repository)
+     :clj (identity-repository/new
+           {:get-name (fn [] "ssh-agent")
+            :get-status (fn [] (if (get-sock-path)
+                                 :running
+                                 :unavailable))
+            :get-identities
+            (fn []
+              (when-let [auth-sock-path (get-sock-path)]
+                (if-let [sock (socket/open auth-sock-path)]
+                  (let [identities (request-identities sock)]
+                    (socket/close sock)
+                    (let [result (mapv new-identity identities)]
+                      result))
+                  ;; socket failed to open. windows?
+                  [])))})))

@@ -1,6 +1,11 @@
 (ns clojuressh.identity-repository
-  (:import [com.jcraft.jsch IdentityRepository]
-           [java.util Vector]))
+  #?(:bb (:require [babashka.pods :as pods]))
+  #?(:bb (:import)
+     :clj (:import [com.jcraft.jsch IdentityRepository]
+                   [java.util Vector])))
+
+#?(:bb (pods/load-pod 'epiccastle/bbssh "0.7.0"))
+#?(:bb (require '[pod.epiccastle.bbssh.identity-repository :as identity-repository]))
 
 (set! *warn-on-reflection* true)
 
@@ -43,16 +48,17 @@
 
   "
   [callbacks]
-  (proxy [IdentityRepository] []
-    (getName []
-      ((:get-name callbacks)))
-    (getStatus []
-      ((:get-status callbacks)))
-    (getIdentities []
-      (Vector. ^java.util.Collection ((:get-identities callbacks))))
-    (add [^bytes identity-data]
-      ((:add callbacks) identity-data))
-    (remove [^bytes blob]
-      ((:remove callbacks) blob))
-    (removeAll []
-      ((:remove-all callbacks)))))
+  #?(:bb (identity-repository/new callbacks)
+     :clj (proxy [IdentityRepository] []
+            (getName []
+              ((:get-name callbacks)))
+            (getStatus []
+              ((:get-status callbacks)))
+            (getIdentities []
+              (Vector. ^java.util.Collection ((:get-identities callbacks))))
+            (add [^bytes identity-data]
+              ((:add callbacks) identity-data))
+            (remove [^bytes blob]
+              ((:remove callbacks) blob))
+            (removeAll []
+              ((:remove-all callbacks))))))
