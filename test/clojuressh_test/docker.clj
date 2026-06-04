@@ -21,7 +21,7 @@
 
    Options (map, all optional):
      :timeout-ms   Total time to wait in ms        (default: 30000)
-     :interval-ms  Time between attempts in ms      (default: 500)
+     :interval-ms  Time between attempts in ms      (default: 100)
      :connect-ms   Per-attempt connection timeout   (default: 1000)
      :on-retry     0-arity fn called on each miss   (default: nil)
 
@@ -29,7 +29,7 @@
   ([host port] (wait-for-port host port {}))
   ([host port {:keys [timeout-ms interval-ms connect-ms on-retry]
                :or   {timeout-ms  30000
-                      interval-ms 500
+                      interval-ms 100
                       connect-ms  1000}}]
    (let [deadline (+ (System/currentTimeMillis) timeout-ms)]
      (loop []
