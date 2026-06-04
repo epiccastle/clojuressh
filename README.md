@@ -1,5 +1,9 @@
 # clojuressh
 
+[![CircleCI](https://circleci.com/gh/epiccastle/bbssh/tree/main.svg?style=shield)](https://circleci.com/gh/epiccastle/clojuressh/tree/master)
+[![Babashka](https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg)](https://github.com/babashka/babashka)
+[![docs](https://img.shields.io/badge/website-docs-blue)](https://epiccastle.io/clojuressh/0.7.0)
+
 A Clojure library for SSH support, API compatible with [bbssh](https://github.com/epiccastle/bbssh).
 
 `clojuressh` is a port of the `bbssh` babashka pod into a native Clojure
