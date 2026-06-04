@@ -25,10 +25,12 @@
   nil)
 
 (defn start [{:keys [ssh-port]}]
-  (-> "docker run --name clojuressh-test -d -p %d:22 clojuressh/test-base"
-      (format ssh-port)
-      (run "docker run failed")
-      string/trim))
+  (let [result (-> "docker run --name clojuressh-test -d -p %d:22 clojuressh/test-base"
+                  (format ssh-port)
+                  (run "docker run failed")
+                  string/trim)]
+    (Thread/sleep 100) ;; delay for circleci docker startup time
+    result))
 
 (defn stop []
   (run! "docker container stop clojuressh-test"))
