@@ -45,4 +45,4 @@ codox:
 	clojure -X:codox
 
 codox-upload:
-	rsync -av --delete target/docs/ www-data@epiccastle.io:~/epiccastle.io/public/clojuressh/
+	rsync -av --delete target/docs/ www-data@epiccastle.io:~/epiccastle.io/public/clojuressh/$$(clojure -T:build version)
