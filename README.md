@@ -48,7 +48,7 @@ Make a `deps.edn` like:
 ```clojure
 {:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.5"}
-        io.epiccastle/clojuressh {:mvn/version "0.0.0-SNAPSHOT"}}}
+        io.epiccastle/clojuressh {:mvn/version "0.7.0"}}}
 ```
 
 Run your mainline with:
@@ -67,7 +67,7 @@ bb --config deps.edn -m testssh.core
 
 ## API documentation
 
-The full documentation [can be found here](https://epiccastle.io/clojuressh).
+The full documentation [can be found here](https://epiccastle.io/clojuressh/0.7.0).
 
 See also the docs in the [`docs/`](docs) directory for an overview, basics,
 port forwarding, and how-to guides.

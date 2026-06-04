@@ -49,7 +49,7 @@ Make a `deps.edn` like:
 ```clojure
 {:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.5"}
-        io.epiccastle/clojuressh {:mvn/version "0.0.0-SNAPSHOT"}}}
+        io.epiccastle/clojuressh {:mvn/version "0.7.0"}}}
 ```
 
 Run your mainline with:
