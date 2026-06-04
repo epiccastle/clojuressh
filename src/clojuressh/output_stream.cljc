@@ -53,37 +53,3 @@
   [stream]
   #?(:bb (output-stream/flush stream)
      :clj (.flush ^PipedOutputStream stream)))
-
-(defn make-proxy
-  "Make a java.io.PipedOutputStream"
-  [stream]
-  #?(:bb (output-stream/make-proxy stream)
-     :clj (proxy [java.io.PipedOutputStream] []
-            (close []
-              (close stream))
-            (write
-              ([bytes]
-               (write stream bytes))
-              ([byte-array offset length]
-               (write stream byte-array offset length)))
-            (connect [sink]
-              (connect stream sink))
-            (flush []
-              (flush stream)))))
-
-#_(defn new-pod-proxy
-  [callbacks]
-  (proxy [OutputStream] []
-    (close []
-      ((:close callbacks)))
-    (flush []
-      ((:flush callbacks)))
-    (write
-      ([byte-array-or-number]
-       ((:write callbacks)
-        (if (number? byte-array-or-number)
-          byte-array-or-number
-          byte-array-or-number)))
-      ([^bytes byte-array offset length]
-       ((:write callbacks)
-        (java.util.Arrays/copyOfRange byte-array ^int offset ^int (+ offset length)))))))
