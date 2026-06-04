@@ -410,6 +410,8 @@
            :out (if (future? out) @out out)
            :err (if (future? err) @err err))))
 
+(prefer-method print-method clojure.lang.IRecord clojure.lang.IDeref)
+
 (defn exec
   "Execute a `command` on the remote host over the ssh `session`.
 
@@ -536,7 +538,7 @@
                (let [in-output-stream (output-stream/new)
                      in-stream (input-stream/new in-output-stream pipe-buffer-size)]
                  (channel-exec/set-input-stream channel in-stream)
-                 (output-stream/make-proxy in-output-stream))
+                 in-output-stream)
 
                :else
                (do
@@ -563,7 +565,7 @@
                (let [out-stream (output-stream/new)
                      out-input-stream (input-stream/new out-stream pipe-buffer-size)]
                  (channel-exec/set-output-stream channel out-stream)
-                 (input-stream/make-proxy out-input-stream))
+                 out-input-stream)
 
                :else
                (do
@@ -590,7 +592,7 @@
                (let [err-stream (output-stream/new)
                      err-input-stream (input-stream/new err-stream pipe-buffer-size)]
                  (channel-exec/set-error-stream channel err-stream)
-                 (input-stream/make-proxy err-input-stream))
+                 err-input-stream)
 
                :else
                (do

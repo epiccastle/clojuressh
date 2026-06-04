@@ -11,15 +11,17 @@
 
 (set! *warn-on-reflection* true)
 
-(defn- new-from-string [string & [encoding]]
-  #?(:bb (byte-array-input-stream/new-from-string string encoding)
-     :clj (ByteArrayInputStream.
-           ^bytes (.getBytes ^String string (or ^String encoding "utf-8")))))
+#?(:bb nil
+   :clj
+   (defn- new-from-string [string & [encoding]]
+     (ByteArrayInputStream.
+       ^bytes (.getBytes ^String string (or ^String encoding "utf-8")))))
 
-(defn- new-from-bytes [string]
-  #?(:bb (byte-array-input-stream/new-from-bytes string)
-     :clj (ByteArrayInputStream.
-           ^bytes string)))
+#?(:bb nil
+   :clj
+   (defn- new-from-bytes [string]
+     (ByteArrayInputStream.
+       ^bytes string)))
 
 (defn new
   [string-or-bytes & [encoding]]
