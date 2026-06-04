@@ -7,7 +7,8 @@ library. A local installation of `ssh` is **not required**.
 
 This library when loaded into babashka acts as a shim to the bbssh pod. Thus you can refer to this
 in your `bb-deps.edn` and use it like you would in clojure, allowing you to write one codebase that
-will run on both clojure and babashka.
+will run on both clojure and babashka. You can also refer to it in your clojure `deps.edn` or
+`project.clj` and use it the same way.
 
 ## Coordinates
 
