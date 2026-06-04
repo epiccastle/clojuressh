@@ -12,23 +12,17 @@ will run on both clojure and babashka. You can also refer to it in your clojure 
 
 ## Coordinates
 
+### tools.deps
+
 ```clojure
 io.epiccastle/clojuressh {:mvn/version "0.7.0"}
 ```
 
-## Usage
-
-Here is a simple example that connects over ssh, runs a command, and
-disconnects, returning the standard output:
+### leiningen
 
 ```clojure
-
+[io.epiccastle/clojuressh "0.7.0"]
 ```
-
-> **Note:** if you are running an ssh-agent and you have a relevant key
-> loaded you may not be asked for a password. `clojuressh` supports
-> authentication via ssh agent.
-
 ## Quickstart on clojure
 
 Here is a simple example that connects over ssh, runs a command, and
@@ -53,7 +47,7 @@ Make a `deps.edn` like:
 
 ```clojure
 {:paths ["src"]
- :deps {org.clojure/clojure {:mvn/version "1.11.1"}
+ :deps {org.clojure/clojure {:mvn/version "1.12.5"}
         io.epiccastle/clojuressh {:mvn/version "0.0.0-SNAPSHOT"}}}
 ```
 

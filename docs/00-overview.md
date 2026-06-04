@@ -1,45 +1,70 @@
 # Overview
 
-clojuressh is a Clojure library that provides ssh support to Clojure code. It is API compatible with [bbssh](https://github.com/epiccastle/bbssh).
+A Clojure library for SSH support, API compatible with [bbssh](https://github.com/epiccastle/bbssh).
 
-Project repository is [here](https://github.com/epiccastle/clojuressh)
+`clojuressh` is a port of the `bbssh` babashka pod into a native Clojure
+library. A local installation of `ssh` is **not required**.
 
-A local installation of ssh is **not required**.
+This library when loaded into babashka acts as a shim to the bbssh pod. Thus you can refer to this
+in your `bb-deps.edn` and use it like you would in clojure, allowing you to write one codebase that
+will run on both clojure and babashka. You can also refer to it in your clojure `deps.edn` or
+`project.clj` and use it the same way.
 
-## Installation
 
-Add clojuressh as a dependency in your `deps.edn`:
+## Coordinates
+
+### tools.deps
 
 ```clojure
 io.epiccastle/clojuressh {:mvn/version "0.7.0"}
 ```
 
-## Quickstart
-
-Try writing the following into `test_clojuressh.clj`
+### leiningen
 
 ```clojure
-(ns test-clojuressh
+[io.epiccastle/clojuressh "0.7.0"]
+```
+## Quickstart on clojure
+
+Here is a simple example that connects over ssh, runs a command, and
+disconnects, returning the standard output. Put this in `src/testssh/core.clj`:
+
+```clojure
+(ns testssh.core
   (:require [clojuressh.core :as clojuressh]
-            [clojuressh.session :as session))
+            [clojuressh.session :as session]))
 
-(let [session (clojuressh/ssh "localhost")]
-  (-> (clojuressh/exec session "echo 'I am running over ssh'" {:out :string})
-      deref
-      :out
-      prn)
-  (session/disconnect session))
+(defn -main []
+  (let [session (clojuressh/ssh "localhost")]
+    (-> (clojuressh/exec session "echo 'I am running remotely'" {:out :string})
+        deref
+        :out
+        prn)
+    (session/disconnect session)
+    (shutdown-agents)))
 ```
 
-Then execute the file with Clojure. You will be prompted for your ssh password. Enter it and press return:
+Make a `deps.edn` like:
 
-```bash-shell
-$ clojure -M test_clojuressh.clj
-Enter Password for crispin@localhost:
-"I am running over ssh\n"
+```clojure
+{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.5"}
+        io.epiccastle/clojuressh {:mvn/version "0.0.0-SNAPSHOT"}}}
 ```
 
-> **Note:** if you are running an ssh-agent and you have a relevant key you may not be asked for your password. clojuressh supports authentication by ssh agent.
+Run your mainline with:
+
+```
+clj -M -m testssh.core
+```
+
+## Running on babashka
+
+Using the same `src/testssh/core.clj` and `deps.edn` shown above, run your mainline with:
+
+```
+bb --config deps.edn -m testssh.core
+```
 
 ## Copyright
 
