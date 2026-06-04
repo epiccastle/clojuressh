@@ -187,7 +187,7 @@ Run `make help` to list all available targets.
 
 ## License
 
-Copyright (c) Crispin Wellington. All rights reserved.
+Copyright 2026 (c) Crispin Wellington. All rights reserved.
 
 Distributed under the Eclipse Public License version 2.0 which can be
 found in `LICENSE`.

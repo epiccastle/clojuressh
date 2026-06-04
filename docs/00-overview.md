@@ -68,7 +68,7 @@ bb --config deps.edn -m testssh.core
 
 ## Copyright
 
-Copyright (c) Crispin Wellington. All rights reserved.
+Copyright 2026 (c) Crispin Wellington. All rights reserved.
 
 The use and distribution terms for this software are covered by the
 Eclipse Public License 2.0 which can be found in `LICENSE`.
