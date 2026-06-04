@@ -1,5 +1,7 @@
 .PHONY: help test test-bb test-clojure jar install deploy clean repl run codox codox-upload
 
+VERSION = $(shell clojure -T:build version)
+
 help:
 	@echo "Available targets:"
 	@echo "  make test-clojure - Run the test suite under clojure"
@@ -42,7 +44,7 @@ repl:
 	rlwrap clojure
 
 codox:
-	clojure -X:codox
+	clojure -X:codox :version '"${VERSION}"'
 
 codox-upload:
-	rsync -av --delete target/docs/ www-data@epiccastle.io:~/epiccastle.io/public/clojuressh/$$(clojure -T:build version)
+	rsync -av --delete target/docs/ www-data@epiccastle.io:~/epiccastle.io/public/clojuressh/${VERSION}

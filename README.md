@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/epiccastle/bbssh/tree/main.svg?style=shield)](https://circleci.com/gh/epiccastle/clojuressh/tree/master)
 [![Babashka](https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg)](https://github.com/babashka/babashka)
-[![docs](https://img.shields.io/badge/website-docs-blue)](https://epiccastle.io/clojuressh/0.7.0-SNAPSHOT)
+[![docs](https://img.shields.io/badge/website-docs-blue)](https://epiccastle.io/clojuressh/0.7.0)
 
 A Clojure library for SSH support, API compatible with [bbssh](https://github.com/epiccastle/bbssh).
 
@@ -71,7 +71,7 @@ bb --config deps.edn -m testssh.core
 
 ## API documentation
 
-The full documentation [can be found here](https://epiccastle.io/clojuressh/0.7.0-SNAPSHOT).
+The full documentation [can be found here](https://epiccastle.io/clojuressh/0.7.0).
 
 See also the docs in the [`docs/`](docs) directory for an overview, basics,
 port forwarding, and how-to guides.
