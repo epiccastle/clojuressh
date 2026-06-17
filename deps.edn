@@ -1,7 +1,7 @@
 {:paths ["src" "resources"]
 
  :deps {org.clojure/clojure {:mvn/version "1.12.0"}
-        com.github.mwiede/jsch {:mvn/version "0.2.19"}
+        com.github.mwiede/jsch {:mvn/version "2.28.0"}
         net.java.dev.jna/jna {:mvn/version "5.14.0"}
         babashka/fs {:mvn/version "0.5.33"}
         }
