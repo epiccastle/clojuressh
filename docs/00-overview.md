@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/epiccastle/bbssh/tree/main.svg?style=shield)](https://circleci.com/gh/epiccastle/clojuressh/tree/master)
 [![Babashka](https://raw.githubusercontent.com/babashka/babashka/master/logo/badge.svg)](https://github.com/babashka/babashka)
-[![docs](https://img.shields.io/badge/website-docs-blue)](https://epiccastle.io/clojuressh/0.7.0)
+[![docs](https://img.shields.io/badge/website-docs-blue)](https://epiccastle.io/clojuressh/1.0.0)
 
 A Clojure library for SSH support, API compatible with [bbssh](https://github.com/epiccastle/bbssh).
 
@@ -20,13 +20,13 @@ will run on both clojure and babashka. You can also refer to it in your clojure 
 ### tools.deps
 
 ```clojure
-io.epiccastle/clojuressh {:mvn/version "0.7.0"}
+io.epiccastle/clojuressh {:mvn/version "1.0.0"}
 ```
 
 ### leiningen
 
 ```clojure
-[io.epiccastle/clojuressh "0.7.0"]
+[io.epiccastle/clojuressh "1.0.0"]
 ```
 ## Quickstart on clojure
 
@@ -53,7 +53,7 @@ Make a `deps.edn` like:
 ```clojure
 {:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.12.5"}
-        io.epiccastle/clojuressh {:mvn/version "0.7.0"}}}
+        io.epiccastle/clojuressh {:mvn/version "1.0.0"}}}
 ```
 
 Run your mainline with:
