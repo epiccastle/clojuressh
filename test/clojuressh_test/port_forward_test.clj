@@ -116,6 +116,7 @@
       (.close sock))
     (session/delete-port-forwarding-local session {:local-port 56780})
     (is (empty? (session/get-port-forwarding-local session)))
+    (Thread/sleep 200)
     (is (thrown? java.net.ConnectException (Socket. "localhost" 56780))))
 
   (docker/cleanup))
@@ -197,6 +198,7 @@
     (stop-unix-socket-server)
     (session/delete-port-forwarding-local session {:local-port 56780})
     (is (empty? (session/get-port-forwarding-local session)))
+    (Thread/sleep 200)
     (is (thrown? java.net.ConnectException (Socket. "localhost" 56780))))
 
   (docker/cleanup))
