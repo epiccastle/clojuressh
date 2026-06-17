@@ -1,7 +1,7 @@
-(ns clojuressh.output-stream
+(ns clojuressh.impl.output-stream
   (:refer-clojure :exclude [flush])
   (:require [clojuressh.impl.load-pod]
-            #?(:bb [pod.epiccastle.bbssh.output-stream :as output-stream]))
+            #?(:bb [pod.epiccastle.bbssh.impl.output-stream :as output-stream]))
   #?(:bb (:import)
      :clj (:import [java.io
                     PipedOutputStream PipedInputStream

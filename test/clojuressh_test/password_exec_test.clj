@@ -3,8 +3,8 @@
             [clojuressh.agent :as agent]
             [clojuressh.session :as session]
             [clojuressh.channel-exec :as channel-exec]
-            [clojuressh.input-stream :as input-stream]
-            [clojuressh.output-stream :as output-stream]
+            [clojuressh.impl.input-stream :as input-stream]
+            [clojuressh.impl.output-stream :as output-stream]
             [babashka.process :as process]
             [clojuressh-test.docker :as docker]
             [clojure.test :refer [is deftest]]
@@ -40,14 +40,14 @@
             ]
         (channel-exec/set-command channel "id")
         (channel-exec/set-input-stream channel input-stream false)
-        (input-stream/close input-stream)
+        (.close input-stream)
 
         (channel-exec/set-output-stream channel out-stream)
         (channel-exec/set-error-stream channel err-stream)
 
         (channel-exec/connect channel)
         (let [buff (byte-array 1024)
-              num (input-stream/read out-in buff 0 1024)
+              num (.read out-in buff 0 1024)
               result (-> (java.util.Arrays/copyOfRange buff 0 num)
                          (String. "UTF-8")
                          )]
@@ -133,8 +133,8 @@
           (clojuressh/exec
            session "cat"
            {:in in-stream})]
-      (output-stream/write in-output-stream (byte-array (range 128)))
-      (output-stream/close in-output-stream)
+      (.write in-output-stream (byte-array (range 128)))
+      (.close in-output-stream)
       (let [buff (byte-array 256)]
         (is (= 128 (.read out buff 0 256)))
         (is (-> (java.util.Arrays/copyOfRange buff 0 128)

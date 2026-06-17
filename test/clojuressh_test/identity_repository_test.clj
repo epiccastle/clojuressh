@@ -2,8 +2,8 @@
   (:require [clojuressh.agent :as agent]
             [clojuressh.session :as session]
             [clojuressh.channel-exec :as channel-exec]
-            [clojuressh.input-stream :as input-stream]
-            [clojuressh.output-stream :as output-stream]
+            [clojuressh.impl.input-stream :as input-stream]
+            [clojuressh.impl.output-stream :as output-stream]
             [clojuressh.key-pair :as key-pair]
             [clojuressh.identity :as identity]
             [clojuressh.identity-repository :as identity-repository]
@@ -30,14 +30,14 @@
         ]
     (channel-exec/set-command channel "id")
     (channel-exec/set-input-stream channel input-stream false)
-    (input-stream/close input-stream)
+    (.close input-stream)
 
     (channel-exec/set-output-stream channel out-stream)
     (channel-exec/set-error-stream channel err-stream)
 
     (channel-exec/connect channel)
     (let [buff (byte-array 1024)
-          num (input-stream/read out-in buff 0 1024)
+          num (.read out-in buff 0 1024)
           result (-> (java.util.Arrays/copyOfRange buff 0 num)
                      (String. "UTF-8")
                      )]
