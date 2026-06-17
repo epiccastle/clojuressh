@@ -30,14 +30,14 @@
         ]
     (channel-exec/set-command channel "id")
     (channel-exec/set-input-stream channel input-stream false)
-    (.close input-stream)
+    (input-stream/close input-stream)
 
     (channel-exec/set-output-stream channel out-stream)
     (channel-exec/set-error-stream channel err-stream)
 
     (channel-exec/connect channel)
     (let [buff (byte-array 1024)
-          num (.read out-in buff 0 1024)
+          num (input-stream/read out-in buff 0 1024)
           result (-> (java.util.Arrays/copyOfRange buff 0 num)
                      (String. "UTF-8")
                      )]
